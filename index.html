@@ -290,10 +290,159 @@
     .checkbox-group label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.92em; color: var(--warm); font-weight: 400; }
     .checkbox-group input[type=checkbox] { accent-color: var(--teal); }
 
+    /* ── 768px: two-column to single column ── */
+    @media (max-width: 768px) {
+      #main-app { flex-direction: column; height: auto; overflow: visible; }
+      .left-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+      .right-panel { overflow-y: visible; }
+      #settings-panel { width: 100%; max-width: 100%; }
+      .detail-sections > div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+    }
+
+    /* ── 700px (legacy breakpoint, kept for specificity) ── */
     @media (max-width: 700px) {
-      #main-app { flex-direction: column; height: auto; }
-      .left-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); max-height: 50vh; }
-      #settings-panel { width: 100%; }
+      .left-panel { max-height: 50vh; }
+    }
+
+    /* ── 600px: job list scrollable, panels stack ── */
+    @media (max-width: 600px) {
+      .jobs-list { overflow-y: auto; max-height: 40vh; }
+      .left-panel { max-height: none; }
+      .score-bars { grid-template-columns: 1fr 1fr; }
+      .tracker-row { flex-direction: column; }
+      .tracker-row .field-group { min-width: 0; width: 100%; }
+      .detail-header { flex-direction: column; gap: 12px; }
+      .btn-close-detail { align-self: flex-start; }
+    }
+
+    /* ── Phase 9 additions ── */
+
+    /* Job Market Insights panel */
+    .market-insights-panel {
+      background: var(--card);
+      border: 1px solid var(--teal);
+      border-left: 4px solid var(--teal);
+      border-radius: 10px;
+      margin-top: 28px;
+      overflow: hidden;
+    }
+    .market-insights-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+    }
+    .market-insights-summary::-webkit-details-marker { display: none; }
+    .market-insights-summary .mi-title {
+      font-size: 0.88em;
+      font-weight: 700;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .market-insights-summary .mi-title::before {
+      content: '📊';
+      font-size: 1em;
+    }
+    .market-insights-summary .mi-toggle {
+      font-size: 0.75em;
+      color: var(--muted);
+    }
+    details.market-insights-panel[open] .mi-toggle::after { content: '▲'; }
+    details.market-insights-panel:not([open]) .mi-toggle::after { content: '▼'; }
+    .market-insights-body {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 10px;
+    }
+    .mi-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.88em;
+      line-height: 1.5;
+    }
+    .mi-label {
+      color: var(--muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-width: 140px;
+      font-size: 0.82em;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .mi-value { color: var(--warm); font-weight: 500; }
+    .mi-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .mi-tag {
+      background: rgba(0,201,167,0.1);
+      color: var(--teal);
+      border-radius: 20px;
+      padding: 2px 9px;
+      font-size: 0.82em;
+    }
+    .mi-source {
+      font-size: 0.76em;
+      color: var(--muted);
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+      font-style: italic;
+    }
+    @media (max-width: 600px) {
+      .market-insights-body { grid-template-columns: 1fr; }
+      .mi-label { min-width: 0; width: 100%; margin-bottom: 2px; }
+      .mi-row { flex-direction: column; gap: 2px; }
+    }
+
+    /* Cover Letter Templates section */
+    .cover-letter-section {
+      margin-top: 28px;
+    }
+    .cover-letter-section h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1em;
+      margin-bottom: 6px;
+      color: var(--warm);
+    }
+    .cover-letter-section p.sub {
+      color: var(--muted);
+      font-size: 0.88em;
+      margin-bottom: 14px;
+    }
+    .cover-letter-section .field-group { margin-bottom: 12px; }
+    .cl-textarea {
+      width: 100%;
+      height: 320px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      color: var(--warm);
+      resize: vertical;
+      font-size: 0.88em;
+      line-height: 1.6;
+      font-family: inherit;
+    }
+    .cl-textarea:focus { outline: none; border-color: var(--teal); }
+    .cl-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .btn-copy-cl {
+      background: none;
+      border: 1px solid var(--teal);
+      color: var(--teal);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.88em;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-copy-cl:hover { background: var(--teal); color: #0F1B2D; }
+    @media (max-width: 600px) {
+      .cl-textarea { height: 240px; font-size: 16px; }
     }
 
     /* ── Phase 10 additions ── */
@@ -310,9 +459,19 @@
       .score-bars { grid-template-columns: 1fr 1fr; }
       .detail-sections > div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
     }
+    /* ── 375px: no horizontal scroll, all text readable ── */
     @media (max-width: 380px) {
+      body { overflow-x: hidden; }
       .score-bars { grid-template-columns: 1fr; }
       .field-row { grid-template-columns: 1fr; }
+      .onboard-card { padding: 20px; }
+      .wizard-nav { flex-direction: column; gap: 8px; }
+      .wizard-nav button { width: 100%; }
+      .mi-label { font-size: 0.78em; }
+      .app-header { padding: 10px 12px; }
+      .app-logo { font-size: 1.15em; }
+      .right-panel { padding: 12px; }
+      .add-job-panel h2 { font-size: 1.2em; }
     }
 
     /* Ensure textarea is full-width on mobile generally */
@@ -779,6 +938,7 @@
     <div class="jobs-list" id="jobsList"></div>
     <div class="left-footer">
       <button class="btn-export" onclick="exportCSV()" data-en="↓ Export CSV" data-fr="↓ Exporter CSV">↓ Export CSV</button>
+      <button class="btn-export" onclick="exportApplicationsReport()" style="margin-top:6px;" data-en="↓ Export Application Report" data-fr="↓ Exporter le rapport de candidatures">↓ Export Application Report</button>
     </div>
   </div>
 
@@ -825,6 +985,66 @@
       <div class="history-section hidden" id="historySection">
         <h3>Recent Analyses</h3>
         <div class="history-list" id="historyList"></div>
+      </div>
+
+      <!-- Job Market Insights (9A) -->
+      <details class="market-insights-panel" id="marketInsightsPanel">
+        <summary class="market-insights-summary">
+          <span class="mi-title" data-en="Job Market Insights — Canada, March 2026" data-fr="Aperçu du marché de l'emploi — Canada, mars 2026">Job Market Insights — Canada, March 2026</span>
+          <span class="mi-toggle"></span>
+        </summary>
+        <div class="market-insights-body">
+          <div class="mi-row">
+            <span class="mi-label" data-en="Avg. Time to Hire" data-fr="Délai moyen d'embauche">Avg. Time to Hire</span>
+            <span class="mi-value" data-en="28 days" data-fr="28 jours">28 days</span>
+          </div>
+          <div class="mi-row">
+            <span class="mi-label" data-en="Top In-Demand Skills" data-fr="Compétences les plus recherchées">Top In-Demand Skills</span>
+            <div class="mi-tags">
+              <span class="mi-tag" data-en="AI Literacy" data-fr="Maîtrise de l'IA">AI Literacy</span>
+              <span class="mi-tag" data-en="Project Management" data-fr="Gestion de projet">Project Management</span>
+              <span class="mi-tag" data-en="Data Analysis" data-fr="Analyse de données">Data Analysis</span>
+              <span class="mi-tag" data-en="Bilingualism" data-fr="Bilinguisme">Bilingualism</span>
+            </div>
+          </div>
+          <div class="mi-row">
+            <span class="mi-label" data-en="Sectors Hiring Actively" data-fr="Secteurs en forte embauche">Sectors Hiring Actively</span>
+            <div class="mi-tags">
+              <span class="mi-tag" data-en="Healthcare" data-fr="Santé">Healthcare</span>
+              <span class="mi-tag" data-en="Clean Energy" data-fr="Énergie propre">Clean Energy</span>
+              <span class="mi-tag" data-en="Financial Services" data-fr="Services financiers">Financial Services</span>
+              <span class="mi-tag" data-en="Technology" data-fr="Technologie">Technology</span>
+            </div>
+          </div>
+          <div class="mi-row">
+            <span class="mi-label" data-en="Remote / Hybrid Roles" data-fr="Postes à distance / hybrides">Remote / Hybrid Roles</span>
+            <span class="mi-value" data-en="~35% of professional roles offer hybrid work" data-fr="~35 % des postes professionnels offrent un mode hybride">~35% of professional roles offer hybrid work</span>
+          </div>
+          <div class="mi-source" data-en="Source: Two Birds Innovation market summary, March 2026" data-fr="Source : Résumé du marché Two Birds Innovation, mars 2026">Source: Two Birds Innovation market summary, March 2026</div>
+        </div>
+      </details>
+
+      <!-- Cover Letter Templates (9C) -->
+      <div class="cover-letter-section" id="coverLetterSection">
+        <h3 data-en="Cover Letter Templates" data-fr="Modèles de lettre de présentation">Cover Letter Templates</h3>
+        <p class="sub" data-en="Choose a template, personalise it, then copy to your clipboard." data-fr="Choisissez un modèle, personnalisez-le, puis copiez dans le presse-papiers.">Choose a template, personalise it, then copy to your clipboard.</p>
+        <div class="field-group">
+          <label data-en="Select Template" data-fr="Choisir un modèle">Select Template</label>
+          <select id="clTemplateSelect" onchange="loadCoverLetterTemplate()">
+            <option value="" data-en="— Choose a template —" data-fr="— Choisir un modèle —">— Choose a template —</option>
+            <option value="standard" data-en="1. Standard Professional Application" data-fr="1. Candidature professionnelle standard">1. Standard Professional Application</option>
+            <option value="career-change" data-en="2. Career Change (Transferable Skills Focus)" data-fr="2. Réorientation professionnelle (compétences transférables)">2. Career Change (Transferable Skills Focus)</option>
+            <option value="return" data-en="3. Return to Workforce" data-fr="3. Retour sur le marché du travail">3. Return to Workforce</option>
+            <option value="internal" data-en="4. Internal Promotion" data-fr="4. Promotion interne">4. Internal Promotion</option>
+            <option value="startup" data-en="5. Startup / Small Company (Personal Tone)" data-fr="5. Démarrage / petite entreprise (ton personnel)">5. Startup / Small Company (Personal Tone)</option>
+          </select>
+        </div>
+        <div id="clTemplateArea" class="hidden">
+          <textarea class="cl-textarea" id="clTextarea" spellcheck="true"></textarea>
+          <div class="cl-actions">
+            <button class="btn-copy-cl" onclick="copyCoverLetter()" data-en="Copy to clipboard" data-fr="Copier dans le presse-papiers">Copy to clipboard</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="job-detail hidden" id="jobDetailPanel"></div>
@@ -1648,6 +1868,230 @@ function toggleLang() {
   currentLang = currentLang === 'en' ? 'fr' : 'en';
   localStorage.setItem('cc_lang', currentLang);
   applyLang();
+}
+
+// ── Phase 9B: Export Applications Report ──
+function exportApplicationsReport() {
+  const isFr = currentLang === 'fr';
+  const userName = (profile && profile.name) ? profile.name : '';
+  const today = new Date().toLocaleDateString(isFr ? 'fr-CA' : 'en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const title = isFr
+    ? `Rapport de candidatures${userName ? ' — ' + userName : ''} — ${today}`
+    : `Job Application Report${userName ? ' — ' + userName : ''} — ${today}`;
+
+  const headers = isFr
+    ? ['Entreprise', 'Poste', 'Date ajoutée', 'Statut', 'Score', 'ATS', 'Adéquation', 'Correspondance salariale', 'Risque IA', 'Recommandation', 'Notes']
+    : ['Company', 'Role', 'Date Added', 'Status', 'Score', 'ATS', 'Fit', 'Salary Match', 'AI Risk', 'Recommendation', 'Notes'];
+
+  const rows = jobs.map(j => [
+    j.analysis?.company || '—',
+    j.analysis?.job_title || '—',
+    j.addedAt?.split('T')[0] || '—',
+    j.status || '—',
+    j.compositeScore || 0,
+    j.analysis?.ats_score || '—',
+    j.analysis?.overall_fit || '—',
+    j.analysis?.salary_match || '—',
+    j.analysis?.ai_risk_rating || '—',
+    j.analysis?.application_recommendation || '—',
+    (j.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  ]);
+
+  const scoreColour = score => {
+    if (typeof score !== 'number') return '#666';
+    return score >= 70 ? '#2ECC71' : score >= 45 ? '#F39C12' : '#E74C3C';
+  };
+
+  const footer = isFr
+    ? 'Généré par Career Coach — Two Birds Innovation'
+    : 'Generated by Career Coach — Two Birds Innovation';
+
+  const tableRows = rows.map(r => `
+    <tr>
+      <td>${r[0]}</td>
+      <td>${r[1]}</td>
+      <td>${r[2]}</td>
+      <td>${r[3]}</td>
+      <td style="color:${scoreColour(r[4])};font-weight:700;text-align:center">${r[4]}</td>
+      <td style="text-align:center">${r[5]}</td>
+      <td style="text-align:center">${r[6]}</td>
+      <td>${r[7]}</td>
+      <td>${r[8]}</td>
+      <td>${r[9]}</td>
+      <td style="font-size:0.85em;color:#555">${r[10]}</td>
+    </tr>`).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="${isFr ? 'fr' : 'en'}">
+<head>
+<meta charset="UTF-8">
+<title>${title}</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #111; background: #fff; margin: 0; padding: 32px; }
+  h1 { font-size: 1.3em; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 0.9em; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
+  th { background: #0F1B2D; color: #fff; padding: 9px 10px; text-align: left; font-weight: 600; }
+  td { padding: 8px 10px; border-bottom: 1px solid #e5e5e5; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  .footer { margin-top: 32px; font-size: 0.78em; color: #999; text-align: center; border-top: 1px solid #e5e5e5; padding-top: 14px; }
+  @media print {
+    body { padding: 16px; }
+    button { display: none; }
+  }
+</style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <div class="sub">${jobs.length} ${isFr ? 'offres suivies' : 'applications tracked'}</div>
+  ${jobs.length ? `<table>
+    <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${tableRows}</tbody>
+  </table>` : `<p style="color:#999">${isFr ? 'Aucune offre enregistrée.' : 'No jobs tracked yet.'}</p>`}
+  <div class="footer">${footer}</div>
+  <br><button onclick="window.print()" style="padding:8px 18px;background:#0F1B2D;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.9em;">${isFr ? 'Imprimer' : 'Print'}</button>
+</body>
+</html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+// ── Phase 9C: Cover Letter Templates ──
+const COVER_LETTER_TEMPLATES = {
+  standard: `[YOUR NAME]
+[Your City, Province] | [your.email@example.com] | [Phone Number]
+[Today's Date]
+
+Hiring Manager
+[COMPANY]
+[Company Address]
+
+Dear Hiring Manager,
+
+I am writing to express my strong interest in the [ROLE] position at [COMPANY]. With [X years] of experience in [your field], I have developed a track record of [key achievement — e.g., leading cross-functional teams, delivering projects on time and under budget, growing client accounts]. I am confident that my background aligns closely with the requirements you have outlined, and I am excited by the opportunity to contribute to [COMPANY]'s mission.
+
+In my most recent role as [Your Current/Last Title] at [Previous Company], I [describe a specific, measurable achievement — e.g., "led a team of six to redesign a client onboarding process, reducing time-to-activation by 40% and improving customer satisfaction scores by 18 points"]. I bring strong skills in [Skill 1], [Skill 2], and [Skill 3], and I am known for [a quality — e.g., clear communication, calm under pressure, collaborative problem-solving]. I am particularly drawn to [COMPANY] because of [specific reason — e.g., your commitment to sustainability, your reputation for innovation, your work in the healthcare sector].
+
+I would welcome the opportunity to discuss how my experience can add value to your team. Thank you for your time and consideration. I look forward to hearing from you.
+
+Sincerely,
+[YOUR NAME]`,
+
+  'career-change': `[YOUR NAME]
+[Your City, Province] | [your.email@example.com] | [Phone Number]
+[Today's Date]
+
+Hiring Manager
+[COMPANY]
+[Company Address]
+
+Dear Hiring Manager,
+
+Although my career path has taken a different route than a traditional candidate for the [ROLE] at [COMPANY], I believe my transferable skills and genuine enthusiasm for this field make me a compelling fit. I am making a deliberate transition from [Previous Field] to [New Field], and I am bringing with me a set of capabilities that are directly applicable to the work your team does.
+
+During my time in [Previous Field], I developed strong expertise in [Transferable Skill 1 — e.g., project coordination, stakeholder communication, data analysis, process improvement]. For example, [describe a specific achievement that maps to the new role — e.g., "I managed a portfolio of 12 accounts and coordinated deliverables across three departments, which mirrors the cross-functional coordination required in this role"]. I have also invested in building skills specific to this transition, including [relevant courses, certifications, or self-directed learning].
+
+I understand that a career change requires some leap of faith on your part, and I appreciate that. I am eager to prove myself quickly, and I am prepared to do the work to close any knowledge gaps. I would love the chance to speak with you about how my background can serve [COMPANY] in new and unexpected ways. Thank you for your consideration.
+
+Sincerely,
+[YOUR NAME]`,
+
+  return: `[YOUR NAME]
+[Your City, Province] | [your.email@example.com] | [Phone Number]
+[Today's Date]
+
+Hiring Manager
+[COMPANY]
+[Company Address]
+
+Dear Hiring Manager,
+
+I am writing to apply for the [ROLE] position at [COMPANY]. After a period away from the workforce to [brief, neutral explanation — e.g., care for a family member, focus on personal health, pursue education], I am ready to re-enter the professional world with renewed focus and a strong desire to contribute. My earlier career in [Your Field] gave me a solid foundation, and I have spent time during my break keeping my skills current and preparing for this return.
+
+Before my career break, I held positions where I [describe relevant responsibilities and achievements — e.g., "managed a team of eight and consistently exceeded quarterly targets"]. My core strengths include [Skill 1], [Skill 2], and [Skill 3], all of which remain highly relevant to the [ROLE]. During my time away, I also [briefly mention any relevant activity — e.g., completed an online certification in data analysis, volunteered as a project coordinator for a local non-profit, or kept current by following industry developments].
+
+I am committed, reliable, and genuinely excited to bring my experience to [COMPANY]. I welcome the opportunity to speak with you and address any questions about my time away from the workforce. Thank you for considering my application.
+
+Sincerely,
+[YOUR NAME]`,
+
+  internal: `[YOUR NAME]
+[Current Title] | [Department]
+[Today's Date]
+
+[Manager's Name]
+[COMPANY]
+
+Dear [Manager's Name],
+
+I am writing to formally express my interest in the [ROLE] position that has recently become available within [COMPANY]. Having been a member of this organisation for [X years], I have had the privilege of building deep institutional knowledge, strong relationships across teams, and a clear understanding of our strategic priorities — all of which I believe make me well-positioned to succeed in this role.
+
+In my current position as [Your Current Title], I have [describe key achievements and responsibilities — e.g., "consistently delivered projects ahead of schedule, mentored two junior team members who have since been promoted, and played a central role in the launch of our new client portal"]. I have also taken on additional responsibilities, such as [specific example — e.g., leading quarterly planning sessions in my manager's absence], which has given me direct experience with the scope of the [ROLE]. I am ready to take on expanded leadership and accountability, and I am eager to grow within the organisation I already believe in.
+
+I appreciate your consideration and would welcome the chance to discuss my candidacy in more detail. Thank you for this opportunity.
+
+Sincerely,
+[YOUR NAME]`,
+
+  startup: `[YOUR NAME]
+[Your City, Province] | [your.email@example.com] | [Phone Number]
+[Today's Date]
+
+[Founder's Name or Hiring Manager]
+[COMPANY]
+
+Hi [First Name],
+
+I came across the [ROLE] opening at [COMPANY] and it immediately caught my attention — not just because of the role itself, but because of what [COMPANY] is building. [One sentence about why the company genuinely excites you — e.g., "The way you're approaching [problem] is exactly the kind of creative, mission-driven work I want to be part of."]
+
+I bring [X years] of experience in [relevant area], including [a specific, concrete achievement — e.g., "building a customer success function from scratch that scaled to 3,000 users in eight months"]. I thrive in environments where things move fast, where I have to wear multiple hats, and where my work has a visible impact on the company's direction. I am comfortable with ambiguity and I am the kind of person who figures things out rather than waiting for a playbook.
+
+I would love to chat — even just a 20-minute call to learn more about where you're headed and see if there's a fit. Thanks for taking the time to read this.
+
+[YOUR NAME]`
+};
+
+function loadCoverLetterTemplate() {
+  const select = document.getElementById('clTemplateSelect');
+  const area = document.getElementById('clTemplateArea');
+  const textarea = document.getElementById('clTextarea');
+  const key = select.value;
+
+  if (!key) {
+    area.classList.add('hidden');
+    return;
+  }
+
+  let text = COVER_LETTER_TEMPLATES[key] || '';
+
+  // Pre-fill [YOUR NAME] if profile name is set
+  if (profile && profile.name) {
+    text = text.replace(/\[YOUR NAME\]/g, profile.name);
+  }
+
+  textarea.value = text;
+  area.classList.remove('hidden');
+  textarea.focus();
+}
+
+function copyCoverLetter() {
+  const textarea = document.getElementById('clTextarea');
+  if (!textarea) return;
+  navigator.clipboard.writeText(textarea.value).then(() => {
+    const btn = document.querySelector('.btn-copy-cl');
+    const isFr = currentLang === 'fr';
+    btn.textContent = isFr ? 'Copié !' : 'Copied!';
+    setTimeout(() => {
+      btn.textContent = isFr ? 'Copier dans le presse-papiers' : 'Copy to clipboard';
+    }, 2000);
+  }).catch(() => {
+    textarea.select();
+    document.execCommand('copy');
+  });
 }
 
 // ── Boot ──
