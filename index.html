@@ -295,6 +295,185 @@
       .left-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); max-height: 50vh; }
       #settings-panel { width: 100%; }
     }
+
+    /* ── Phase 10 additions ── */
+
+    /* Mobile polish */
+    @media (max-width: 480px) {
+      .right-panel { padding: 14px; }
+      .add-job-panel { max-width: 100%; }
+      .job-textarea { width: 100%; font-size: 16px; }
+      .field-group input, .field-group select, .field-group textarea { font-size: 16px; }
+      .analyse-btn { min-height: 44px; font-size: 1em; }
+      .btn-primary, .btn-secondary { min-height: 44px; }
+      .filter-btn { min-height: 36px; padding: 6px 12px; }
+      .score-bars { grid-template-columns: 1fr 1fr; }
+      .detail-sections > div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 380px) {
+      .score-bars { grid-template-columns: 1fr; }
+      .field-row { grid-template-columns: 1fr; }
+    }
+
+    /* Ensure textarea is full-width on mobile generally */
+    .job-textarea { font-size: 16px; }
+
+    /* Demo card */
+    .demo-card {
+      background: linear-gradient(135deg, rgba(0,201,167,0.06), rgba(244,162,97,0.06));
+      border: 1px dashed var(--teal);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .demo-card-label {
+      display: inline-block;
+      background: var(--teal);
+      color: #0F1B2D;
+      font-size: 0.72em;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+    .demo-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2em;
+      margin-bottom: 4px;
+      color: var(--warm);
+    }
+    .demo-card .demo-sub {
+      color: var(--muted);
+      font-size: 0.85em;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .demo-score-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .demo-score-chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      text-align: center;
+      min-width: 80px;
+    }
+    .demo-score-chip .dsc-label { font-size: 0.72em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .demo-score-chip .dsc-value { font-size: 1.3em; font-weight: 700; margin-top: 2px; }
+    .demo-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .btn-try-demo {
+      background: none;
+      border: 1px solid var(--teal);
+      color: var(--teal);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.92em;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      min-height: 44px;
+    }
+    .btn-try-demo:hover { background: var(--teal); color: #0F1B2D; }
+
+    /* Textarea row with Try Demo button */
+    .textarea-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .textarea-actions .hint {
+      font-size: 0.78em;
+      color: var(--muted);
+    }
+
+    /* History section */
+    .history-section {
+      max-width: 700px;
+      margin: 32px auto 0;
+      padding: 0 0 40px;
+    }
+    .history-section h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1em;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.82em;
+      margin-bottom: 10px;
+    }
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .history-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      gap: 12px;
+    }
+    .history-item:hover { border-color: var(--teal); }
+    .history-item-title {
+      font-size: 0.9em;
+      font-weight: 600;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .history-item-meta {
+      font-size: 0.78em;
+      color: var(--muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .history-score {
+      font-size: 0.82em;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    .history-score-high { background: rgba(46,204,113,0.15); color: var(--green); }
+    .history-score-mid  { background: rgba(243,156,18,0.15); color: var(--yellow); }
+    .history-score-low  { background: rgba(231,76,60,0.1); color: var(--red); }
+    .history-score-none { background: rgba(138,160,184,0.1); color: var(--muted); }
+
+    /* Keyboard shortcuts panel */
+    #kbd-help-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: flex; align-items: center; justify-content: center;
+    }
+    #kbd-help-panel {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 32px; max-width: 400px; width: 90%;
+    }
+    #kbd-help-panel h2 { font-family: 'DM Serif Display', serif; font-size: 1.3em; margin-bottom: 18px; }
+    .kbd-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .kbd-row:last-child { border-bottom: none; }
+    .kbd-row .kbd-desc { font-size: 0.9em; color: var(--muted); }
+    .kbd-key {
+      display: inline-block; background: #0F1B2D; border: 1px solid var(--border); border-radius: 5px;
+      padding: 2px 8px; font-size: 0.82em; font-family: monospace; color: var(--warm); white-space: nowrap;
+    }
+    #kbd-close-btn { margin-top: 18px; display: block; width: 100%; background: none; border: 1px solid var(--border); color: var(--muted); padding: 10px; border-radius: 8px; cursor: pointer; min-height: 44px; }
+    #kbd-close-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* Shortcut hint in UI */
+    .kbd-hint { font-size: 0.75em; color: var(--muted); opacity: 0.8; margin-left: 8px; }
   </style>
 </head>
 <body>
@@ -608,11 +787,59 @@
     <div class="add-job-panel" id="addJobPanel">
       <h2 data-en="Add a Job" data-fr="Ajouter une offre">Add a Job</h2>
       <p>Paste a full job posting to analyse it against your profile. The AI will score the match, flag risks, and suggest CV tweaks.</p>
+      <div class="textarea-actions">
+        <span class="hint">Press <kbd class="kbd-key">?</kbd> for keyboard shortcuts</span>
+        <button class="btn-try-demo" onclick="tryDemo()" title="Fill with a sample posting to see what an analysis looks like">✦ Try Demo</button>
+      </div>
       <textarea class="job-textarea" id="jobInput" placeholder="Paste job posting text here — include the full description for the best analysis"></textarea>
       <button class="analyse-btn" id="analyseBtn" onclick="analyseJob()" data-en="Analyse this job" data-fr="Analyser cette offre">Analyse this job</button>
       <div class="analysis-status" id="analysisStatus"></div>
+
+      <!-- Demo card — shown when textarea is empty and no history -->
+      <div class="demo-card hidden" id="demoCard">
+        <div class="demo-card-label">Demo Result</div>
+        <h3>Senior Product Manager — Acme Health Tech</h3>
+        <p class="demo-sub">This is what a Career Coach analysis looks like. The AI scores your CV against the job description, flags gaps and strengths, and tells you exactly how to apply.</p>
+        <div class="demo-score-row">
+          <div class="demo-score-chip"><div class="dsc-label">Composite</div><div class="dsc-value" style="color:#2ECC71">78</div></div>
+          <div class="demo-score-chip"><div class="dsc-label">ATS Match</div><div class="dsc-value" style="color:#00C9A7">82</div></div>
+          <div class="demo-score-chip"><div class="dsc-label">Overall Fit</div><div class="dsc-value" style="color:#9B59B6">74</div></div>
+          <div class="demo-score-chip"><div class="dsc-label">Salary</div><div class="dsc-value" style="font-size:0.9em;color:#F39C12">At Target</div></div>
+        </div>
+        <div class="demo-tags">
+          <span class="tag">Agile / Scrum</span>
+          <span class="tag">Stakeholder management</span>
+          <span class="tag">Data-driven</span>
+          <span class="tag">Patient-centred design</span>
+          <span class="tag">Regulated environment</span>
+        </div>
+        <p style="font-size:0.82em;color:var(--muted);margin-bottom:10px;line-height:1.5">
+          <strong style="color:var(--green)">Strengths:</strong> 7 years PM experience, healthcare domain knowledge, strong metrics track record.<br>
+          <strong style="color:var(--red)">Gaps:</strong> No HL7/FHIR experience listed, missing formal PMP certification.
+        </p>
+        <p style="font-size:0.82em;color:var(--teal);margin-bottom:14px">Recommendation: <strong>Apply with a customised CV</strong></p>
+        <button class="btn-try-demo" onclick="tryDemo()">Fill in sample job &amp; run your own analysis →</button>
+      </div>
+
+      <!-- Recent analyses history -->
+      <div class="history-section hidden" id="historySection">
+        <h3>Recent Analyses</h3>
+        <div class="history-list" id="historyList"></div>
+      </div>
     </div>
     <div class="job-detail hidden" id="jobDetailPanel"></div>
+  </div>
+</div>
+
+<!-- Keyboard shortcuts help overlay -->
+<div id="kbd-help-overlay" class="hidden" onclick="closeKbdHelp(event)">
+  <div id="kbd-help-panel">
+    <h2>Keyboard Shortcuts</h2>
+    <div class="kbd-row"><span class="kbd-desc">New analysis (focus textarea)</span><span><kbd class="kbd-key">N</kbd> or <kbd class="kbd-key">Enter</kbd></span></div>
+    <div class="kbd-row"><span class="kbd-desc">Clear textarea &amp; results</span><span><kbd class="kbd-key">Escape</kbd></span></div>
+    <div class="kbd-row"><span class="kbd-desc">Run analysis</span><span><kbd class="kbd-key">Ctrl</kbd> + <kbd class="kbd-key">Enter</kbd></span></div>
+    <div class="kbd-row"><span class="kbd-desc">Show this help panel</span><span><kbd class="kbd-key">?</kbd></span></div>
+    <button id="kbd-close-btn" onclick="closeKbdHelp()">Close</button>
   </div>
 </div>
 
@@ -641,6 +868,15 @@ function init() {
 
   document.getElementById('settingsBtn').onclick = openSettings;
   document.getElementById('settingsOverlay').onclick = closeSettings;
+
+  // Demo card / history — hook textarea input event
+  const jobInput = document.getElementById('jobInput');
+  if (jobInput) {
+    jobInput.addEventListener('input', updateDemoCardVisibility);
+  }
+
+  // Initial demo card visibility
+  updateDemoCardVisibility();
 
   applyLang();
 }
@@ -861,8 +1097,11 @@ async function analyseJob() {
     jobs.unshift(job);
     saveJobs();
     renderJobList();
+    // Save to analysis history
+    saveToHistory(jobText, analysis, job.compositeScore);
     document.getElementById('jobInput').value = '';
     setStatus('');
+    updateDemoCardVisibility();
     // gtag('event', 'analysis_complete', { score: job.compositeScore });
     openJobDetail(job.id);
 
@@ -1012,6 +1251,7 @@ function closeJobDetail() {
   document.getElementById('addJobPanel').classList.remove('hidden');
   document.getElementById('jobDetailPanel').classList.add('hidden');
   renderJobList();
+  updateDemoCardVisibility();
 }
 
 function filterSuggestions() {
@@ -1195,6 +1435,203 @@ function startVoice(btn, targetId) {
   rec.onerror = function() { btn.classList.remove('recording'); };
   rec.onend = function() { btn.classList.remove('recording'); };
 }
+
+// ── Phase 10: Demo card, Keyboard shortcuts, History, Mobile polish ──
+
+// ── Demo job posting (sample) ──
+const DEMO_JOB = `Senior Product Manager — Acme Health Tech
+Location: Toronto, ON (Hybrid — 2 days/week in office)
+Salary: $110,000–$130,000 CAD + bonus + RRSP matching
+
+About the Role:
+Acme Health Tech is a fast-growing digital health company building software for primary care clinics across Canada. We're looking for an experienced Senior Product Manager to lead our patient-facing mobile product.
+
+You'll work cross-functionally with engineering, design, clinical advisors, and external clinic partners to define and deliver features that improve patient outcomes.
+
+Responsibilities:
+- Own the product roadmap for our patient engagement platform (iOS + Android)
+- Lead discovery, prioritisation, and delivery across 2 squads
+- Define success metrics and run regular A/B tests and user research
+- Collaborate with regulatory and clinical teams to ensure compliance with provincial health data requirements
+- Present quarterly roadmap reviews to the executive team
+- Mentor junior PMs on the team
+
+Requirements:
+- 5+ years of product management experience in a software company
+- Experience in healthcare, health-tech, or regulated industries preferred
+- Strong data analysis skills — comfortable with SQL and product analytics tools (Mixpanel, Amplitude)
+- Track record of shipping mobile products used by 10,000+ users
+- Excellent communication skills with both technical and non-technical stakeholders
+- PMP or similar certification is a strong asset
+
+Nice to Have:
+- Experience with HL7/FHIR healthcare data standards
+- French language skills
+- Background in UX research
+
+Why Join Us:
+- Mission-driven company improving healthcare access for Canadians
+- Flexible hybrid work with a collaborative, psychologically safe culture
+- Comprehensive health benefits + 4 weeks vacation
+- Annual learning budget of $2,000
+
+Apply by sending your CV and a brief cover letter to careers@acmehealthtech.ca`;
+
+// ── Try Demo ──
+function tryDemo() {
+  const textarea = document.getElementById('jobInput');
+  if (!textarea) return;
+  textarea.value = DEMO_JOB;
+  textarea.focus();
+  updateDemoCardVisibility();
+  setStatus('Sample job loaded — click "Analyse this job" to see a real analysis.', false);
+}
+
+// ── Demo card visibility ──
+function updateDemoCardVisibility() {
+  const textarea = document.getElementById('jobInput');
+  const demoCard = document.getElementById('demoCard');
+  const historySection = document.getElementById('historySection');
+  if (!textarea || !demoCard) return;
+
+  const isEmpty = !textarea.value.trim();
+  const history = getHistory();
+
+  if (isEmpty && !history.length) {
+    demoCard.classList.remove('hidden');
+  } else {
+    demoCard.classList.add('hidden');
+  }
+
+  if (history.length) {
+    historySection.classList.remove('hidden');
+    renderHistory();
+  } else {
+    historySection.classList.add('hidden');
+  }
+}
+
+// ── History ──
+const HISTORY_KEY = 'coach-history';
+const MAX_HISTORY = 10;
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+  catch(e) { return []; }
+}
+
+function saveToHistory(jobText, analysisResult, compositeScore) {
+  const history = getHistory();
+  const firstLine = jobText.trim().split('\n')[0] || '';
+  const title = firstLine.length > 50 ? firstLine.substring(0, 50) + '…' : firstLine || 'Job Analysis';
+  const entry = {
+    id: 'h' + Date.now(),
+    title,
+    jobText,
+    analysisResult,
+    compositeScore,
+    savedAt: new Date().toISOString()
+  };
+  history.unshift(entry);
+  if (history.length > MAX_HISTORY) history.length = MAX_HISTORY;
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
+
+function renderHistory() {
+  const history = getHistory();
+  const list = document.getElementById('historyList');
+  if (!list) return;
+
+  list.innerHTML = history.map(entry => {
+    const sc = entry.compositeScore || 0;
+    const scoreClass = sc >= 70 ? 'history-score-high' : sc >= 45 ? 'history-score-mid' : sc > 0 ? 'history-score-low' : 'history-score-none';
+    const date = entry.savedAt ? new Date(entry.savedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }) : '';
+    return `<div class="history-item" onclick="restoreHistory('${entry.id}')">
+      <span class="history-item-title">${entry.title}</span>
+      <span class="history-item-meta">${date}</span>
+      ${sc > 0 ? `<span class="history-score ${scoreClass}">${sc}</span>` : '<span class="history-score history-score-none">—</span>'}
+    </div>`;
+  }).join('');
+}
+
+function restoreHistory(id) {
+  const history = getHistory();
+  const entry = history.find(h => h.id === id);
+  if (!entry) return;
+  const textarea = document.getElementById('jobInput');
+  if (textarea) {
+    textarea.value = entry.jobText;
+    textarea.focus();
+  }
+  updateDemoCardVisibility();
+  setStatus('Previous analysis restored — re-run to get a fresh result.', false);
+}
+
+// ── Keyboard shortcuts ──
+function openKbdHelp() {
+  document.getElementById('kbd-help-overlay').classList.remove('hidden');
+}
+
+function closeKbdHelp(e) {
+  if (e && e.target !== document.getElementById('kbd-help-overlay') && e.target !== document.getElementById('kbd-close-btn')) return;
+  document.getElementById('kbd-help-overlay').classList.add('hidden');
+}
+
+document.addEventListener('keydown', function(e) {
+  const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+  const isEditable = tag === 'input' || tag === 'textarea' || tag === 'select';
+
+  // Ctrl+Enter triggers analysis from anywhere
+  if (e.ctrlKey && e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('analyseBtn')?.click();
+    return;
+  }
+
+  // Keys that only fire when NOT in a text field
+  if (!isEditable) {
+    if (e.key === '?') {
+      e.preventDefault();
+      openKbdHelp();
+      return;
+    }
+    if (e.key === 'n' || e.key === 'N' || e.key === 'Enter') {
+      const kbdOverlay = document.getElementById('kbd-help-overlay');
+      if (!kbdOverlay.classList.contains('hidden')) return;
+      e.preventDefault();
+      const textarea = document.getElementById('jobInput');
+      if (textarea && !textarea.closest('.hidden')) {
+        textarea.focus();
+        textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+  }
+
+  // Escape: close help panel, then clear results/textarea
+  if (e.key === 'Escape') {
+    const kbdOverlay = document.getElementById('kbd-help-overlay');
+    if (!kbdOverlay.classList.contains('hidden')) {
+      kbdOverlay.classList.add('hidden');
+      return;
+    }
+    // If detail panel is open, close it
+    const detailPanel = document.getElementById('jobDetailPanel');
+    if (detailPanel && !detailPanel.classList.contains('hidden')) {
+      closeJobDetail();
+      return;
+    }
+    // Otherwise clear textarea
+    if (!isEditable) {
+      const textarea = document.getElementById('jobInput');
+      if (textarea) {
+        textarea.value = '';
+        setStatus('');
+        updateDemoCardVisibility();
+      }
+    }
+  }
+});
 
 // ── Language / i18n ──
 let currentLang = localStorage.getItem('cc_lang') || 'en';
