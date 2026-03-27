@@ -25,7 +25,7 @@
       --purple: #9B59B6;
     }
 
-    body { background: var(--navy); color: var(--warm); font-family: 'DM Sans', system-ui, sans-serif; min-height: 100vh; }
+    body { background: var(--navy); color: var(--warm); font-family: 'DM Sans', system-ui, sans-serif; min-height: 100vh; font-size: 1rem; }
 
     /* ── Util ── */
     .hidden { display: none !important; }
@@ -62,7 +62,7 @@
     .onboard-card {
       background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px;
     }
-    .onboard-card h2 { font-family: 'DM Serif Display', serif; font-size: 1.8em; margin-bottom: 6px; color: var(--warm); }
+    .onboard-card h2 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 6px; color: var(--warm); }
     .onboard-card p.sub { color: var(--muted); font-size: 0.92em; margin-bottom: 24px; }
 
     .field-group { margin-bottom: 18px; }
@@ -214,12 +214,81 @@
     .settings-overlay.open { display: block; }
     .danger-btn { background: rgba(231,76,60,0.1); border: 1px solid var(--red); color: var(--red); padding: 10px 20px; border-radius: 8px; width: 100%; margin-top: 8px; font-size: 0.9em; }
 
+    /* Advanced settings / API key */
+    .advanced-settings summary {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.82em;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+      list-style: none;
+    }
+    .advanced-settings summary::-webkit-details-marker { display: none; }
+    .advanced-settings summary::before { content: '▶ '; font-size: 0.7em; }
+    details[open].advanced-settings summary::before { content: '▼ '; }
+
     /* Premium badge */
     .pro-badge { background: linear-gradient(135deg, #F4A261, #e87f3a); color: white; padding: 1px 6px; border-radius: 4px; font-size: 0.7em; font-weight: 700; vertical-align: middle; margin-left: 4px; }
 
     /* Footer */
     .app-footer { text-align: center; padding: 12px; color: var(--muted); font-size: 0.78em; border-top: 1px solid var(--border); }
     .app-footer a { color: var(--teal); }
+
+    /* ── Hero ── */
+    .hero-section {
+      text-align: center;
+      padding: 32px 0 24px;
+    }
+    .hero-headline {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      color: var(--warm);
+      display: inline-block;
+      position: relative;
+      margin-bottom: 14px;
+    }
+    .hero-headline::after {
+      content: '';
+      display: block;
+      height: 3px;
+      background: var(--teal);
+      border-radius: 2px;
+      width: 0;
+      animation: underline-grow 0.8s 0.3s ease forwards;
+    }
+    @keyframes underline-grow {
+      to { width: 100%; }
+    }
+    .hero-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ── Voice Input ── */
+    .mic-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .mic-btn:hover { border-color: var(--teal); color: var(--teal); }
+    .mic-btn.recording { border-color: var(--red); color: var(--red); animation: mic-pulse 0.8s infinite; }
+    @keyframes mic-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    /* ── Checkboxes ── */
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .checkbox-group label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.92em; color: var(--warm); font-weight: 400; }
+    .checkbox-group input[type=checkbox] { accent-color: var(--teal); }
 
     @media (max-width: 700px) {
       #main-app { flex-direction: column; height: auto; }
@@ -233,10 +302,20 @@
 <!-- App Header -->
 <header class="app-header">
   <div>
-    <div class="app-logo">Career <span>Coach</span></div>
-    <div class="app-tagline">We've got you. Let's get to work.</div>
+    <div class="app-logo-row" style="display:flex;align-items:center;gap:10px;">
+      <svg width="28" height="28" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="#00C9A7">
+        <polygon points="14,1 16,13 14,11 12,13"/>
+        <polygon points="27,14 15,12 17,14 15,16"/>
+        <polygon points="14,27 12,15 14,17 16,15"/>
+        <polygon points="1,14 13,16 11,14 13,12"/>
+        <circle cx="14" cy="14" r="2.5"/>
+      </svg>
+      <div class="app-logo">Career <span>Coach</span></div>
+    </div>
+    <div class="app-tagline" data-en="We've got you. Let's get to work." data-fr="Nous sommes là pour vous. Au travail.">We've got you. Let's get to work.</div>
   </div>
   <div class="header-actions">
+    <button class="btn-icon" id="langToggleBtn" onclick="toggleLang()" aria-label="Toggle language / Basculer la langue">FR</button>
     <button class="btn-icon" id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
   </div>
 </header>
@@ -246,12 +325,18 @@
 <aside id="settings-panel" aria-label="Settings">
   <h2>Settings</h2>
 
-  <div class="field-group">
-    <label>Anthropic API Key</label>
-    <input type="password" id="settingsApiKey" placeholder="sk-ant-..." autocomplete="off">
-    <p style="font-size:0.8em;color:var(--muted);margin-top:6px;">Stored only in your browser. Never sent anywhere except to the Anthropic API.</p>
-  </div>
-  <button class="btn-primary" onclick="saveApiKey()" style="width:100%;">Save API Key</button>
+  <p style="font-size:0.88em;color:var(--muted);margin-bottom:16px;" data-en="Career Coach uses AI to analyse your applications. The API key is already configured — you do not need to change anything here." data-fr="Career Coach utilise l'IA pour analyser vos candidatures. La clé API est déjà configurée — vous n'avez rien à modifier ici.">Career Coach uses AI to analyse your applications. The API key is already configured — you do not need to change anything here.</p>
+  <details class="advanced-settings">
+    <summary data-en="Advanced — for developers only" data-fr="Avancé — pour les développeurs uniquement">Advanced — for developers only</summary>
+    <div style="margin-top:14px;">
+      <div class="field-group">
+        <label>Anthropic API Key</label>
+        <input type="password" id="settingsApiKey" placeholder="sk-ant-..." autocomplete="off">
+        <p style="font-size:0.8em;color:var(--muted);margin-top:6px;">Stored only in your browser. Never sent anywhere except to the Anthropic API.</p>
+      </div>
+      <button class="btn-primary" onclick="saveApiKey()" style="width:100%;">Save API Key</button>
+    </div>
+  </details>
 
   <div style="margin-top:28px;border-top:1px solid var(--border);padding-top:20px;">
     <button class="danger-btn" onclick="clearJobs()">Clear all jobs</button>
@@ -262,6 +347,12 @@
 
 <!-- ONBOARDING WIZARD -->
 <div id="onboarding">
+
+  <div class="hero-section">
+    <h1 class="hero-headline" data-en="Your personal job application strategist." data-fr="Votre stratège personnel pour les candidatures.">Your personal job application strategist.</h1>
+    <p class="hero-sub" data-en="Career Coach analyses your CV against real job postings and tells you exactly where to focus your energy. Built for people who want to apply smarter, not just more." data-fr="Career Coach analyse votre CV par rapport aux offres d'emploi réelles et vous indique exactement où concentrer vos efforts. Conçu pour ceux qui veulent postuler avec plus d'intelligence, pas seulement plus souvent.">Career Coach analyses your CV against real job postings and tells you exactly where to focus your energy. Built for people who want to apply smarter, not just more.</p>
+  </div>
+
   <div class="wizard-progress">
     <div class="wizard-step active" id="ws1"></div>
     <div class="wizard-step" id="ws2"></div>
@@ -270,12 +361,17 @@
 
   <!-- Step 1 -->
   <div id="step1" class="onboard-card">
-    <h2>About You</h2>
-    <p class="sub">Step 1 of 3 — tell us about your situation so we can score jobs that actually fit.</p>
+    <h2 data-en="About You" data-fr="À Propos de Vous">About You</h2>
+    <p class="sub" data-en="Step 1 of 3 — tell us about your situation so we can score jobs that actually fit." data-fr="Étape 1 de 3 — parlez-nous de votre situation pour que nous puissions évaluer les emplois qui vous conviennent vraiment.">Step 1 of 3 — tell us about your situation so we can score jobs that actually fit.</p>
+
+    <p class="voice-note" style="font-size:0.82em;color:var(--muted);margin-bottom:16px;" data-en="Prefer to speak? Tap 🎤 beside any field." data-fr="Préférez parler? Appuyez sur 🎤 à côté de n'importe quel champ.">Prefer to speak? Tap 🎤 beside any field.</p>
 
     <div class="field-group">
       <label>Your Name (optional)</label>
-      <input type="text" id="pName" placeholder="Your name (optional)">
+      <div style="display:flex;gap:8px;align-items:flex-start;">
+        <input type="text" id="pName" placeholder="Your name (optional)" style="flex:1;">
+        <button type="button" class="mic-btn" onclick="startVoice(this,'pName')" aria-label="Voice input">🎤</button>
+      </div>
     </div>
     <div class="field-group">
       <label>Employment Status</label>
@@ -300,7 +396,10 @@
     </div>
     <div class="field-group">
       <label>Location</label>
-      <input type="text" id="pLocation" placeholder="City, Province — e.g. London, ON">
+      <div style="display:flex;gap:8px;align-items:flex-start;">
+        <input type="text" id="pLocation" placeholder="City, Province — e.g. London, ON" style="flex:1;">
+        <button type="button" class="mic-btn" onclick="startVoice(this,'pLocation')" aria-label="Voice input">🎤</button>
+      </div>
     </div>
     <div class="field-group">
       <label>Open to Hybrid?</label>
@@ -324,16 +423,45 @@
         <label><input type="radio" name="relocate" value="No"> No</label>
       </div>
     </div>
+
+    <div class="field-group">
+      <label data-en="Preferred Sectors (select all that apply)" data-fr="Secteurs préférés (sélectionnez tout ce qui s'applique)">Preferred Sectors (select all that apply)</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="sector" value="Private"> <span data-en="Private" data-fr="Privé">Private</span></label>
+        <label><input type="checkbox" name="sector" value="Public"> <span data-en="Public" data-fr="Public">Public</span></label>
+        <label><input type="checkbox" name="sector" value="Non-profit"> <span data-en="Non-profit" data-fr="Sans but lucratif">Non-profit</span></label>
+        <label><input type="checkbox" name="sector" value="Social enterprise"> <span data-en="Social enterprise" data-fr="Entreprise sociale">Social enterprise</span></label>
+        <label><input type="checkbox" name="sector" value="Startup"> <span data-en="Startup" data-fr="Démarrage">Startup</span></label>
+        <label><input type="checkbox" name="sector" value="Healthcare"> <span data-en="Healthcare" data-fr="Santé">Healthcare</span></label>
+        <label><input type="checkbox" name="sector" value="Education"> <span data-en="Education" data-fr="Éducation">Education</span></label>
+        <label><input type="checkbox" name="sector" value="Tech"> Tech</label>
+        <label><input type="checkbox" name="sector" value="Finance"> Finance</label>
+        <label><input type="checkbox" name="sector" value="Other"> <span data-en="Other" data-fr="Autre">Other</span></label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label data-en="Work Type" data-fr="Type de travail">Work Type</label>
+      <div class="radio-group">
+        <label><input type="radio" name="workType" value="Full-time"> <span data-en="Full-time" data-fr="Temps plein">Full-time</span></label>
+        <label><input type="radio" name="workType" value="Part-time"> <span data-en="Part-time" data-fr="Temps partiel">Part-time</span></label>
+        <label><input type="radio" name="workType" value="Contract"> <span data-en="Contract" data-fr="Contrat">Contract</span></label>
+        <label><input type="radio" name="workType" value="Freelance"> Freelance</label>
+        <label><input type="radio" name="workType" value="Volunteer"> <span data-en="Volunteer" data-fr="Bénévolat">Volunteer</span></label>
+        <label><input type="radio" name="workType" value="Open to all" checked> <span data-en="Open to all" data-fr="Ouvert à tout">Open to all</span></label>
+      </div>
+    </div>
+
     <div class="wizard-nav">
       <span></span>
-      <button class="btn-primary" onclick="goStep(2)">Next →</button>
+      <button class="btn-primary" onclick="goStep(2)" data-en="Next →" data-fr="Suivant →">Next →</button>
     </div>
   </div>
 
   <!-- Step 2 -->
   <div id="step2" class="onboard-card hidden">
-    <h2>What Matters to You</h2>
-    <p class="sub">Step 2 of 3 — rank your priorities (1 = most important, 5 = least).</p>
+    <h2 data-en="What Matters to You" data-fr="Ce Qui Compte Pour Vous">What Matters to You</h2>
+    <p class="sub" data-en="Step 2 of 3 — rank your priorities (1 = most important, 5 = least)." data-fr="Étape 2 de 3 — classez vos priorités (1 = le plus important, 5 = le moins).">Step 2 of 3 — rank your priorities (1 = most important, 5 = least).</p>
 
     <div class="priority-grid" id="priorityGrid">
       <div class="priority-row"><label>Salary &amp; Compensation</label><input type="number" id="p_salary" min="1" max="5" value="1"></div>
@@ -363,25 +491,73 @@
     <div class="field-group">
       <label>Three Personal Values</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <input type="text" id="pVal1" placeholder="e.g. Integrity" style="flex:1;min-width:120px;padding:8px 12px;background:#0F1B2D;border:1px solid var(--border);border-radius:8px;color:var(--warm);">
-        <input type="text" id="pVal2" placeholder="e.g. Family" style="flex:1;min-width:120px;padding:8px 12px;background:#0F1B2D;border:1px solid var(--border);border-radius:8px;color:var(--warm);">
-        <input type="text" id="pVal3" placeholder="e.g. Creativity" style="flex:1;min-width:120px;padding:8px 12px;background:#0F1B2D;border:1px solid var(--border);border-radius:8px;color:var(--warm);">
+        <div style="display:flex;gap:8px;align-items:flex-start;flex:1;min-width:120px;">
+          <input type="text" id="pVal1" placeholder="e.g. Integrity" style="flex:1;padding:8px 12px;background:#0F1B2D;border:1px solid var(--border);border-radius:8px;color:var(--warm);">
+          <button type="button" class="mic-btn" onclick="startVoice(this,'pVal1')" aria-label="Voice input">🎤</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;flex:1;min-width:120px;">
+          <input type="text" id="pVal2" placeholder="e.g. Family" style="flex:1;padding:8px 12px;background:#0F1B2D;border:1px solid var(--border);border-radius:8px;color:var(--warm);">
+          <button type="button" class="mic-btn" onclick="startVoice(this,'pVal2')" aria-label="Voice input">🎤</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;flex:1;min-width:120px;">
+          <input type="text" id="pVal3" placeholder="e.g. Creativity" style="flex:1;padding:8px 12px;background:#0F1B2D;border:1px solid var(--border);border-radius:8px;color:var(--warm);">
+          <button type="button" class="mic-btn" onclick="startVoice(this,'pVal3')" aria-label="Voice input">🎤</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;border-top:1px solid var(--border);padding-top:20px;">
+      <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:4px;color:var(--warm);" data-en="Things I definitely do NOT want" data-fr="Ce que je ne veux définitivement PAS">Things I definitely do NOT want</h3>
+      <p style="font-size:0.82em;color:var(--muted);margin-bottom:16px;" data-en="Jobs matching these will score lower." data-fr="Les offres correspondantes obtiendront une note plus basse.">Jobs matching these will score lower.</p>
+
+      <div class="field-group">
+        <label data-en="Industries to avoid" data-fr="Secteurs à éviter">Industries to avoid</label>
+        <input type="text" id="pAvoidIndustries" placeholder="e.g. Oil and gas, gambling, tobacco">
+      </div>
+
+      <div class="field-group">
+        <label data-en="Company types to avoid" data-fr="Types d'entreprises à éviter">Company types to avoid</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="avoidCompany" value="Government"> <span data-en="Government" data-fr="Gouvernement">Government</span></label>
+          <label><input type="checkbox" name="avoidCompany" value="Large enterprise"> <span data-en="Large enterprise" data-fr="Grande entreprise">Large enterprise</span></label>
+          <label><input type="checkbox" name="avoidCompany" value="Startup"> <span data-en="Startup" data-fr="Démarrage">Startup</span></label>
+          <label><input type="checkbox" name="avoidCompany" value="Non-profit"> <span data-en="Non-profit" data-fr="Organisme sans but lucratif">Non-profit</span></label>
+          <label><input type="checkbox" name="avoidCompany" value="Other"> <span data-en="Other" data-fr="Autre">Other</span></label>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label data-en="Work arrangements to avoid" data-fr="Arrangements de travail à éviter">Work arrangements to avoid</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="avoidArrangement" value="100% in-office"> <span data-en="100% in-office" data-fr="100 % en présentiel">100% in-office</span></label>
+          <label><input type="checkbox" name="avoidArrangement" value="Night shifts"> <span data-en="Night shifts" data-fr="Quarts de nuit">Night shifts</span></label>
+          <label><input type="checkbox" name="avoidArrangement" value="On-call"> <span data-en="On-call" data-fr="Garde">On-call</span></label>
+          <label><input type="checkbox" name="avoidArrangement" value="Heavy travel"> <span data-en="Heavy travel" data-fr="Voyages fréquents">Heavy travel</span></label>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label data-en="Anything else I want to avoid" data-fr="Autre chose que je veux éviter">Anything else I want to avoid</label>
+        <textarea id="pAvoidOther" class="job-textarea" style="height:80px;" placeholder="Describe anything else you want to avoid in a role or company..."></textarea>
       </div>
     </div>
 
     <div class="wizard-nav">
-      <button class="btn-secondary" onclick="goStep(1)">← Back</button>
-      <button class="btn-primary" onclick="goStep(3)">Next →</button>
+      <button class="btn-secondary" onclick="goStep(1)" data-en="← Back" data-fr="← Retour">← Back</button>
+      <button class="btn-primary" onclick="goStep(3)" data-en="Next →" data-fr="Suivant →">Next →</button>
     </div>
   </div>
 
   <!-- Step 3 -->
   <div id="step3" class="onboard-card hidden">
-    <h2>Your CV</h2>
-    <p class="sub">Step 3 of 3 — paste your CV so we can match you to jobs precisely.</p>
+    <h2 data-en="Your CV" data-fr="Votre CV">Your CV</h2>
+    <p class="sub" data-en="Step 3 of 3 — paste your CV so we can match you to jobs precisely." data-fr="Étape 3 de 3 — collez votre CV pour que nous puissions vous associer précisément aux offres d'emploi.">Step 3 of 3 — paste your CV so we can match you to jobs precisely.</p>
 
     <div class="field-group">
       <label>CV Text (paste full CV)</label>
+      <div style="margin-bottom:8px;">
+        <button type="button" class="mic-btn" onclick="startVoice(this,'pCV')" aria-label="Voice input" style="display:inline-flex;align-items:center;gap:6px;">🎤 <span style="font-size:0.88em;color:var(--muted);">Dictate CV</span></button>
+      </div>
       <textarea id="pCV" class="job-textarea" placeholder="Paste your full CV text here — the more detail, the better the analysis"></textarea>
     </div>
     <details style="margin-bottom:16px;">
@@ -392,8 +568,8 @@
     <div class="api-notice">🔒 Your CV stays on your device. It's only sent to the AI when you click "Analyse" — and only to score a specific job. We never store it on a server.</div>
 
     <div class="wizard-nav">
-      <button class="btn-secondary" onclick="goStep(2)">← Back</button>
-      <button class="btn-primary" onclick="saveProfile()">Save my profile →</button>
+      <button class="btn-secondary" onclick="goStep(2)" data-en="← Back" data-fr="← Retour">← Back</button>
+      <button class="btn-primary" onclick="saveProfile()" data-en="Save my profile →" data-fr="Sauvegarder mon profil →">Save my profile →</button>
     </div>
   </div>
 </div>
@@ -423,17 +599,17 @@
     </div>
     <div class="jobs-list" id="jobsList"></div>
     <div class="left-footer">
-      <button class="btn-export" onclick="exportCSV()">↓ Export CSV</button>
+      <button class="btn-export" onclick="exportCSV()" data-en="↓ Export CSV" data-fr="↓ Exporter CSV">↓ Export CSV</button>
     </div>
   </div>
 
   <!-- Right: add job / job detail -->
   <div class="right-panel" id="rightPanel">
     <div class="add-job-panel" id="addJobPanel">
-      <h2>Add a Job</h2>
+      <h2 data-en="Add a Job" data-fr="Ajouter une offre">Add a Job</h2>
       <p>Paste a full job posting to analyse it against your profile. The AI will score the match, flag risks, and suggest CV tweaks.</p>
       <textarea class="job-textarea" id="jobInput" placeholder="Paste job posting text here — include the full description for the best analysis"></textarea>
-      <button class="analyse-btn" id="analyseBtn" onclick="analyseJob()">Analyse this job</button>
+      <button class="analyse-btn" id="analyseBtn" onclick="analyseJob()" data-en="Analyse this job" data-fr="Analyser cette offre">Analyse this job</button>
       <div class="analysis-status" id="analysisStatus"></div>
     </div>
     <div class="job-detail hidden" id="jobDetailPanel"></div>
@@ -441,7 +617,7 @@
 </div>
 
 <div class="app-footer">
-  Career Coach by Two Birds Innovation &nbsp;|&nbsp;
+  <span data-en="Career Coach by Two Birds Innovation" data-fr="Career Coach par Two Birds Innovation">Career Coach by Two Birds Innovation</span> &nbsp;|&nbsp;
   <a href="pricing.html">Career Coach Pro — Coming Soon</a>
 </div>
 
@@ -465,6 +641,8 @@ function init() {
 
   document.getElementById('settingsBtn').onclick = openSettings;
   document.getElementById('settingsOverlay').onclick = closeSettings;
+
+  applyLang();
 }
 
 // ── Onboarding ──
@@ -498,6 +676,8 @@ function saveProfile() {
     hybrid: getRadio('hybrid'),
     remote: getRadio('remote'),
     relocate: getRadio('relocate'),
+    preferredSectors: [...document.querySelectorAll('[name="sector"]:checked')].map(e => e.value),
+    workType: getRadio('workType'),
     priorities: {
       salary: document.getElementById('p_salary').value,
       workLifeBalance: document.getElementById('p_wlb').value,
@@ -512,6 +692,10 @@ function saveProfile() {
       document.getElementById('pVal2').value.trim(),
       document.getElementById('pVal3').value.trim()
     ].filter(Boolean),
+    industriesToAvoid: document.getElementById('pAvoidIndustries').value.trim(),
+    companyTypesToAvoid: [...document.querySelectorAll('[name="avoidCompany"]:checked')].map(e => e.value),
+    workArrangementsToAvoid: [...document.querySelectorAll('[name="avoidArrangement"]:checked')].map(e => e.value),
+    otherAvoid: document.getElementById('pAvoidOther').value.trim(),
     cv: document.getElementById('pCV').value.trim(),
     coverLetter: document.getElementById('pCoverLetter').value.trim()
   };
@@ -606,7 +790,14 @@ Priority rankings (1=most important): Salary=${profile.priorities.salary}, Work-
 Personal values: ${profile.values.join(', ')}
 
 CV:
-${profile.cv}`;
+${profile.cv}
+
+Sectors preferred: ${(profile.preferredSectors||[]).join(', ') || 'Not specified'}
+Work type: ${profile.workType || 'Not specified'}
+Industries to avoid: ${profile.industriesToAvoid || 'None'}
+Company types to avoid: ${(profile.companyTypesToAvoid||[]).join(', ') || 'None'}
+Work arrangements to avoid: ${(profile.workArrangementsToAvoid||[]).join(', ') || 'None'}
+Other avoidances: ${profile.otherAvoid || 'None'}`;
 }
 
 async function analyseJob() {
@@ -977,6 +1168,50 @@ function resetProfile() {
 
 // ── Persist ──
 function saveJobs() { localStorage.setItem('cc_jobs', JSON.stringify(jobs)); }
+
+// ── Voice Input ──
+(function initVoice() {
+  if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
+    document.querySelectorAll('.mic-btn').forEach(b => b.style.display = 'none');
+  }
+})();
+
+function startVoice(btn, targetId) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  const rec = new SR();
+  const lang = localStorage.getItem('cc_lang') === 'fr' ? 'fr-CA' : 'en-CA';
+  rec.lang = lang;
+  rec.interimResults = false;
+  rec.maxAlternatives = 1;
+  btn.classList.add('recording');
+  rec.start();
+  rec.onresult = function(e) {
+    const transcript = e.results[0][0].transcript;
+    const el = document.getElementById(targetId);
+    if (el) el.value = (el.value ? el.value + ' ' : '') + transcript;
+    btn.classList.remove('recording');
+  };
+  rec.onerror = function() { btn.classList.remove('recording'); };
+  rec.onend = function() { btn.classList.remove('recording'); };
+}
+
+// ── Language / i18n ──
+let currentLang = localStorage.getItem('cc_lang') || 'en';
+
+function applyLang() {
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = currentLang === 'fr' ? el.getAttribute('data-fr') : el.getAttribute('data-en');
+  });
+  const btn = document.getElementById('langToggleBtn');
+  if (btn) btn.textContent = currentLang === 'fr' ? 'EN' : 'FR';
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'fr' : 'en';
+  localStorage.setItem('cc_lang', currentLang);
+  applyLang();
+}
 
 // ── Boot ──
 init();
