@@ -633,6 +633,98 @@
 
     /* Shortcut hint in UI */
     .kbd-hint { font-size: 0.75em; color: var(--muted); opacity: 0.8; margin-left: 8px; }
+
+    /* ── 6A: Salary Negotiation Modal ── */
+    .salary-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 300;
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+    .salary-modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px 28px 24px; max-width: 640px; width: 100%; max-height: 88vh;
+      overflow-y: auto; position: relative;
+    }
+    .salary-modal h2 {
+      font-family: 'DM Serif Display', serif; font-size: 1.3em; margin-bottom: 4px;
+      padding-right: 36px;
+    }
+    .salary-modal .modal-sub { color: var(--muted); font-size: 0.88em; margin-bottom: 20px; }
+    .salary-modal-close {
+      position: absolute; top: 18px; right: 18px; background: none;
+      border: 1px solid var(--border); color: var(--muted); padding: 4px 10px;
+      border-radius: 6px; font-size: 0.88em; cursor: pointer; transition: border-color 0.2s;
+    }
+    .salary-modal-close:hover { border-color: var(--teal); color: var(--teal); }
+    .salary-range-chip {
+      background: rgba(0,201,167,0.1); border: 1px solid rgba(0,201,167,0.35);
+      border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; text-align: center;
+    }
+    .salary-range-chip .src-label { font-size: 0.78em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+    .salary-range-chip .src-value { font-size: 1.4em; font-weight: 700; color: var(--teal); }
+    .salary-modal h3 { font-size: 0.82em; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 18px 0 8px; }
+    .salary-modal p { font-size: 0.92em; line-height: 1.65; color: var(--warm); margin-bottom: 10px; }
+    .salary-tactics { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+    .salary-tactics li {
+      background: #0F1B2D; border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; font-size: 0.9em; line-height: 1.5; display: flex; gap: 10px;
+    }
+    .salary-tactics li::before { content: '✓'; color: var(--green); flex-shrink: 0; font-weight: 700; }
+    .salary-dont { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .salary-dont li {
+      background: rgba(231,76,60,0.07); border: 1px solid rgba(231,76,60,0.2);
+      border-radius: 8px; padding: 9px 14px; font-size: 0.9em; line-height: 1.5; display: flex; gap: 10px;
+    }
+    .salary-dont li::before { content: '✗'; color: var(--red); flex-shrink: 0; font-weight: 700; }
+    .salary-modal-loading { text-align: center; color: var(--teal); padding: 40px 0; font-size: 0.95em; }
+    .btn-salary-neg {
+      background: none; border: 1px solid var(--amber); color: var(--amber);
+      padding: 8px 16px; border-radius: 8px; font-size: 0.88em; font-weight: 600;
+      cursor: pointer; transition: background 0.2s, color 0.2s; margin-top: 12px;
+    }
+    .btn-salary-neg:hover { background: var(--amber); color: #0F1B2D; }
+
+    /* ── 6B: Red Flags ── */
+    details.red-flags-section {
+      background: rgba(231,76,60,0.06); border: 1px solid rgba(231,76,60,0.25);
+      border-radius: 10px; margin-top: 16px; overflow: hidden;
+    }
+    details.red-flags-section summary {
+      display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+      cursor: pointer; list-style: none; user-select: none;
+      font-size: 0.88em; font-weight: 700; color: var(--red);
+    }
+    details.red-flags-section summary::-webkit-details-marker { display: none; }
+    details.red-flags-section summary .rf-toggle { margin-left: auto; font-size: 0.75em; color: var(--muted); }
+    details.red-flags-section[open] summary .rf-toggle::after { content: '▲'; }
+    details.red-flags-section:not([open]) summary .rf-toggle::after { content: '▼'; }
+    .red-flags-body { padding: 0 16px 14px; display: flex; flex-direction: column; gap: 7px; }
+    .red-flag-item {
+      font-size: 0.88em; line-height: 1.5; display: flex; gap: 8px; align-items: flex-start;
+    }
+    .red-flag-item::before { content: '⚠'; flex-shrink: 0; }
+    .no-red-flags { font-size: 0.88em; color: var(--green); padding: 0 0 10px; }
+
+    /* ── 6D: Industry Insights card ── */
+    .industry-insights-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-left: 4px solid var(--amber); border-radius: 10px; padding: 16px; margin-top: 16px;
+    }
+    .industry-insights-card .ii-header {
+      font-size: 0.78em; font-weight: 700; color: var(--amber); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .industry-insights-card .ii-header::before { content: '📈'; }
+    .ii-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .ii-stat { font-size: 0.86em; }
+    .ii-stat .ii-stat-label { color: var(--muted); font-size: 0.82em; text-transform: uppercase; letter-spacing: 0.3px; }
+    .ii-stat .ii-stat-value { color: var(--warm); font-weight: 600; margin-top: 2px; }
+    .ii-skills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .ii-skill-tag {
+      background: rgba(244,162,97,0.12); color: var(--amber); border-radius: 20px;
+      padding: 2px 9px; font-size: 0.8em;
+    }
+    .ii-source { font-size: 0.75em; color: var(--muted); font-style: italic; margin-top: 8px; }
+    @media (max-width: 600px) { .ii-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -1063,6 +1155,18 @@
   </div>
 </div>
 
+<!-- 6A: Salary Negotiation Modal -->
+<div id="salaryModalOverlay" class="salary-modal-overlay hidden" onclick="closeSalaryModal(event)">
+  <div class="salary-modal" role="dialog" aria-modal="true" aria-labelledby="salaryModalTitle">
+    <button class="salary-modal-close" onclick="closeSalaryModal()" data-en="✕ Close" data-fr="✕ Fermer">✕ Close</button>
+    <h2 id="salaryModalTitle" data-en="Salary Negotiation Coach" data-fr="Coach en négociation salariale">Salary Negotiation Coach</h2>
+    <p class="modal-sub" id="salaryModalSub"></p>
+    <div id="salaryModalBody">
+      <div class="salary-modal-loading" data-en="Generating negotiation strategy…" data-fr="Génération de la stratégie de négociation…">Generating negotiation strategy…</div>
+    </div>
+  </div>
+</div>
+
 <div class="app-footer">
   <span data-en="Career Coach by Two Birds Innovation" data-fr="Career Coach par Two Birds Innovation">Career Coach by Two Birds Innovation</span> &nbsp;|&nbsp;
   <a href="pricing.html">Career Coach Pro — Coming Soon</a>
@@ -1443,6 +1547,19 @@ function openJobDetail(id) {
             <button class="btn-copy" onclick="copyCV()">Copy to clipboard</button>
           </div>
         </div>` : ''}
+
+        <!-- 6B: Red Flags -->
+        ${buildRedFlagsHTML(a, job.rawPosting)}
+
+        <!-- 6D: Industry Insights -->
+        ${buildIndustryInsightsHTML(a.job_title || '')}
+
+        <!-- 6A: Salary Negotiation button -->
+        <div class="detail-section" style="margin-top:16px;">
+          <h3 data-en="Salary Negotiation" data-fr="Négociation salariale">Salary Negotiation</h3>
+          <p style="font-size:0.88em;color:var(--muted);margin-bottom:4px;" data-en="Get AI-generated negotiation tactics specific to this role." data-fr="Obtenez des tactiques de négociation générées par l'IA pour ce poste.">Get AI-generated negotiation tactics specific to this role.</p>
+          <button class="btn-salary-neg" onclick="openSalaryModal('${job.id}')" data-en="💰 Help me negotiate salary" data-fr="💰 Aider à négocier le salaire">💰 Help me negotiate salary</button>
+        </div>
 
         <!-- Job Tracker -->
         <div class="detail-section">
@@ -1870,96 +1987,6 @@ function toggleLang() {
   applyLang();
 }
 
-// ── Phase 9B: Export Applications Report ──
-function exportApplicationsReport() {
-  const isFr = currentLang === 'fr';
-  const userName = (profile && profile.name) ? profile.name : '';
-  const today = new Date().toLocaleDateString(isFr ? 'fr-CA' : 'en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
-
-  const title = isFr
-    ? `Rapport de candidatures${userName ? ' — ' + userName : ''} — ${today}`
-    : `Job Application Report${userName ? ' — ' + userName : ''} — ${today}`;
-
-  const headers = isFr
-    ? ['Entreprise', 'Poste', 'Date ajoutée', 'Statut', 'Score', 'ATS', 'Adéquation', 'Correspondance salariale', 'Risque IA', 'Recommandation', 'Notes']
-    : ['Company', 'Role', 'Date Added', 'Status', 'Score', 'ATS', 'Fit', 'Salary Match', 'AI Risk', 'Recommendation', 'Notes'];
-
-  const rows = jobs.map(j => [
-    j.analysis?.company || '—',
-    j.analysis?.job_title || '—',
-    j.addedAt?.split('T')[0] || '—',
-    j.status || '—',
-    j.compositeScore || 0,
-    j.analysis?.ats_score || '—',
-    j.analysis?.overall_fit || '—',
-    j.analysis?.salary_match || '—',
-    j.analysis?.ai_risk_rating || '—',
-    j.analysis?.application_recommendation || '—',
-    (j.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  ]);
-
-  const scoreColour = score => {
-    if (typeof score !== 'number') return '#666';
-    return score >= 70 ? '#2ECC71' : score >= 45 ? '#F39C12' : '#E74C3C';
-  };
-
-  const footer = isFr
-    ? 'Généré par Career Coach — Two Birds Innovation'
-    : 'Generated by Career Coach — Two Birds Innovation';
-
-  const tableRows = rows.map(r => `
-    <tr>
-      <td>${r[0]}</td>
-      <td>${r[1]}</td>
-      <td>${r[2]}</td>
-      <td>${r[3]}</td>
-      <td style="color:${scoreColour(r[4])};font-weight:700;text-align:center">${r[4]}</td>
-      <td style="text-align:center">${r[5]}</td>
-      <td style="text-align:center">${r[6]}</td>
-      <td>${r[7]}</td>
-      <td>${r[8]}</td>
-      <td>${r[9]}</td>
-      <td style="font-size:0.85em;color:#555">${r[10]}</td>
-    </tr>`).join('');
-
-  const html = `<!DOCTYPE html>
-<html lang="${isFr ? 'fr' : 'en'}">
-<head>
-<meta charset="UTF-8">
-<title>${title}</title>
-<style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #111; background: #fff; margin: 0; padding: 32px; }
-  h1 { font-size: 1.3em; margin-bottom: 4px; }
-  .sub { color: #666; font-size: 0.9em; margin-bottom: 24px; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
-  th { background: #0F1B2D; color: #fff; padding: 9px 10px; text-align: left; font-weight: 600; }
-  td { padding: 8px 10px; border-bottom: 1px solid #e5e5e5; vertical-align: top; }
-  tr:last-child td { border-bottom: none; }
-  tr:nth-child(even) { background: #f9f9f9; }
-  .footer { margin-top: 32px; font-size: 0.78em; color: #999; text-align: center; border-top: 1px solid #e5e5e5; padding-top: 14px; }
-  @media print {
-    body { padding: 16px; }
-    button { display: none; }
-  }
-</style>
-</head>
-<body>
-  <h1>${title}</h1>
-  <div class="sub">${jobs.length} ${isFr ? 'offres suivies' : 'applications tracked'}</div>
-  ${jobs.length ? `<table>
-    <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
-    <tbody>${tableRows}</tbody>
-  </table>` : `<p style="color:#999">${isFr ? 'Aucune offre enregistrée.' : 'No jobs tracked yet.'}</p>`}
-  <div class="footer">${footer}</div>
-  <br><button onclick="window.print()" style="padding:8px 18px;background:#0F1B2D;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.9em;">${isFr ? 'Imprimer' : 'Print'}</button>
-</body>
-</html>`;
-
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
-}
-
 // ── Phase 9C: Cover Letter Templates ──
 const COVER_LETTER_TEMPLATES = {
   standard: `[YOUR NAME]
@@ -2092,6 +2119,343 @@ function copyCoverLetter() {
     textarea.select();
     document.execCommand('copy');
   });
+}
+
+// ── 6B: Red Flags Detection ──
+function detectRedFlags(analysis, rawPosting) {
+  const flags = [];
+  const posting = (rawPosting || '').toLowerCase();
+  const a = analysis || {};
+
+  // Salary concern
+  if (a.salary_match === 'below target') flags.push({ cat: 'Salary', msg: 'Salary is below your target — consider whether this meets your minimum requirements.' });
+  if (a.salary_match === 'not specified') flags.push({ cat: 'Salary', msg: 'No salary range is listed. Research market rates before applying or negotiating.' });
+
+  // No company name
+  if (!a.company || a.company === 'Unknown' || a.company === '') flags.push({ cat: 'Transparency', msg: 'Company name is not clearly stated. Anonymous postings can indicate opacity about the employer.' });
+
+  // Vague description — check for very short or keyword-stuffed postings
+  if (rawPosting && rawPosting.trim().length < 300) flags.push({ cat: 'Vague Description', msg: 'Job posting is very short. Legitimate roles usually include detailed responsibilities and requirements.' });
+
+  // Excessive requirements — many "required" skills
+  const reqMatches = (posting.match(/\brequired\b/g) || []).length;
+  if (reqMatches >= 6) flags.push({ cat: 'Excessive Requirements', msg: `Posting uses "required" ${reqMatches} times. May indicate unrealistic expectations or qualification gatekeeping.` });
+
+  // High turnover signals in text
+  const turnoverSignals = ['fast-paced environment', 'hit the ground running', 'self-starter', 'no hand-holding', 'sink or swim', 'hustle', 'wear many hats', 'do whatever it takes'];
+  const found = turnoverSignals.filter(s => posting.includes(s));
+  if (found.length >= 2) flags.push({ cat: 'High Turnover Signs', msg: `Posting uses phrases associated with high-pressure or unstable environments: "${found.slice(0,2).join('", "')}"${found.length > 2 ? `, +${found.length-2} more` : ''}.` });
+
+  // AI risk
+  if (a.ai_risk_rating === 'high') flags.push({ cat: 'AI Replacement Risk', msg: 'This role has been flagged as high risk for AI disruption. Evaluate long-term role stability.' });
+
+  // High volatility
+  if (a.volatility_estimate === 'high') flags.push({ cat: 'Company Volatility', msg: 'Company or role volatility is estimated as high. Research news and employee reviews before proceeding.' });
+
+  return flags;
+}
+
+function buildRedFlagsHTML(analysis, rawPosting) {
+  const flags = detectRedFlags(analysis, rawPosting);
+  const count = flags.length;
+  const isFr = currentLang === 'fr';
+  const summaryLabel = count === 0
+    ? (isFr ? '⚠️ Signaux d\'alerte — Aucun détecté' : '⚠️ Red Flags — None detected')
+    : (isFr ? `⚠️ Signaux d'alerte — ${count} détecté${count > 1 ? 's' : ''}` : `⚠️ Red Flags — ${count} detected`);
+
+  const catFr = { 'Salary': 'Salaire', 'Transparency': 'Transparence', 'Vague Description': 'Description vague',
+    'Excessive Requirements': 'Exigences excessives', 'High Turnover Signs': 'Signes de fort roulement',
+    'AI Replacement Risk': 'Risque de remplacement IA', 'Company Volatility': 'Volatilité de l\'entreprise' };
+
+  const body = count === 0
+    ? `<p class="no-red-flags">${isFr ? 'Aucun signal d\'alerte majeur détecté pour cette offre.' : 'No major red flags detected for this posting.'}</p>`
+    : flags.map(f => `<div class="red-flag-item"><div><strong style="font-size:0.82em;text-transform:uppercase;letter-spacing:0.3px;color:var(--red)">${isFr && catFr[f.cat] ? catFr[f.cat] : f.cat}:</strong> ${f.msg}</div></div>`).join('');
+
+  return `<details class="red-flags-section"${count > 0 ? ' open' : ''}>
+    <summary>${summaryLabel} <span class="rf-toggle"></span></summary>
+    <div class="red-flags-body">${body}</div>
+  </details>`;
+}
+
+// ── 6D: Industry Insights (static Canadian data) ──
+const INDUSTRY_INSIGHTS = {
+  tech: {
+    label: 'Technology',
+    timeToHire: '3–6 weeks',
+    remote: '~55% hybrid or fully remote',
+    skills: ['AI/ML literacy', 'Cloud (AWS/Azure/GCP)', 'DevOps/CI-CD', 'Cybersecurity', 'TypeScript/Python'],
+    source: 'Two Birds Innovation sector summary, Q1 2026'
+  },
+  healthcare: {
+    label: 'Healthcare',
+    timeToHire: '4–8 weeks',
+    remote: '~20% hybrid (clinical roles mostly in-person)',
+    skills: ['EMR/EHR systems', 'Patient advocacy', 'Regulated environment', 'Bilingualism', 'Data privacy (PHIPA)'],
+    source: 'Two Birds Innovation sector summary, Q1 2026'
+  },
+  trades: {
+    label: 'Skilled Trades',
+    timeToHire: '1–3 weeks',
+    remote: '~5% (mostly on-site)',
+    skills: ['Red Seal certification', 'Safety compliance', 'Blueprint reading', 'Equipment operation', 'Apprenticeship credentials'],
+    source: 'Two Birds Innovation sector summary, Q1 2026'
+  },
+  education: {
+    label: 'Education',
+    timeToHire: '6–12 weeks',
+    remote: '~30% hybrid (admin/curriculum roles)',
+    skills: ['Curriculum design', 'Inclusive education', 'LMS platforms', 'French language', 'Special needs support'],
+    source: 'Two Birds Innovation sector summary, Q1 2026'
+  },
+  finance: {
+    label: 'Finance & Banking',
+    timeToHire: '4–7 weeks',
+    remote: '~40% hybrid',
+    skills: ['Financial modelling', 'CPA/CFA credentials', 'Risk management', 'Regulatory compliance', 'Excel/Power BI'],
+    source: 'Two Birds Innovation sector summary, Q1 2026'
+  },
+  retail: {
+    label: 'Retail & Customer Service',
+    timeToHire: '1–2 weeks',
+    remote: '~10% (mostly in-person)',
+    skills: ['POS systems', 'Inventory management', 'Customer relations', 'Bilingualism', 'Loss prevention'],
+    source: 'Two Birds Innovation sector summary, Q1 2026'
+  },
+  nonprofit: {
+    label: 'Non-Profit & Social Services',
+    timeToHire: '5–9 weeks',
+    remote: '~35% hybrid',
+    skills: ['Grant writing', 'Community engagement', 'Program evaluation', 'Volunteer management', 'Donor relations'],
+    source: 'Two Birds Innovation sector summary, Q1 2026'
+  },
+  marketing: {
+    label: 'Marketing & Communications',
+    timeToHire: '3–5 weeks',
+    remote: '~50% hybrid or remote',
+    skills: ['Digital marketing', 'SEO/SEM', 'Content strategy', 'Analytics (GA4)', 'Social media management'],
+    source: 'Two Birds Innovation sector summary, Q1 2026'
+  },
+  logistics: {
+    label: 'Logistics & Supply Chain',
+    timeToHire: '2–4 weeks',
+    remote: '~15% hybrid',
+    skills: ['ERP systems (SAP)', 'Supply chain optimisation', 'Customs/import-export', 'Fleet management', 'Lean/Six Sigma'],
+    source: 'Two Birds Innovation sector summary, Q1 2026'
+  }
+};
+
+function detectSector(jobTitle) {
+  const t = (jobTitle || '').toLowerCase();
+  if (/\b(software|developer|engineer|devops|data scientist|machine learning|ai|cloud|it |tech|product manager|scrum|agile|cybersec|full.?stack|front.?end|back.?end)\b/.test(t)) return 'tech';
+  if (/\b(nurse|doctor|physician|health|clinic|hospital|pharma|medical|patient|therapist|dental|physiotherapy)\b/.test(t)) return 'healthcare';
+  if (/\b(electrician|plumber|carpenter|welder|mechanic|hvac|trades|construction|millwright|ironworker)\b/.test(t)) return 'trades';
+  if (/\b(teacher|principal|education|curriculum|instructor|professor|tutor|school|librarian|early childhood)\b/.test(t)) return 'education';
+  if (/\b(accountant|finance|banker|investment|cpa|cfa|analyst|financial|auditor|controller|treasury)\b/.test(t)) return 'finance';
+  if (/\b(retail|store|sales associate|cashier|customer service|merchandising|buyer)\b/.test(t)) return 'retail';
+  if (/\b(non-profit|nonprofit|charity|social worker|community|fundrais|program coordinator|outreach)\b/.test(t)) return 'nonprofit';
+  if (/\b(marketing|communications|content|copywriter|seo|social media|brand|pr|public relations|campaign)\b/.test(t)) return 'marketing';
+  if (/\b(logistics|supply chain|warehouse|dispatcher|procurement|shipping|inventory|fleet)\b/.test(t)) return 'logistics';
+  return null;
+}
+
+function buildIndustryInsightsHTML(jobTitle) {
+  const sectorKey = detectSector(jobTitle);
+  if (!sectorKey) return '';
+  const d = INDUSTRY_INSIGHTS[sectorKey];
+  const isFr = currentLang === 'fr';
+  const heading = isFr ? `${d.label} — Marché de l'emploi au Canada` : `${d.label} — Hiring Landscape in Canada`;
+  const lbl1 = isFr ? 'Délai moyen d\'embauche' : 'Avg. Time to Hire';
+  const lbl2 = isFr ? 'Télétravail / Hybride' : 'Remote / Hybrid';
+  const srcLabel = isFr ? `Source : ${d.source}` : `Source: ${d.source}`;
+  return `<div class="industry-insights-card">
+    <div class="ii-header">${heading}</div>
+    <div class="ii-grid">
+      <div class="ii-stat">
+        <div class="ii-stat-label">${lbl1}</div>
+        <div class="ii-stat-value">${d.timeToHire}</div>
+      </div>
+      <div class="ii-stat">
+        <div class="ii-stat-label">${lbl2}</div>
+        <div class="ii-stat-value">${d.remote}</div>
+      </div>
+    </div>
+    <div class="ii-skills">${d.skills.map(s=>`<span class="ii-skill-tag">${s}</span>`).join('')}</div>
+    <div class="ii-source">${srcLabel}</div>
+  </div>`;
+}
+
+// ── 6A: Salary Negotiation Modal ──
+let salaryModalJobId = null;
+
+function openSalaryModal(jobId) {
+  salaryModalJobId = jobId;
+  const job = jobs.find(j => j.id === jobId);
+  if (!job) return;
+  const a = job.analysis || {};
+  const titleText = `${a.job_title || 'Role'} — ${a.company || 'Company'}`;
+  document.getElementById('salaryModalSub').textContent = titleText;
+  document.getElementById('salaryModalBody').innerHTML = `<div class="salary-modal-loading" data-en="Generating negotiation strategy…" data-fr="Génération de la stratégie de négociation…">Generating negotiation strategy…</div>`;
+  document.getElementById('salaryModalOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  fetchSalaryNegotiation(job);
+}
+
+function closeSalaryModal(e) {
+  // If called from the overlay's onclick, only close when clicking the backdrop itself
+  if (e && e.target && e.target.id !== 'salaryModalOverlay' && !e.currentTarget?.classList?.contains('salary-modal-close')) return;
+  document.getElementById('salaryModalOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+async function fetchSalaryNegotiation(job) {
+  const apiKey = localStorage.getItem('cc_api_key');
+  const a = job.analysis || {};
+  const jobTitle = a.job_title || 'this role';
+  const company = a.company || 'the company';
+
+  if (!apiKey) {
+    document.getElementById('salaryModalBody').innerHTML = `<p style="color:var(--red);font-size:0.92em;">Please add your Anthropic API key in Settings (⚙) first.</p>`;
+    return;
+  }
+
+  const prompt = `Based on this job posting: ${jobTitle} at ${company}, generate salary negotiation advice for a Canadian job seeker. Include: 1) Estimated salary range in CAD, 2) A 2-paragraph negotiation script, 3) Three specific tactics for this role, 4) Two things NOT to say. Keep it practical and concise. Return ONLY valid JSON with this structure: {"salary_range":"string","script_para1":"string","script_para2":"string","tactics":["string","string","string"],"dont_say":["string","string"]}`;
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 800,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const raw = data.content[0]?.text || '{}';
+    let neg;
+    try { neg = JSON.parse(raw); }
+    catch(e) {
+      const match = raw.match(/\{[\s\S]*\}/);
+      neg = match ? JSON.parse(match[0]) : null;
+    }
+    if (!neg) throw new Error('Could not parse negotiation response.');
+
+    document.getElementById('salaryModalBody').innerHTML = `
+      <div class="salary-range-chip">
+        <div class="src-label" data-en="Estimated Salary Range (CAD)" data-fr="Fourchette salariale estimée (CAD)">Estimated Salary Range (CAD)</div>
+        <div class="src-value">${neg.salary_range || '—'}</div>
+      </div>
+      <h3 data-en="Negotiation Script" data-fr="Script de négociation">Negotiation Script</h3>
+      <p>${neg.script_para1 || ''}</p>
+      <p>${neg.script_para2 || ''}</p>
+      <h3 data-en="Three Tactics for This Role" data-fr="Trois tactiques pour ce poste">Three Tactics for This Role</h3>
+      <ul class="salary-tactics">
+        ${(neg.tactics || []).map(t => `<li>${t}</li>`).join('')}
+      </ul>
+      <h3 data-en="What NOT to Say" data-fr="Ce qu'il ne faut PAS dire">What NOT to Say</h3>
+      <ul class="salary-dont">
+        ${(neg.dont_say || []).map(d => `<li>${d}</li>`).join('')}
+      </ul>`;
+    applyLang();
+  } catch(err) {
+    document.getElementById('salaryModalBody').innerHTML = `<p style="color:var(--red);font-size:0.92em;">Error: ${err.message}</p>`;
+  }
+}
+
+// ── 6C: Enhanced HTML Report (with Red Flags column and Industry Sector) ──
+function exportApplicationsReport() {
+  const isFr = currentLang === 'fr';
+  const userName = (profile && profile.name) ? profile.name : '';
+  const today = new Date().toLocaleDateString(isFr ? 'fr-CA' : 'en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const title = isFr
+    ? `Rapport de candidatures${userName ? ' — ' + userName : ''} — ${today}`
+    : `Job Application Report${userName ? ' — ' + userName : ''} — ${today}`;
+
+  const scoreColour = score => {
+    if (typeof score !== 'number') return '#666';
+    return score >= 70 ? '#2ECC71' : score >= 45 ? '#F39C12' : '#E74C3C';
+  };
+
+  const footer = isFr
+    ? 'Généré par Career Coach — Two Birds Innovation'
+    : 'Generated by Career Coach — Two Birds Innovation';
+
+  const headers = isFr
+    ? ['Entreprise', 'Poste', 'Date ajoutée', 'Statut', 'Score', 'ATS', 'Adéquation', 'Correspondance salariale', 'Risque IA', 'Recommandation', 'Signaux d\'alerte', 'Notes']
+    : ['Company', 'Role', 'Date Added', 'Status', 'Score', 'ATS', 'Fit', 'Salary Match', 'AI Risk', 'Recommendation', 'Red Flags', 'Notes'];
+
+  const tableRows = jobs.map(j => {
+    const flags = detectRedFlags(j.analysis || {}, j.rawPosting || '');
+    const flagsCell = flags.length === 0
+      ? `<span style="color:#2ECC71">None</span>`
+      : flags.map(f => `<span style="color:#E74C3C;display:block;font-size:0.82em">⚠ ${f.cat}</span>`).join('');
+    const sc = j.compositeScore || 0;
+    const sector = detectSector(j.analysis?.job_title || '');
+    const sectorLabel = sector ? INDUSTRY_INSIGHTS[sector]?.label || '' : '';
+    return `<tr>
+      <td>${j.analysis?.company || '—'}</td>
+      <td>${j.analysis?.job_title || '—'}${sectorLabel ? `<br><span style="font-size:0.78em;color:#888">${sectorLabel}</span>` : ''}</td>
+      <td>${j.addedAt?.split('T')[0] || '—'}</td>
+      <td>${j.status || '—'}</td>
+      <td style="color:${scoreColour(sc)};font-weight:700;text-align:center">${sc}</td>
+      <td style="text-align:center">${j.analysis?.ats_score || '—'}</td>
+      <td style="text-align:center">${j.analysis?.overall_fit || '—'}</td>
+      <td>${j.analysis?.salary_match || '—'}</td>
+      <td>${j.analysis?.ai_risk_rating || '—'}</td>
+      <td>${j.analysis?.application_recommendation || '—'}</td>
+      <td>${flagsCell}</td>
+      <td style="font-size:0.85em;color:#555">${(j.notes || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="${isFr ? 'fr' : 'en'}">
+<head>
+<meta charset="UTF-8">
+<title>${title}</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #111; background: #fff; margin: 0; padding: 32px; }
+  h1 { font-size: 1.3em; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 0.9em; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+  th { background: #0F1B2D; color: #fff; padding: 9px 10px; text-align: left; font-weight: 600; white-space: nowrap; }
+  td { padding: 8px 10px; border-bottom: 1px solid #e5e5e5; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  .footer { margin-top: 32px; font-size: 0.78em; color: #999; text-align: center; border-top: 1px solid #e5e5e5; padding-top: 14px; }
+  .print-btn { display: inline-block; margin-top: 16px; padding: 8px 18px; background: #0F1B2D; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; }
+  @media print {
+    body { padding: 16px; }
+    .print-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <div class="sub">${jobs.length} ${isFr ? 'offres suivies' : 'applications tracked'}</div>
+  <button class="print-btn" onclick="window.print()">${isFr ? 'Imprimer' : 'Print'}</button>
+  ${jobs.length ? `<br><br><table>
+    <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${tableRows}</tbody>
+  </table>` : `<p style="color:#999">${isFr ? 'Aucune offre enregistrée.' : 'No jobs tracked yet.'}</p>`}
+  <div class="footer">${footer}</div>
+</body>
+</html>`;
+
+  const w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); }
 }
 
 // ── Boot ──
