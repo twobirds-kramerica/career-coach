@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Coach Beta — Early Access</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:     #0F1B2D;
+      --card:     #1A2D44;
+      --border:   #243d59;
+      --warm:     #F8F6F1;
+      --teal:     #00C9A7;
+      --teal-dim: #009e84;
+      --amber:    #F4A261;
+      --muted:    #8AA0B8;
+      --green:    #2ECC71;
+    }
+
+    body {
+      background: var(--navy);
+      color: var(--warm);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      min-height: 100vh;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    .app-header {
+      background: linear-gradient(135deg, #0a1520, #1A2D44);
+      border-bottom: 2px solid var(--teal);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .app-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4em;
+      color: var(--warm);
+    }
+    .app-logo span { color: var(--teal); }
+    .beta-pill {
+      background: rgba(244, 162, 97, 0.15);
+      border: 1px solid rgba(244, 162, 97, 0.5);
+      color: var(--amber);
+      font-size: 0.72em;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    .app-tagline {
+      color: var(--muted);
+      font-size: 0.82em;
+      margin-top: 2px;
+    }
+
+    /* ── Page wrapper ── */
+    .page-wrap {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .hero-eyebrow {
+      display: inline-block;
+      background: rgba(0, 201, 167, 0.1);
+      border: 1px solid rgba(0, 201, 167, 0.35);
+      color: var(--teal);
+      font-size: 0.8em;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.4rem;
+      color: var(--warm);
+      line-height: 1.2;
+      margin-bottom: 18px;
+    }
+    .hero h1 span { color: var(--teal); }
+    .hero p {
+      font-size: 1.05em;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 12px;
+    }
+    .hero p strong { color: var(--warm); }
+
+    /* ── Privacy notice ── */
+    .privacy-bar {
+      background: rgba(0, 201, 167, 0.06);
+      border: 1px solid rgba(0, 201, 167, 0.25);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 0.82em;
+      color: var(--teal);
+      text-align: center;
+      margin-top: 24px;
+    }
+    .privacy-bar strong { font-weight: 700; }
+
+    /* ── Section cards ── */
+    .section-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    .section-card h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem;
+      color: var(--warm);
+      margin-bottom: 18px;
+    }
+    .section-card h2 .icon {
+      margin-right: 8px;
+      font-style: normal;
+    }
+
+    /* ── Feature list ── */
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.96em;
+      color: var(--warm);
+    }
+    .feature-list li .check {
+      color: var(--teal);
+      font-size: 1.1em;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .feature-list li .feat-label {
+      font-weight: 600;
+      margin-right: 4px;
+    }
+    .feature-list li .feat-desc {
+      color: var(--muted);
+    }
+
+    /* ── Ask list ── */
+    .ask-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ask-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.96em;
+      color: var(--muted);
+    }
+    .ask-list li .bullet {
+      color: var(--amber);
+      font-size: 1.1em;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .ask-list li strong { color: var(--warm); }
+
+    /* ── Launch button ── */
+    .launch-wrap {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .btn-launch {
+      display: inline-block;
+      background: var(--teal);
+      color: #0F1B2D;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 1.08em;
+      font-weight: 700;
+      padding: 16px 42px;
+      border-radius: 10px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.2px;
+    }
+    .btn-launch:hover {
+      background: var(--teal-dim);
+      transform: translateY(-1px);
+    }
+    .launch-sub {
+      margin-top: 12px;
+      font-size: 0.82em;
+      color: var(--muted);
+    }
+
+    /* ── Feedback form ── */
+    .feedback-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .field-group label {
+      display: block;
+      font-size: 0.85em;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: #0F1B2D;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--warm);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 0.96em;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus { border-color: var(--teal); }
+    .field-group select option { background: var(--card); }
+    .field-group textarea { resize: vertical; min-height: 110px; }
+
+    .btn-submit {
+      background: var(--teal);
+      color: #0F1B2D;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+      align-self: flex-start;
+    }
+    .btn-submit:hover { background: var(--teal-dim); }
+
+    .form-note {
+      font-size: 0.8em;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Footer ── */
+    .app-footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 0.78em;
+      border-top: 1px solid var(--border);
+      margin-top: 20px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.75rem; }
+      .page-wrap { padding: 32px 16px 60px; }
+      .section-card { padding: 24px 18px; }
+      .btn-launch { padding: 14px 28px; font-size: 1em; }
+      .app-header { padding: 12px 16px; }
+      .app-logo { font-size: 1.15em; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div>
+      <div class="app-logo">Career <span>Coach</span><span class="beta-pill">Beta</span></div>
+      <div class="app-tagline">We've got you. Let's get to work.</div>
+    </div>
+  </header>
+
+  <main class="page-wrap">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-eyebrow">Early Access</div>
+      <h1>You've been selected for <span>early access.</span></h1>
+      <p>
+        Thank you for being part of the Career Coach beta.
+        You're helping us shape a tool that gives job seekers a <strong>real edge</strong> —
+        not generic advice, but personalised analysis built around your CV and the roles you're actually applying for.
+      </p>
+      <p>
+        This is an early build. It works, it's useful, and it's honest about what it can and can't do yet.
+        Your experience matters — please tell us what you find.
+      </p>
+      <div class="privacy-bar">
+        <strong>Privacy first.</strong> This page collects no data.
+        The app uses your API key only — nothing is stored on our servers.
+      </div>
+    </section>
+
+    <!-- What you can do -->
+    <section class="section-card">
+      <h2><i class="icon">&#10024;</i>What you can do in this beta</h2>
+      <ul class="feature-list">
+        <li>
+          <span class="check">&#10003;</span>
+          <span><span class="feat-label">CV analysis against real job postings.</span><span class="feat-desc">Paste a job description and your CV — Career Coach scores your fit and tells you exactly where you stand.</span></span>
+        </li>
+        <li>
+          <span class="check">&#10003;</span>
+          <span><span class="feat-label">Gap identification.</span><span class="feat-desc">See which skills or experiences the employer is looking for that aren't clearly visible in your CV yet.</span></span>
+        </li>
+        <li>
+          <span class="check">&#10003;</span>
+          <span><span class="feat-label">Tailored cover letter drafts.</span><span class="feat-desc">Generate a starting-point cover letter matched to the role — yours to edit and personalise.</span></span>
+        </li>
+        <li>
+          <span class="check">&#10003;</span>
+          <span><span class="feat-label">Interview question prep.</span><span class="feat-desc">Get a list of likely questions based on the job description, with coaching on how to approach each one.</span></span>
+        </li>
+        <li>
+          <span class="check">&#10003;</span>
+          <span><span class="feat-label">Multi-job tracking.</span><span class="feat-desc">Save and compare multiple applications in one place — no spreadsheet required.</span></span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- What we're asking -->
+    <section class="section-card">
+      <h2><i class="icon">&#128172;</i>What we're asking of you</h2>
+      <ul class="ask-list">
+        <li>
+          <span class="bullet">&#9654;</span>
+          <span><strong>Try it on a real application.</strong> The more genuine your input, the more useful your feedback will be — to you and to us.</span>
+        </li>
+        <li>
+          <span class="bullet">&#9654;</span>
+          <span><strong>Tell us when something feels off.</strong> Wrong tone, confusing output, a missing feature you expected — all of it is valuable.</span>
+        </li>
+        <li>
+          <span class="bullet">&#9654;</span>
+          <span><strong>Report any bugs you encounter.</strong> Screenshots or descriptions both welcome — no detail is too small.</span>
+        </li>
+        <li>
+          <span class="bullet">&#9654;</span>
+          <span><strong>Be honest about what's useful.</strong> We'd rather know what isn't working than hear it's fine when it isn't.</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Launch button -->
+    <div class="launch-wrap">
+      <a class="btn-launch" href="../index.html">Open Career Coach &rarr;</a>
+      <p class="launch-sub">No account required. Works in your browser.</p>
+    </div>
+
+    <!-- Feedback form -->
+    <section class="section-card">
+      <h2><i class="icon">&#128203;</i>Send us your feedback</h2>
+      <p style="color: var(--muted); font-size: 0.92em; margin-bottom: 20px;">
+        Use this form to share thoughts, flag bugs, or suggest improvements.
+        Your message goes directly to the team — no third-party services, no tracking.
+      </p>
+      <form class="feedback-form" id="feedback-form">
+        <div class="field-group">
+          <label for="feedback-type">Type of feedback</label>
+          <select id="feedback-type" name="feedback-type" required>
+            <option value="" disabled selected>Select one...</option>
+            <option value="bug">Bug report</option>
+            <option value="suggestion">Suggestion or feature request</option>
+            <option value="general">General feedback</option>
+            <option value="confusing">Something was confusing</option>
+            <option value="positive">Something that worked really well</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="feedback-body">Your feedback</label>
+          <textarea id="feedback-body" name="feedback-body" placeholder="Tell us what you noticed, what you tried, and what happened..." required></textarea>
+        </div>
+        <div class="field-group">
+          <label for="feedback-name">Your name (optional)</label>
+          <input type="text" id="feedback-name" name="feedback-name" placeholder="Type here...">
+        </div>
+        <button type="submit" class="btn-submit">Send Feedback</button>
+        <p class="form-note">This opens your email app with the details pre-filled. Your feedback goes directly to the Career Coach team.</p>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    Career Coach Beta &mdash; Two Birds Innovation &nbsp;|&nbsp; For beta testers only &nbsp;|&nbsp; No data collected
+  </footer>
+
+  <script>
+    // Zero tracking — no analytics, no beacons, no external calls.
+    // Feedback form uses mailto only.
+
+    document.getElementById('feedback-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var type = document.getElementById('feedback-type').value;
+      var body = document.getElementById('feedback-body').value;
+      var name = document.getElementById('feedback-name').value.trim();
+
+      var typeLabels = {
+        bug: 'Bug Report',
+        suggestion: 'Suggestion / Feature Request',
+        general: 'General Feedback',
+        confusing: 'Something Was Confusing',
+        positive: 'Something That Worked Well'
+      };
+
+      var subject = 'Career Coach Beta Feedback: ' + (typeLabels[type] || type);
+
+      var emailBody = 'Feedback type: ' + (typeLabels[type] || type) + '\n\n'
+        + body
+        + (name ? '\n\n— ' + name : '\n\n— (submitted anonymously)');
+
+      var mailto = 'mailto:aaron.patzalek@gmail.com'
+        + '?subject=' + encodeURIComponent(subject)
+        + '&body=' + encodeURIComponent(emailBody);
+
+      window.location.href = mailto;
+    });
+  </script>
+
+</body>
+</html>
