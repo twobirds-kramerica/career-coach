@@ -635,6 +635,7 @@
     .kbd-hint { font-size: 0.75em; color: var(--muted); opacity: 0.8; margin-left: 8px; }
 
     /* ── 6A: Salary Negotiation Modal ── */
+    #settings-panel { overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .salary-modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 300;
       display: flex; align-items: center; justify-content: center; padding: 16px;
@@ -763,6 +764,7 @@
         <label>Anthropic API Key</label>
         <input type="password" id="settingsApiKey" placeholder="sk-ant-..." autocomplete="off">
         <p style="font-size:0.8em;color:var(--muted);margin-top:6px;">Stored only in your browser. Never sent anywhere except to the Anthropic API.</p>
+        <p style="font-size:0.8em;margin-top:8px;"><a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--teal);">Get a free API key →</a></p>
       </div>
       <button class="btn-primary" onclick="saveApiKey()" style="width:100%;">Save API Key</button>
     </div>
@@ -1259,7 +1261,14 @@ function saveProfile() {
     cv: document.getElementById('pCV').value.trim(),
     coverLetter: document.getElementById('pCoverLetter').value.trim()
   };
-  localStorage.setItem('cc_profile', JSON.stringify(profile));
+  try {
+    localStorage.setItem('cc_profile', JSON.stringify(profile));
+  } catch(e) {
+    if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      alert('Browser storage is full. Export your data (CSV) and clear some old jobs to free up space.');
+      return;
+    }
+  }
   showMainApp();
 }
 
@@ -1431,7 +1440,19 @@ async function analyseJob() {
 
   } catch(err) {
     const isRate = err.message.includes('429') || err.message.toLowerCase().includes('rate');
-    setStatus(isRate ? 'Rate limit reached. Wait a moment and try again.' : 'Error: ' + err.message, true);
+    let errMsg;
+    if (isRate) {
+      errMsg = 'Rate limit reached — please wait a moment and try again.';
+    } else if (err.message.includes('401') || err.message.toLowerCase().includes('auth')) {
+      errMsg = 'Invalid API key. Check your key in Settings (⚙).';
+    } else if (err.message.includes('429')) {
+      errMsg = 'Too many requests — please wait a moment and try again.';
+    } else if (err.message.includes('500') || err.message.includes('503')) {
+      errMsg = 'The AI service is temporarily unavailable. Please try again in a few minutes.';
+    } else {
+      errMsg = 'Analysis failed. Check your internet connection and API key, then try again.';
+    }
+    setStatus(errMsg, true);
   } finally {
     document.getElementById('analyseBtn').disabled = false;
   }
@@ -1612,7 +1633,7 @@ async function generateCV(jobId) {
   if (!checked.length) { alert('Select at least one suggestion to apply.'); return; }
 
   const btn = document.querySelector('.btn-gen-cv');
-  btn.textContent = 'Generating…'; btn.disabled = true;
+  btn.innerHTML = '⏳ Generating your tailored CV…'; btn.disabled = true;
 
   try {
     const res = await fetch(API_URL, {
@@ -1641,9 +1662,19 @@ async function generateCV(jobId) {
     saveJobs();
     // gtag('event', 'cv_customised', { job_id: jobId });
   } catch(err) {
-    alert('Error generating CV: ' + err.message);
+    const isQuota = err.message && err.message.toLowerCase().includes('quota');
+    const isKey   = err.message && (err.message.includes('401') || err.message.toLowerCase().includes('auth'));
+    let msg;
+    if (isKey)   msg = 'Invalid API key. Check your key in Settings (⚙) and try again.';
+    else if (isQuota) msg = 'CV is too long to process. Try shortening your CV in your profile.';
+    else         msg = 'Could not generate CV. Check your API key and internet connection, then try again.';
+    const errEl = document.createElement('p');
+    errEl.style.cssText = 'color:var(--red,#c0392b);font-size:0.88em;margin-top:8px;';
+    errEl.textContent = msg;
+    btn.parentNode.insertBefore(errEl, btn.nextSibling);
+    setTimeout(function(){ if (errEl.parentNode) errEl.parentNode.removeChild(errEl); }, 8000);
   } finally {
-    btn.textContent = 'Generate my tailored CV'; btn.disabled = false;
+    btn.innerHTML = 'Generate my tailored CV'; btn.disabled = false;
   }
 }
 
@@ -1720,7 +1751,12 @@ function closeSettings() {
 }
 function saveApiKey() {
   const key = document.getElementById('settingsApiKey').value.trim();
-  localStorage.setItem('cc_api_key', key);
+  try {
+    localStorage.setItem('cc_api_key', key);
+  } catch(e) {
+    alert('Could not save API key — browser storage may be full.');
+    return;
+  }
   closeSettings();
   alert('API key saved.');
 }
@@ -1744,7 +1780,15 @@ function resetProfile() {
 }
 
 // ── Persist ──
-function saveJobs() { localStorage.setItem('cc_jobs', JSON.stringify(jobs)); }
+function saveJobs() {
+  try {
+    localStorage.setItem('cc_jobs', JSON.stringify(jobs));
+  } catch(e) {
+    if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      setStatus('Browser storage is full. Export your jobs (CSV) and remove old applications to free up space.', true);
+    }
+  }
+}
 
 // ── Voice Input ──
 (function initVoice() {
@@ -1871,7 +1915,11 @@ function saveToHistory(jobText, analysisResult, compositeScore) {
   };
   history.unshift(entry);
   if (history.length > MAX_HISTORY) history.length = MAX_HISTORY;
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch(e) {
+    /* Silent fail — history is a convenience feature */
+  }
 }
 
 function renderHistory() {
@@ -2369,7 +2417,11 @@ async function fetchSalaryNegotiation(job) {
       </ul>`;
     applyLang();
   } catch(err) {
-    document.getElementById('salaryModalBody').innerHTML = `<p style="color:var(--red);font-size:0.92em;">Error: ${err.message}</p>`;
+    const isKey = err.message && (err.message.includes('401') || err.message.toLowerCase().includes('auth'));
+    const msg = isKey
+      ? 'Invalid API key. Check your key in Settings (⚙) and try again.'
+      : 'Could not load negotiation strategy. Check your internet connection and try again.';
+    document.getElementById('salaryModalBody').innerHTML = '<p style="color:var(--red,#c0392b);font-size:0.92em;">' + msg + '</p>';
   }
 }
 
