@@ -634,6 +634,36 @@
     /* Shortcut hint in UI */
     .kbd-hint { font-size: 0.75em; color: var(--muted); opacity: 0.8; margin-left: 8px; }
 
+    /* ── Stats card ── */
+    .stats-card {
+      background: rgba(0,201,167,0.06);
+      border: 1px solid rgba(0,201,167,0.2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 1.25em; font-weight: 700; color: var(--teal); }
+    .stat-label { font-size: 0.68em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 1px; }
+
+    /* ── Print ── */
+    @media print {
+      body { background: #fff; color: #111; }
+      .app-header, .left-panel, #settings-panel, .settings-overlay,
+      #kbd-help-overlay, .salary-modal-overlay, .app-footer { display: none !important; }
+      #main-app { flex-direction: column; height: auto; overflow: visible; }
+      .right-panel { width: 100%; overflow: visible; padding: 0; }
+      .job-detail { max-width: 100%; }
+      .btn-close-detail, .btn-gen-cv, .btn-copy, .analyse-btn,
+      .btn-salary-neg, .btn-export, .cl-actions { display: none !important; }
+      .detail-section { break-inside: avoid; }
+      .score-bars { grid-template-columns: repeat(4, 1fr); }
+      .score-bar-card, .detail-section { background: #f9f9f9; border: 1px solid #ddd; }
+    }
+
     /* ── 6A: Salary Negotiation Modal ── */
     #settings-panel { overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .salary-modal-overlay {
@@ -1031,6 +1061,7 @@
     </div>
     <div class="jobs-list" id="jobsList"></div>
     <div class="left-footer">
+      <div class="stats-card hidden" id="statsCard"></div>
       <button class="btn-export" onclick="exportCSV()" data-en="↓ Export CSV" data-fr="↓ Exporter CSV">↓ Export CSV</button>
       <button class="btn-export" onclick="exportApplicationsReport()" style="margin-top:6px;" data-en="↓ Export Application Report" data-fr="↓ Exporter le rapport de candidatures">↓ Export Application Report</button>
     </div>
@@ -1310,6 +1341,7 @@ function renderJobList() {
 
   const container = document.getElementById('jobsList');
   document.getElementById('jobCount').textContent = jobs.length;
+  renderStatsCard();
 
   if (!list.length) {
     container.innerHTML = `<div class="jobs-empty">${jobs.length ? 'No jobs match this filter.' : 'No jobs yet.<br>Paste a job posting on the right to get started.'}</div>`;
@@ -1340,6 +1372,26 @@ function renderJobList() {
       </div>
     </div>`;
   }).join('');
+}
+
+// ── Stats Card ──
+function renderStatsCard() {
+  const card = document.getElementById('statsCard');
+  if (!card) return;
+  if (!jobs.length) { card.classList.add('hidden'); return; }
+  const analysed = jobs.filter(j => j.analysis).length;
+  const scored = jobs.filter(j => j.compositeScore > 0);
+  const avgScore = scored.length ? Math.round(scored.reduce((s, j) => s + j.compositeScore, 0) / scored.length) : 0;
+  const recommended = jobs.filter(j => j.analysis && j.analysis.application_recommendation && j.analysis.application_recommendation !== 'skip').length;
+  const dates = jobs.map(j => new Date(j.addedAt)).filter(d => !isNaN(d.getTime()));
+  const daysSince = dates.length ? Math.floor((Date.now() - Math.min(...dates.map(d => d.getTime()))) / 86400000) : 0;
+  const isFr = currentLang === 'fr';
+  card.classList.remove('hidden');
+  card.innerHTML =
+    '<div class="stat-item"><div class="stat-value">' + analysed + '</div><div class="stat-label">' + (isFr ? 'Analysées' : 'Analysed') + '</div></div>' +
+    '<div class="stat-item"><div class="stat-value">' + (avgScore || '—') + '</div><div class="stat-label">' + (isFr ? 'Score moy.' : 'Avg Score') + '</div></div>' +
+    '<div class="stat-item"><div class="stat-value">' + recommended + '</div><div class="stat-label">' + (isFr ? 'Recommandées' : 'Recommended') + '</div></div>' +
+    '<div class="stat-item"><div class="stat-value">' + daysSince + '</div><div class="stat-label">' + (isFr ? 'Jours actif' : 'Days Active') + '</div></div>';
 }
 
 // ── Analysis ──
