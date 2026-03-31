@@ -298,6 +298,21 @@
 </head>
 <body>
 
+  <!-- Privacy Modal (first-visit only) -->
+  <div id="privacyModal" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;">
+    <div style="background:#1A2D44;border:1px solid #00C9A7;border-radius:16px;max-width:480px;width:100%;padding:28px 24px;">
+      <h2 id="privacyModalTitle" style="font-family:'DM Serif Display',serif;color:#F8F6F1;font-size:1.2rem;margin-bottom:12px;">🔒 Your Data Stays with You</h2>
+      <p style="color:#8AA0B8;font-size:0.9em;line-height:1.65;margin-bottom:12px;">This is a beta version of Career Coach. Here is exactly what we do — and do not do — with your data:</p>
+      <ul style="color:#F8F6F1;font-size:0.88em;line-height:1.8;padding-left:1.25rem;margin-bottom:16px;">
+        <li>All your job data is stored <strong>only in your browser</strong> (localStorage) — nothing is sent to any server</li>
+        <li>We collect <strong>zero analytics</strong> — no page views, no usage events, no tracking pixels</li>
+        <li>Your API key is stored locally and only sent directly to Anthropic — never to us</li>
+        <li>Feedback you submit goes directly to Aaron at aaron.patzalek@gmail.com via your email app</li>
+      </ul>
+      <button onclick="document.getElementById('privacyModal').style.display='none';localStorage.setItem('cc_beta_privacy','1');" style="background:#00C9A7;color:#0F1B2D;border:none;border-radius:8px;padding:10px 22px;font-size:0.92em;font-weight:700;cursor:pointer;width:100%;">Understood — let's get started</button>
+    </div>
+  </div>
+
   <!-- Header -->
   <header class="app-header">
     <div>
@@ -453,6 +468,13 @@
 
       window.location.href = mailto;
     });
+
+    // Show privacy modal on first visit
+    if (!localStorage.getItem('cc_beta_privacy')) {
+      document.getElementById('privacyModal').style.display = 'flex';
+    } else {
+      document.getElementById('privacyModal').style.display = 'none';
+    }
   </script>
 
 </body>
