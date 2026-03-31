@@ -159,6 +159,16 @@
     .analysis-status { margin-top: 12px; color: var(--teal); font-size: 0.9em; min-height: 22px; }
     .analysis-error { color: var(--red); }
 
+    /* ── Job Search Stats Card ── */
+    .job-stats-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .job-stats-card h3 { font-size: 1em; color: var(--muted); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .stat-item { background: var(--bg); border-radius: 8px; padding: 12px; text-align: center; }
+    .stat-item.stat-wide { grid-column: 1 / -1; }
+    .stat-value { display: block; font-size: 1.6em; font-weight: 700; color: var(--teal); }
+    .stat-label { display: block; font-size: 0.78em; color: var(--muted); margin-top: 2px; }
+    @media print { .job-stats-card { display: none; } }
+
     /* ── Job Detail Panel ── */
     .job-detail { max-width: 800px; }
     .detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
@@ -1064,11 +1074,39 @@
       <div class="stats-card hidden" id="statsCard"></div>
       <button class="btn-export" onclick="exportCSV()" data-en="↓ Export CSV" data-fr="↓ Exporter CSV">↓ Export CSV</button>
       <button class="btn-export" onclick="exportApplicationsReport()" style="margin-top:6px;" data-en="↓ Export Application Report" data-fr="↓ Exporter le rapport de candidatures">↓ Export Application Report</button>
+      <button class="btn-export" onclick="printJobsTable()" style="margin-top:6px;" data-en="🖨 Print My Jobs" data-fr="🖨 Imprimer mes offres">🖨 Print My Jobs</button>
     </div>
   </div>
 
   <!-- Right: add job / job detail -->
   <div class="right-panel" id="rightPanel">
+    <!-- Job Search Stats Card -->
+    <div id="jobStatsCard" class="job-stats-card hidden">
+      <h3 data-en="Your Job Search" data-fr="Votre recherche d'emploi">Your Job Search</h3>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-value" id="statTotal">0</span>
+          <span class="stat-label" data-en="Jobs Analysed" data-fr="Offres analysées">Jobs Analysed</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="statAvgFit">—</span>
+          <span class="stat-label" data-en="Avg Fit Score" data-fr="Score moyen">Avg Fit Score</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="statApply">0</span>
+          <span class="stat-label" data-en="Recommended" data-fr="Recommandées">Recommended</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="statSkip">0</span>
+          <span class="stat-label" data-en="Skipped" data-fr="Ignorées">Skipped</span>
+        </div>
+        <div class="stat-item stat-wide">
+          <span class="stat-value" id="statDays">—</span>
+          <span class="stat-label" data-en="Days Since First Job" data-fr="Jours depuis la première offre">Days Since First Job</span>
+        </div>
+      </div>
+    </div>
+
     <div class="add-job-panel" id="addJobPanel">
       <h2 data-en="Add a Job" data-fr="Ajouter une offre">Add a Job</h2>
       <p>Paste a full job posting to analyse it against your profile. The AI will score the match, flag risks, and suggest CV tweaks.</p>
@@ -1160,7 +1198,7 @@
             <option value="standard" data-en="1. Standard Professional Application" data-fr="1. Candidature professionnelle standard">1. Standard Professional Application</option>
             <option value="career-change" data-en="2. Career Change (Transferable Skills Focus)" data-fr="2. Réorientation professionnelle (compétences transférables)">2. Career Change (Transferable Skills Focus)</option>
             <option value="return" data-en="3. Return to Workforce" data-fr="3. Retour sur le marché du travail">3. Return to Workforce</option>
-            <option value="internal" data-en="4. Internal Promotion" data-fr="4. Promotion interne">4. Internal Promotion</option>
+            <option value="mission" data-en="4. Mission-Driven Organisation" data-fr="4. Organisation à vocation sociale">4. Mission-Driven Organisation</option>
             <option value="startup" data-en="5. Startup / Small Company (Personal Tone)" data-fr="5. Démarrage / petite entreprise (ton personnel)">5. Startup / Small Company (Personal Tone)</option>
           </select>
         </div>
@@ -1308,6 +1346,7 @@ function showMainApp() {
   document.getElementById('onboarding').classList.add('hidden');
   document.getElementById('main-app').classList.remove('hidden');
   renderJobList();
+  updateJobStats();
 }
 
 // ── Filters & sort ──
@@ -1372,6 +1411,34 @@ function renderJobList() {
       </div>
     </div>`;
   }).join('');
+
+  updateJobStats();
+}
+
+// ── Job Search Stats Card ──
+function updateJobStats() {
+  const card = document.getElementById('jobStatsCard');
+  if (!card) return;
+  if (jobs.length === 0) { card.classList.add('hidden'); return; }
+  card.classList.remove('hidden');
+
+  document.getElementById('statTotal').textContent = jobs.length;
+
+  const analysed = jobs.filter(j => j.analysis);
+  const fits = analysed.map(j => j.analysis.overall_fit).filter(v => typeof v === 'number');
+  document.getElementById('statAvgFit').textContent = fits.length ? Math.round(fits.reduce((a,b) => a + b, 0) / fits.length) : '—';
+
+  document.getElementById('statApply').textContent = analysed.filter(j => j.analysis.application_recommendation === 'apply custom').length;
+  document.getElementById('statSkip').textContent = analysed.filter(j => j.analysis.application_recommendation === 'skip').length;
+
+  const dates = jobs.map(j => j.addedAt).filter(Boolean).map(d => new Date(d)).filter(d => !isNaN(d));
+  if (dates.length) {
+    const earliest = new Date(Math.min(...dates));
+    const days = Math.floor((Date.now() - earliest) / 86400000);
+    document.getElementById('statDays').textContent = days;
+  } else {
+    document.getElementById('statDays').textContent = '—';
+  }
 }
 
 // ── Stats Card ──
@@ -2146,20 +2213,20 @@ I am committed, reliable, and genuinely excited to bring my experience to [COMPA
 Sincerely,
 [YOUR NAME]`,
 
-  internal: `[YOUR NAME]
-[Current Title] | [Department]
+  mission: `[YOUR NAME]
+[Your City, Province] | [your.email@example.com] | [Phone Number]
 [Today's Date]
 
-[Manager's Name]
+[Hiring Manager's Name]
 [COMPANY]
 
-Dear [Manager's Name],
+Dear [Hiring Manager's Name],
 
-I am writing to formally express my interest in the [ROLE] position that has recently become available within [COMPANY]. Having been a member of this organisation for [X years], I have had the privilege of building deep institutional knowledge, strong relationships across teams, and a clear understanding of our strategic priorities — all of which I believe make me well-positioned to succeed in this role.
+I am writing to express my interest in the [ROLE] position at [COMPANY]. What draws me to your organisation is not just the role itself, but the mission behind the work. [One sentence about what specifically resonates — e.g., "Your commitment to expanding access to mental health services in underserved communities aligns deeply with the values that have guided my entire career."]
 
-In my current position as [Your Current Title], I have [describe key achievements and responsibilities — e.g., "consistently delivered projects ahead of schedule, mentored two junior team members who have since been promoted, and played a central role in the launch of our new client portal"]. I have also taken on additional responsibilities, such as [specific example — e.g., leading quarterly planning sessions in my manager's absence], which has given me direct experience with the scope of the [ROLE]. I am ready to take on expanded leadership and accountability, and I am eager to grow within the organisation I already believe in.
+In my previous role as [Your Previous Title] at [Previous Organisation], I [describe a mission-aligned achievement — e.g., "led a programme that connected 2,000 newcomer families with settlement services, reducing wait times by 40% through process redesign and community partnerships"]. I bring [X years] of experience in [relevant area], and I am particularly drawn to environments where measurable impact matters more than corporate optics. I understand the realities of working within tight budgets and high expectations, and I thrive in that space.
 
-I appreciate your consideration and would welcome the chance to discuss my candidacy in more detail. Thank you for this opportunity.
+I would welcome the opportunity to discuss how my experience and commitment to [COMPANY's] mission could contribute to your team's goals. Thank you for your time and for the important work you do.
 
 Sincerely,
 [YOUR NAME]`,
@@ -2341,6 +2408,20 @@ const INDUSTRY_INSIGHTS = {
     remote: '~15% hybrid',
     skills: ['ERP systems (SAP)', 'Supply chain optimisation', 'Customs/import-export', 'Fleet management', 'Lean/Six Sigma'],
     source: 'Two Birds Innovation sector summary, Q1 2026'
+  },
+  government: {
+    label: 'Government & Public Service',
+    timeToHire: '8–16 weeks',
+    remote: '~30% hybrid',
+    skills: ['Policy analysis', 'Bilingualism (EN/FR)', 'GC Suite / Phoenix', 'Security clearance', 'Stakeholder engagement'],
+    source: 'Two Birds Innovation sector summary, Q1 2026'
+  },
+  energy: {
+    label: 'Clean Energy & Sustainability',
+    timeToHire: '4–8 weeks',
+    remote: '~25% hybrid',
+    skills: ['Environmental assessment', 'Project management', 'Regulatory compliance', 'GIS / AutoCAD', 'Grant applications'],
+    source: 'Two Birds Innovation sector summary, Q1 2026'
   }
 };
 
@@ -2355,6 +2436,8 @@ function detectSector(jobTitle) {
   if (/\b(non-profit|nonprofit|charity|social worker|community|fundrais|program coordinator|outreach)\b/.test(t)) return 'nonprofit';
   if (/\b(marketing|communications|content|copywriter|seo|social media|brand|pr|public relations|campaign)\b/.test(t)) return 'marketing';
   if (/\b(logistics|supply chain|warehouse|dispatcher|procurement|shipping|inventory|fleet)\b/.test(t)) return 'logistics';
+  if (/\b(government|public serv|policy|federal|provincial|municipal|city of|town of|ministry|crown)\b/.test(t)) return 'government';
+  if (/\b(energy|solar|wind|renewable|sustainability|environmental|cleantech|climate|carbon)\b/.test(t)) return 'energy';
   return null;
 }
 
@@ -2380,6 +2463,7 @@ function buildIndustryInsightsHTML(jobTitle) {
       </div>
     </div>
     <div class="ii-skills">${d.skills.map(s=>`<span class="ii-skill-tag">${s}</span>`).join('')}</div>
+    <div class="ii-ai-note" style="margin-top:10px;font-size:0.82em;color:var(--muted);font-style:italic;border-top:1px solid var(--border);padding-top:8px;">${isFr ? 'Les rôles nécessitant du jugement et des relations humaines sont les plus résilients face à l\'automatisation par l\'IA.' : 'Roles requiring judgment and human connection are most resilient to AI automation.'}</div>
     <div class="ii-source">${srcLabel}</div>
   </div>`;
 }
@@ -2475,6 +2559,46 @@ async function fetchSalaryNegotiation(job) {
       : 'Could not load negotiation strategy. Check your internet connection and try again.';
     document.getElementById('salaryModalBody').innerHTML = '<p style="color:var(--red,#c0392b);font-size:0.92em;">' + msg + '</p>';
   }
+}
+
+// ── Print Jobs Table (clean, no UI chrome) ──
+function printJobsTable() {
+  const isFr = currentLang === 'fr';
+  const title = isFr ? 'Mon tableau de candidatures' : 'My Job Applications';
+  const headers = isFr
+    ? ['Entreprise', 'Poste', 'Score', 'Recommandation', 'Statut', 'Notes']
+    : ['Company', 'Role', 'Score', 'Recommendation', 'Status', 'Notes'];
+
+  const rows = jobs.map(j => {
+    const a = j.analysis || {};
+    return `<tr>
+      <td>${a.company || '—'}</td>
+      <td>${a.job_title || '—'}</td>
+      <td style="text-align:center;font-weight:700">${j.compositeScore || '—'}</td>
+      <td>${a.application_recommendation || '—'}</td>
+      <td>${j.status || '—'}</td>
+      <td style="font-size:0.85em">${(j.notes || '').replace(/</g,'&lt;')}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title>
+<style>
+  body{font-family:'Segoe UI',Arial,sans-serif;color:#111;background:#fff;margin:0;padding:24px}
+  h1{font-size:1.3em;margin-bottom:16px}
+  table{width:100%;border-collapse:collapse;font-size:0.88em}
+  th{background:#0F1B2D;color:#fff;padding:8px 10px;text-align:left;font-weight:600}
+  td{padding:7px 10px;border-bottom:1px solid #e5e5e5;vertical-align:top}
+  tr:nth-child(even){background:#f9f9f9}
+  .footer{margin-top:24px;font-size:0.78em;color:#999;text-align:center;border-top:1px solid #e5e5e5;padding-top:12px}
+  @media print{body{padding:12px}}
+</style></head><body>
+  <h1>${title}</h1>
+  ${jobs.length ? `<table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>` : `<p>No jobs tracked yet.</p>`}
+  <div class="footer">${isFr ? 'Généré par Career Coach — Two Birds Innovation' : 'Generated by Career Coach — Two Birds Innovation'}</div>
+</body></html>`;
+
+  const w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); w.print(); }
 }
 
 // ── 6C: Enhanced HTML Report (with Red Flags column and Industry Sector) ──
