@@ -1247,13 +1247,13 @@
   <a href="pricing.html">Career Coach Pro — Coming Soon</a>
 </div>
 
+<script src="llm-provider.js"></script>
 <script>
 // ── State ──
 let profile = null;
 let jobs = [];
 let currentFilter = 'all';
 let selectedJobId = null;
-const API_URL = 'https://api.anthropic.com/v1/messages';
 
 // ── Init ──
 function init() {
@@ -1508,29 +1508,7 @@ async function analyseJob() {
   const userMsg = `CANDIDATE PROFILE:\n${buildProfileText()}\n\nJOB POSTING:\n${jobText}`;
 
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1500,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userMsg }]
-      })
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || `HTTP ${res.status}`);
-    }
-
-    const data = await res.json();
-    const raw = data.content[0]?.text || '{}';
+    const raw = await llmChat(userMsg, { system: systemPrompt, maxTokens: 1500, apiKey: apiKey });
     let analysis;
     try { analysis = JSON.parse(raw); }
     catch(e) {
@@ -1759,25 +1737,8 @@ async function generateCV(jobId) {
   btn.innerHTML = '⏳ Generating your tailored CV…'; btn.disabled = true;
 
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
-        messages: [{
-          role: 'user',
-          content: `Rewrite this CV incorporating exactly these approved changes:\n${checked.map((c,i)=>`${i+1}. ${c}`).join('\n')}\n\nKeep everything else identical. Return only the full CV text, no explanation.\n\nORIGINAL CV:\n${profile.cv}`
-        }]
-      })
-    });
-    const data = await res.json();
-    const text = data.content[0]?.text || '';
+    const cvPrompt = `Rewrite this CV incorporating exactly these approved changes:\n${checked.map((c,i)=>`${i+1}. ${c}`).join('\n')}\n\nKeep everything else identical. Return only the full CV text, no explanation.\n\nORIGINAL CV:\n${profile.cv}`;
+    const text = await llmChat(cvPrompt, { maxTokens: 2000, apiKey: apiKey });
     document.getElementById('cvOutput').value = text;
     document.getElementById('cvOutputArea').classList.remove('hidden');
     job.cvVersions = job.cvVersions || [];
@@ -2521,28 +2482,7 @@ async function fetchSalaryNegotiation(job) {
   const prompt = `Based on this job posting: ${jobTitle} at ${company}, generate salary negotiation advice for a Canadian job seeker. Include: 1) Estimated salary range in CAD, 2) A 2-paragraph negotiation script, 3) Three specific tactics for this role, 4) Two things NOT to say. Keep it practical and concise. Return ONLY valid JSON with this structure: {"salary_range":"string","script_para1":"string","script_para2":"string","tactics":["string","string","string"],"dont_say":["string","string"]}`;
 
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 800,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || `HTTP ${res.status}`);
-    }
-
-    const data = await res.json();
-    const raw = data.content[0]?.text || '{}';
+    const raw = await llmChat(prompt, { maxTokens: 800, apiKey: apiKey, model: 'claude-haiku-4-5-20251001' });
     let neg;
     try { neg = JSON.parse(raw); }
     catch(e) {
