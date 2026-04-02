@@ -1676,6 +1676,15 @@ function openJobDetail(id) {
         <!-- 6D: Industry Insights -->
         ${buildIndustryInsightsHTML(a.job_title || '')}
 
+        <!-- CV Feedback / Strengthen -->
+        <div class="detail-section" style="margin-top:16px;">
+          <h3 data-en="Strengthen My CV" data-fr="Renforcer mon CV">Strengthen My CV</h3>
+          <p style="font-size:0.88em;color:var(--muted);margin-bottom:4px;" data-en="Get a detailed CV review tailored to this specific job posting." data-fr="Obtenez une analyse détaillée de votre CV adaptée à cette offre d'emploi.">Get a detailed CV review tailored to this specific job posting.</p>
+          <p style="font-size:0.78em;color:var(--muted);margin-bottom:8px;" data-en="🔒 Your CV is only sent to the AI during this analysis — never stored on a server." data-fr="🔒 Votre CV n'est envoyé à l'IA que pendant cette analyse — jamais stocké sur un serveur.">🔒 Your CV is only sent to the AI during this analysis — never stored on a server.</p>
+          <button class="btn-salary-neg" onclick="strengthenCV('${job.id}')" id="btn-strengthen-${job.id}" data-en="📝 Analyse my CV for this role" data-fr="📝 Analyser mon CV pour ce poste">📝 Analyse my CV for this role</button>
+          <div id="cv-feedback-${job.id}" class="hidden" style="margin-top:12px;"></div>
+        </div>
+
         <!-- 6A: Salary Negotiation button -->
         <div class="detail-section" style="margin-top:16px;">
           <h3 data-en="Salary Negotiation" data-fr="Négociation salariale">Salary Negotiation</h3>
@@ -1759,6 +1768,66 @@ async function generateCV(jobId) {
     setTimeout(function(){ if (errEl.parentNode) errEl.parentNode.removeChild(errEl); }, 8000);
   } finally {
     btn.innerHTML = 'Generate my tailored CV'; btn.disabled = false;
+  }
+}
+
+async function strengthenCV(jobId) {
+  var job = jobs.find(function(j) { return j.id === jobId; });
+  if (!job) return;
+  var apiKey = localStorage.getItem('cc_api_key');
+  if (!apiKey) { alert('Add your API key in Settings first.'); return; }
+  if (!profile || !profile.cv) { alert('Please add your CV in your profile first (Settings → Reset profile to update).'); return; }
+
+  var btn = document.getElementById('btn-strengthen-' + jobId);
+  var feedbackEl = document.getElementById('cv-feedback-' + jobId);
+  if (!btn || !feedbackEl) return;
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Analysing your CV…';
+  feedbackEl.classList.remove('hidden');
+  feedbackEl.innerHTML = '<p style="color:var(--muted);font-size:0.88em;">Reviewing your CV against this job posting…</p>';
+
+  var prompt = 'You are a career coach. Analyse this CV against the job posting and provide specific, actionable feedback.\n\n' +
+    'Return ONLY valid JSON with this structure:\n' +
+    '{"overall_match":"strong|moderate|weak","summary":"2-sentence assessment","strengths":["3 specific CV strengths for this role"],"gaps":["3 specific gaps or weaknesses"],"improvements":["5 specific line-by-line improvement suggestions"],"keywords_missing":["keywords from the job posting missing from the CV"]}\n\n' +
+    'CV:\n' + profile.cv + '\n\nJOB POSTING:\n' + (job.rawPosting || 'No posting text available');
+
+  try {
+    var raw = await llmChat(prompt, { maxTokens: 1500, apiKey: apiKey });
+    var feedback;
+    try { feedback = JSON.parse(raw); }
+    catch(e) { var m = raw.match(/\{[\s\S]*\}/); feedback = m ? JSON.parse(m[0]) : null; }
+    if (!feedback) throw new Error('Could not parse response.');
+
+    var matchColour = feedback.overall_match === 'strong' ? 'var(--green,#27ae60)' : feedback.overall_match === 'weak' ? 'var(--red,#c0392b)' : 'var(--amber,#f39c12)';
+    var html = '<div style="background:var(--bg-alt,#f8f9fa);border-radius:12px;padding:16px;border:1px solid var(--border,#e0e0e0);">';
+    html += '<p style="font-weight:700;color:' + matchColour + ';font-size:0.95em;margin-bottom:8px;">Match: ' + (feedback.overall_match || '').toUpperCase() + '</p>';
+    html += '<p style="font-size:0.88em;color:var(--text,#333);margin-bottom:12px;">' + (feedback.summary || '') + '</p>';
+    if (feedback.strengths && feedback.strengths.length) {
+      html += '<h4 style="font-size:0.85em;font-weight:700;margin-bottom:6px;">Strengths</h4>';
+      html += feedback.strengths.map(function(s) { return '<p style="font-size:0.82em;color:var(--green,#27ae60);margin-bottom:4px;">✓ ' + s + '</p>'; }).join('');
+    }
+    if (feedback.gaps && feedback.gaps.length) {
+      html += '<h4 style="font-size:0.85em;font-weight:700;margin:10px 0 6px;">Gaps</h4>';
+      html += feedback.gaps.map(function(g) { return '<p style="font-size:0.82em;color:var(--red,#c0392b);margin-bottom:4px;">✗ ' + g + '</p>'; }).join('');
+    }
+    if (feedback.improvements && feedback.improvements.length) {
+      html += '<h4 style="font-size:0.85em;font-weight:700;margin:10px 0 6px;">Specific Improvements</h4>';
+      html += '<ol style="font-size:0.82em;padding-left:20px;margin:0;">';
+      html += feedback.improvements.map(function(i) { return '<li style="margin-bottom:4px;">' + i + '</li>'; }).join('');
+      html += '</ol>';
+    }
+    if (feedback.keywords_missing && feedback.keywords_missing.length) {
+      html += '<h4 style="font-size:0.85em;font-weight:700;margin:10px 0 6px;">Missing Keywords</h4>';
+      html += '<p style="font-size:0.82em;color:var(--muted);">' + feedback.keywords_missing.join(', ') + '</p>';
+    }
+    html += '</div>';
+    feedbackEl.innerHTML = html;
+  } catch(err) {
+    feedbackEl.innerHTML = '<p style="color:var(--red,#c0392b);font-size:0.88em;">Could not analyse CV: ' + (err.message || 'Unknown error') + '</p>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📝 Analyse my CV for this role';
   }
 }
 
