@@ -811,9 +811,13 @@
   </details>
 
   <div style="margin-top:28px;border-top:1px solid var(--border);padding-top:20px;">
-    <button class="danger-btn" onclick="clearJobs()">Clear all jobs</button>
-    <button class="danger-btn" onclick="resetProfile()">Reset profile (return to onboarding)</button>
-    <button class="btn-export" style="margin-top:8px;" onclick="exportCSV()">Export CSV ↓</button>
+    <p style="font-size:0.78em;color:var(--muted);margin-bottom:12px;" data-en="🔒 All job data is stored only in your browser. Nothing leaves your device except API calls to analyse jobs." data-fr="🔒 Toutes les données sont stockées uniquement dans votre navigateur. Rien ne quitte votre appareil sauf les appels API pour analyser les offres.">🔒 All job data is stored only in your browser. Nothing leaves your device except API calls to analyse jobs.</p>
+    <button class="btn-export" onclick="exportCSV()" data-en="Export CSV ↓" data-fr="Exporter CSV ↓">Export CSV ↓</button>
+    <button class="btn-export" style="margin-top:6px;" onclick="exportJSON()" data-en="Export All Data (JSON) ↓" data-fr="Exporter toutes les données (JSON) ↓">Export All Data (JSON) ↓</button>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
+      <button class="danger-btn" onclick="clearJobs()" data-en="Clear all jobs" data-fr="Supprimer toutes les offres">Clear all jobs</button>
+      <button class="danger-btn" onclick="resetProfile()" data-en="Reset profile (return to onboarding)" data-fr="Réinitialiser le profil (retour à l'accueil)">Reset profile (return to onboarding)</button>
+    </div>
   </div>
 </aside>
 
@@ -1857,6 +1861,18 @@ function exportCSV() {
   a.download = 'career-coach-jobs-' + new Date().toISOString().split('T')[0] + '.csv';
   a.click();
   // gtag('event', 'export_downloaded', { job_count: jobs.length });
+}
+
+function exportJSON() {
+  var data = {
+    exportDate: new Date().toISOString(),
+    profile: profile,
+    jobs: jobs
+  };
+  var a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2));
+  a.download = 'career-coach-backup-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
 }
 
 // ── Settings ──
