@@ -27,7 +27,15 @@
       --text-secondary: #8AA0B8;
     }
 
-    body { background: var(--navy); color: var(--warm); font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif; min-height: 100vh; font-size: 1rem; }
+    body { background: var(--navy); color: var(--warm); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif; min-height: 100vh; font-size: 16px; line-height: 1.6; }
+    h1 { font-size: 40px; line-height: 1.2; }
+    h2 { font-size: 32px; line-height: 1.2; }
+    h3 { font-size: 24px; line-height: 1.2; }
+    @media (max-width: 600px) {
+      h1 { font-size: 28px; }
+      h2 { font-size: 24px; }
+      h3 { font-size: 20px; }
+    }
 
     /* ── Util ── */
     .hidden { display: none !important; }
@@ -478,12 +486,17 @@
       .field-row { grid-template-columns: 1fr; }
       .onboard-card { padding: 20px; }
       .wizard-nav { flex-direction: column; gap: 8px; }
-      .wizard-nav button { width: 100%; }
+      .wizard-nav button { width: 100%; min-height: 44px; }
       .mi-label { font-size: 0.78em; }
       .app-header { padding: 10px 12px; }
       .app-logo { font-size: 1.15em; }
       .right-panel { padding: 12px; }
       .add-job-panel h2 { font-size: 1.2em; }
+    }
+    /* ── Mobile CTA + tap target enforcement ── */
+    @media (max-width: 600px) {
+      .btn-primary, .analyse-btn, .wizard-nav button, [type="submit"] { width: 100%; min-height: 44px; }
+      a[href^="mailto"] { display: block; text-align: center; min-height: 44px; line-height: 44px; }
     }
 
     /* Ensure textarea is full-width on mobile generally */
@@ -1264,7 +1277,7 @@
 <div id="b2b-section" style="max-width:640px;margin:40px auto;padding:0 20px;">
   <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;">
     <h2 style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--warm);margin-bottom:8px;" data-en="For career centres and employment agencies" data-fr="Pour les centres de carrière et les agences d'emploi">For career centres and employment agencies</h2>
-    <p style="color:var(--muted);font-size:0.95em;line-height:1.6;margin-bottom:20px;" data-en="License Career Coach for your organisation. Offer AI-powered job application tools to your clients under your own brand. White-label available." data-fr="Licenciez Career Coach pour votre organisation. Offrez des outils de candidature propulsés par l'IA à vos clients sous votre propre marque. Marque blanche disponible.">License Career Coach for your organisation. Offer AI-powered job application tools to your clients under your own brand. White-label available.</p>
+    <p style="color:var(--muted);font-size:0.95em;line-height:1.6;margin-bottom:20px;" data-en="Career Coach is available for licensing to employment agencies, Ontario Works offices, and college career centres. Unlimited users, one annual fee." data-fr="Career Coach est disponible sous licence pour les agences d'emploi, les bureaux d'Ontario au travail et les centres de carrière des collèges. Utilisateurs illimités, un frais annuel.">Career Coach is available for licensing to employment agencies, Ontario Works offices, and college career centres. Unlimited users, one annual fee.</p>
     <a href="mailto:aaron.patzalek@gmail.com?subject=Career%20Coach%20B2B%20Inquiry" style="display:inline-block;background:var(--teal);color:#1B3A4B;font-weight:700;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:1em;min-height:44px;line-height:20px;" data-en="Contact Aaron →" data-fr="Contacter Aaron →">Contact Aaron →</a>
   </div>
 </div>
