@@ -1,0 +1,11 @@
+/* DM Serif Display — self-hosted (SIL OFL 1.1).
+   Regular weight only (matches the original Google Fonts import).
+   woff2 sourced via Fontsource CDN; licence from googlefonts/dm-fonts repo.
+   See OFL.txt for licence. */
+@font-face {
+  font-family: 'DM Serif Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('DMSerifDisplay-Regular.woff2') format('woff2');
+}
