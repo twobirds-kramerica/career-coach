@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-CA">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Career Coach | Two Birds Innovation</title>
+  <title>Career Coach — AI Job Application Tool | Two Birds Innovation</title>
+  <meta name="description" content="Career Coach: AI-powered job application tools. Analyses your CV against real job postings and tells you where to focus. Private by design — your data stays in your browser.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://twobirds-kramerica.github.io/career-coach/">
+  <meta property="og:title" content="Career Coach — AI Job Application Tool">
+  <meta property="og:description" content="Land the job. Know your worth. Own your story. AI-powered job application tools. Private by design.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://twobirds-kramerica.github.io/career-coach/">
+  <meta property="og:locale" content="en_CA">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -781,9 +789,27 @@
     }
     .ii-source { font-size: 0.75em; color: var(--muted); font-style: italic; margin-top: 8px; }
     @media (max-width: 600px) { .ii-grid { grid-template-columns: 1fr; } }
+
+    /* Skip-to-content (WCAG 2.4.1) */
+    .skip-link {
+      position: absolute;
+      top: -48px;
+      left: 8px;
+      background: var(--teal);
+      color: #0a1520;
+      padding: 12px 16px;
+      border-radius: 0 0 6px 6px;
+      font-weight: 700;
+      z-index: 9999;
+      text-decoration: none;
+      transition: top 0.2s ease;
+    }
+    .skip-link:focus { top: 0; outline: 3px solid #fff; outline-offset: 2px; }
   </style>
 </head>
 <body>
+
+<a href="#main" class="skip-link">Skip to main content</a>
 
 <!-- App Header -->
 <header class="app-header">
@@ -835,6 +861,8 @@
     </div>
   </div>
 </aside>
+
+<main id="main">
 
 <!-- ONBOARDING WIZARD -->
 <div id="onboarding">
@@ -1286,6 +1314,8 @@
   <span data-en="Career Coach by Two Birds Innovation™" data-fr="Career Coach par Two Birds Innovation™">Career Coach by Two Birds Innovation™</span> &nbsp;|&nbsp;
   <a href="pricing.html">Career Coach Pro — Coming Soon</a>
 </div>
+
+</main>
 
 <script src="llm-provider.js"></script>
 <script>
