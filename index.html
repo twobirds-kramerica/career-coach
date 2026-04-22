@@ -839,15 +839,24 @@
 
   <p style="font-size:0.88em;color:var(--muted);margin-bottom:16px;" data-en="Career Coach uses AI to analyse your applications. The API key is already configured — you do not need to change anything here." data-fr="Career Coach utilise l'IA pour analyser vos candidatures. La clé API est déjà configurée — vous n'avez rien à modifier ici.">Career Coach uses AI to analyse your applications. The API key is already configured — you do not need to change anything here.</p>
   <details class="advanced-settings">
-    <summary data-en="Advanced — for developers only" data-fr="Avancé — pour les développeurs uniquement">Advanced — for developers only</summary>
+    <summary data-en="Advanced — pick provider + API key" data-fr="Avancé — choisir le fournisseur et la clé API">Advanced — pick provider + API key</summary>
     <div style="margin-top:14px;">
       <div class="field-group">
-        <label>Anthropic API Key</label>
-        <input type="password" id="settingsApiKey" placeholder="sk-ant-..." autocomplete="off">
-        <p style="font-size:0.8em;color:var(--muted);margin-top:6px;">Stored only in your browser. Never sent anywhere except to the Anthropic API.</p>
-        <p style="font-size:0.8em;margin-top:8px;"><a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--teal);">Get a free API key →</a></p>
+        <label for="settingsProvider">AI provider</label>
+        <select id="settingsProvider" onchange="renderSettingsForProvider(this.value)">
+          <option value="anthropic">Claude (Anthropic)</option>
+          <option value="openai">GPT-4o (OpenAI)</option>
+          <option value="gemini">Gemini (Google)</option>
+          <option value="ollama">Ollama (local, no key)</option>
+        </select>
       </div>
-      <button class="btn-primary" onclick="saveApiKey()" style="width:100%;">Save API Key</button>
+      <div class="field-group" id="settingsApiKeyGroup">
+        <label for="settingsApiKey"><span id="settingsApiKeyLabel">Anthropic API Key</span></label>
+        <input type="password" id="settingsApiKey" placeholder="sk-ant-..." autocomplete="off">
+        <p id="settingsApiKeyNote" style="font-size:0.8em;color:var(--muted);margin-top:6px;">Stored only in your browser. Never sent anywhere except to the provider's API.</p>
+        <p style="font-size:0.8em;margin-top:8px;"><a id="settingsGetKeyLink" href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--teal);">Get an Anthropic API key →</a></p>
+      </div>
+      <button class="btn-primary" onclick="saveApiKey()" style="width:100%;">Save provider &amp; key</button>
     </div>
   </details>
 
@@ -1325,11 +1334,82 @@ let jobs = [];
 let currentFilter = 'all';
 let selectedJobId = null;
 
+// ── LLM provider metadata (mirrors llm-provider.js options) ──
+const PROVIDER_META = {
+  anthropic: {
+    label:       'Claude (Anthropic)',
+    keyLabel:    'Anthropic API Key',
+    placeholder: 'sk-ant-...',
+    signupUrl:   'https://console.anthropic.com',
+    signupText:  'Get an Anthropic API key →',
+    needsKey:    true
+  },
+  openai: {
+    label:       'GPT-4o (OpenAI)',
+    keyLabel:    'OpenAI API Key',
+    placeholder: 'sk-...',
+    signupUrl:   'https://platform.openai.com/api-keys',
+    signupText:  'Get an OpenAI API key →',
+    needsKey:    true
+  },
+  gemini: {
+    label:       'Gemini (Google)',
+    keyLabel:    'Google AI Studio API Key',
+    placeholder: 'AIza...',
+    signupUrl:   'https://aistudio.google.com/apikey',
+    signupText:  'Get a free Gemini API key →',
+    needsKey:    true
+  },
+  ollama: {
+    label:       'Ollama (local, no key)',
+    keyLabel:    '',
+    placeholder: '',
+    signupUrl:   'https://ollama.com/download',
+    signupText:  'Download Ollama (localhost:11434) →',
+    needsKey:    false
+  }
+};
+
+function getActiveProvider() {
+  try { return localStorage.getItem('llm_provider') || 'anthropic'; }
+  catch(e) { return 'anthropic'; }
+}
+
+function getActiveApiKey() {
+  try {
+    return localStorage.getItem('llm_api_key')
+        || localStorage.getItem('cc_api_key')
+        || '';
+  } catch(e) { return ''; }
+}
+
+function renderSettingsForProvider(provider) {
+  const meta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
+  const labelEl = document.getElementById('settingsApiKeyLabel');
+  const inputEl = document.getElementById('settingsApiKey');
+  const groupEl = document.getElementById('settingsApiKeyGroup');
+  const linkEl  = document.getElementById('settingsGetKeyLink');
+  if (labelEl) labelEl.textContent = meta.keyLabel || 'API key';
+  if (inputEl) {
+    inputEl.placeholder = meta.placeholder;
+    inputEl.required = meta.needsKey;
+  }
+  if (groupEl) groupEl.style.display = meta.needsKey ? '' : 'none';
+  if (linkEl) {
+    linkEl.href = meta.signupUrl;
+    linkEl.textContent = meta.signupText;
+  }
+}
+
 // ── Init ──
 function init() {
   try { profile = JSON.parse(localStorage.getItem('cc_profile')); } catch(e) {}
   try { jobs = JSON.parse(localStorage.getItem('cc_jobs')) || []; } catch(e) {}
-  const apiKey = localStorage.getItem('cc_api_key') || '';
+  const provider = getActiveProvider();
+  const providerEl = document.getElementById('settingsProvider');
+  if (providerEl) providerEl.value = provider;
+  renderSettingsForProvider(provider);
+  const apiKey = getActiveApiKey();
   document.getElementById('settingsApiKey').value = apiKey;
 
   if (profile) showMainApp();
@@ -1566,8 +1646,10 @@ async function analyseJob() {
   const jobText = document.getElementById('jobInput').value.trim();
   if (!jobText) { setStatus('Please paste a job posting first.', true); return; }
 
-  const apiKey = localStorage.getItem('cc_api_key');
-  if (!apiKey) { setStatus('Please add your Anthropic API key in Settings (⚙).', true); return; }
+  const provider = getActiveProvider();
+  const providerMeta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
+  const apiKey = getActiveApiKey();
+  if (providerMeta.needsKey && !apiKey) { setStatus('Please add your ' + providerMeta.label + ' API key in Settings (⚙).', true); return; }
 
   setStatus('Analysing… this takes about 10 seconds.', false);
   document.getElementById('analyseBtn').disabled = true;
@@ -1578,7 +1660,7 @@ async function analyseJob() {
   const userMsg = `CANDIDATE PROFILE:\n${buildProfileText()}\n\nJOB POSTING:\n${jobText}`;
 
   try {
-    const raw = await llmChat(userMsg, { system: systemPrompt, maxTokens: 1500, apiKey: apiKey });
+    const raw = await llmChat(userMsg, { system: systemPrompt, maxTokens: 1500, provider: provider, apiKey: apiKey });
     let analysis;
     try { analysis = JSON.parse(raw); }
     catch(e) {
@@ -1803,8 +1885,10 @@ function filterSuggestions() {
 async function generateCV(jobId) {
   const job = jobs.find(j => j.id === jobId);
   if (!job) return;
-  const apiKey = localStorage.getItem('cc_api_key');
-  if (!apiKey) { alert('Add your API key in Settings first.'); return; }
+  const provider = getActiveProvider();
+  const providerMeta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
+  const apiKey = getActiveApiKey();
+  if (providerMeta.needsKey && !apiKey) { alert('Add your ' + providerMeta.label + ' API key in Settings first.'); return; }
 
   const checked = [...document.querySelectorAll('.suggestion-card')]
     .filter(c => c.querySelector('input[type=checkbox]').checked)
@@ -1817,7 +1901,7 @@ async function generateCV(jobId) {
 
   try {
     const cvPrompt = `Rewrite this CV incorporating exactly these approved changes:\n${checked.map((c,i)=>`${i+1}. ${c}`).join('\n')}\n\nKeep everything else identical. Return only the full CV text, no explanation.\n\nORIGINAL CV:\n${profile.cv}`;
-    const text = await llmChat(cvPrompt, { maxTokens: 2000, apiKey: apiKey });
+    const text = await llmChat(cvPrompt, { maxTokens: 2000, provider: provider, apiKey: apiKey });
     document.getElementById('cvOutput').value = text;
     document.getElementById('cvOutputArea').classList.remove('hidden');
     job.cvVersions = job.cvVersions || [];
@@ -1844,8 +1928,10 @@ async function generateCV(jobId) {
 async function strengthenCV(jobId) {
   var job = jobs.find(function(j) { return j.id === jobId; });
   if (!job) return;
-  var apiKey = localStorage.getItem('cc_api_key');
-  if (!apiKey) { alert('Add your API key in Settings first.'); return; }
+  var provider = getActiveProvider();
+  var providerMeta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
+  var apiKey = getActiveApiKey();
+  if (providerMeta.needsKey && !apiKey) { alert('Add your ' + providerMeta.label + ' API key in Settings first.'); return; }
   if (!profile || !profile.cv) { alert('Please add your CV in your profile first (Settings → Reset profile to update).'); return; }
 
   var btn = document.getElementById('btn-strengthen-' + jobId);
@@ -1863,7 +1949,7 @@ async function strengthenCV(jobId) {
     'CV:\n' + profile.cv + '\n\nJOB POSTING:\n' + (job.rawPosting || 'No posting text available');
 
   try {
-    var raw = await llmChat(prompt, { maxTokens: 1500, apiKey: apiKey });
+    var raw = await llmChat(prompt, { maxTokens: 1500, provider: provider, apiKey: apiKey });
     var feedback;
     try { feedback = JSON.parse(raw); }
     catch(e) { var m = raw.match(/\{[\s\S]*\}/); feedback = m ? JSON.parse(m[0]) : null; }
@@ -1985,15 +2071,32 @@ function closeSettings() {
   document.getElementById('settingsOverlay').classList.remove('open');
 }
 function saveApiKey() {
+  const providerEl = document.getElementById('settingsProvider');
+  const provider = (providerEl && providerEl.value) || 'anthropic';
+  const meta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
   const key = document.getElementById('settingsApiKey').value.trim();
+
+  if (meta.needsKey && !key) {
+    document.getElementById('settingsApiKey').focus();
+    return;
+  }
+
   try {
-    localStorage.setItem('cc_api_key', key);
+    localStorage.setItem('llm_provider', provider);
+    if (meta.needsKey) {
+      localStorage.setItem('llm_api_key', key);
+      // keep legacy key in sync for backwards compatibility with older sessions
+      localStorage.setItem('cc_api_key', key);
+    } else {
+      localStorage.removeItem('llm_api_key');
+      localStorage.removeItem('cc_api_key');
+    }
   } catch(e) {
-    alert('Could not save API key — browser storage may be full.');
+    alert('Could not save settings — browser storage may be full.');
     return;
   }
   closeSettings();
-  alert('API key saved.');
+  alert('Provider and key saved. (' + meta.label + ')');
 }
 function clearJobs() {
   if (!confirm('Clear all jobs? This cannot be undone.')) return;
@@ -2608,20 +2711,22 @@ function closeSalaryModal(e) {
 }
 
 async function fetchSalaryNegotiation(job) {
-  const apiKey = localStorage.getItem('cc_api_key');
+  const provider = getActiveProvider();
+  const providerMeta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
+  const apiKey = getActiveApiKey();
   const a = job.analysis || {};
   const jobTitle = a.job_title || 'this role';
   const company = a.company || 'the company';
 
-  if (!apiKey) {
-    document.getElementById('salaryModalBody').innerHTML = `<p style="color:var(--red);font-size:0.92em;">Please add your Anthropic API key in Settings (⚙) first.</p>`;
+  if (providerMeta.needsKey && !apiKey) {
+    document.getElementById('salaryModalBody').innerHTML = `<p style="color:var(--red);font-size:0.92em;">Please add your ${providerMeta.label} API key in Settings (⚙) first.</p>`;
     return;
   }
 
   const prompt = `Based on this job posting: ${jobTitle} at ${company}, generate salary negotiation advice for a Canadian job seeker. Include: 1) Estimated salary range in CAD, 2) A 2-paragraph negotiation script, 3) Three specific tactics for this role, 4) Two things NOT to say. Keep it practical and concise. Return ONLY valid JSON with this structure: {"salary_range":"string","script_para1":"string","script_para2":"string","tactics":["string","string","string"],"dont_say":["string","string"]}`;
 
   try {
-    const raw = await llmChat(prompt, { maxTokens: 800, apiKey: apiKey, model: 'claude-haiku-4-5-20251001' });
+    const raw = await llmChat(prompt, { maxTokens: 800, provider: provider, apiKey: apiKey });
     let neg;
     try { neg = JSON.parse(raw); }
     catch(e) {
