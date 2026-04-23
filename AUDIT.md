@@ -1,5 +1,19 @@
 # Career Coach — HAL Stack Rigor Audit
 
+> **⚠ PROGRESS UPDATE 2026-04-22** — 3 of 5 §8 Top-5 next-actions have SHIPPED; 2 remain open. Do NOT treat §8 as an untouched backlog; re-audit before proposing Career Coach work.
+>
+> | # | Action | Status |
+> |---|---|---|
+> | 1 | Apply S-CLARITY-PORTABILITY pattern | **Shipped** in `9d7e44e` S-CC-PORTABILITY (provider picker wired end-to-end) |
+> | 2 | Self-host DM fonts | **Shipped** in `45d3ddd` S-CC-FONTS (~145 KB vendored across 5 woff2 + 2 OFL licences) |
+> | 3 | Complete `pricing.html` | **Open** — blocked on deciding what Pro is |
+> | 4 | Clarity + Career Coach cross-promotion | **Shipped** in `da62d75` S-CROSS-PROMO (footer links to Clarity + DCC) |
+> | 5 | Pro-launch email capture | **Open** — not shipped |
+>
+> Also shipped post-audit: inline script extraction to `js/app.js` (`0b53a6e` S-CC-CSP-READY) and stale preconnect cleanup (`80ee1e1` S-037) — both ancillary to §8.
+
+
+
 **Audit date:** 2026-04-21
 **Auditor:** Claude Code (Opus 4.7 · max-mode autonomous)
 **Sprint:** S-CC-HYGIENE (self-directed; fifth audit pattern of the day after S-CLARITY, S-KEVIN, S-AARON, S-TBI)
