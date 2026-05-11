@@ -1238,10 +1238,14 @@
       <!-- Job Market Insights (9A) -->
       <details class="market-insights-panel" id="marketInsightsPanel">
         <summary class="market-insights-summary">
-          <span class="mi-title" data-en="Job Market Insights — Canada, March 2026" data-fr="Aperçu du marché de l'emploi — Canada, mars 2026">Job Market Insights — Canada, March 2026</span>
+          <span class="mi-title" id="miPanelTitle" data-en="Job Market Insights — Canada" data-fr="Aperçu du marché de l'emploi — Canada">Job Market Insights — Canada</span>
           <span class="mi-toggle"></span>
         </summary>
         <div class="market-insights-body">
+          <div class="mi-row" id="lfsRateRow" style="display:none;">
+            <span class="mi-label" data-en="Unemployment Rate (CA)" data-fr="Taux de chômage (CA)">Unemployment Rate (CA)</span>
+            <span class="mi-value" id="lfsRateValue">—</span>
+          </div>
           <div class="mi-row">
             <span class="mi-label" data-en="Avg. Time to Hire" data-fr="Délai moyen d'embauche">Avg. Time to Hire</span>
             <span class="mi-value" data-en="28 days" data-fr="28 jours">28 days</span>
@@ -1268,7 +1272,7 @@
             <span class="mi-label" data-en="Remote / Hybrid Roles" data-fr="Postes à distance / hybrides">Remote / Hybrid Roles</span>
             <span class="mi-value" data-en="~35% of professional roles offer hybrid work" data-fr="~35 % des postes professionnels offrent un mode hybride">~35% of professional roles offer hybrid work</span>
           </div>
-          <div class="mi-source" data-en="Source: Two Birds Innovation market summary, March 2026" data-fr="Source : Résumé du marché Two Birds Innovation, mars 2026">Source: Two Birds Innovation market summary, March 2026</div>
+          <div class="mi-source" id="miSourceLine" data-en="Source: Two Birds Innovation market summary" data-fr="Source : Résumé du marché Two Birds Innovation">Source: Two Birds Innovation market summary</div>
         </div>
       </details>
 
@@ -1405,6 +1409,48 @@
   function esc(s) {
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+}());
+</script>
+<script>
+(function () {
+  'use strict';
+  var miPanel = document.getElementById('marketInsightsPanel');
+  if (!miPanel) return;
+  var lfsLoaded = false;
+
+  miPanel.addEventListener('toggle', function () {
+    if (!miPanel.open || lfsLoaded) return;
+    lfsLoaded = true;
+
+    fetch('data/lfs-unemployment.json')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var row    = document.getElementById('lfsRateRow');
+        var val    = document.getElementById('lfsRateValue');
+        var src    = document.getElementById('miSourceLine');
+        var title  = document.getElementById('miPanelTitle');
+        if (!row || !val) return;
+
+        // Format: "6.7% (seasonally adj.)"
+        val.textContent = d.rate.toFixed(1) + '% (seasonally adj.)';
+        row.style.display = '';
+
+        // Update panel title with reference period e.g. "— Canada, March 2025"
+        if (title && d.reference_period) {
+          var parts = d.reference_period.split('-');
+          var months = ['','January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+          var label = months[parseInt(parts[1], 10)] + ' ' + parts[0];
+          title.textContent = 'Job Market Insights — Canada, ' + label;
+        }
+
+        // Update source line
+        if (src && d.reference_period) {
+          src.textContent = 'Source: Statistics Canada LFS (' + d.reference_period + ') + Two Birds Innovation';
+        }
+      })
+      .catch(function () { /* silently skip — static data still shows */ });
+  });
 }());
 </script>
 </body>

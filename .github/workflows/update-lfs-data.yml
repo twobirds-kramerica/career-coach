@@ -1,0 +1,45 @@
+name: Update StatCan LFS Unemployment Data
+
+on:
+  schedule:
+    # First Friday of each month at 09:00 UTC (StatCan releases LFS ~2 weeks after reference month)
+    - cron: '0 9 1-7 * 5'
+  workflow_dispatch:
+
+jobs:
+  update-lfs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch latest LFS data from StatCan
+        run: python scripts/fetch-lfs.py
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet data/lfs-unemployment.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push if updated
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          REF=$(python -c "import json; d=json.load(open('data/lfs-unemployment.json')); print(d['reference_period'])")
+          RATE=$(python -c "import json; d=json.load(open('data/lfs-unemployment.json')); print(d['rate'])")
+          git add data/lfs-unemployment.json
+          git commit -m "data(lfs): StatCan unemployment ${RATE}% — ${REF}"
+          git push
