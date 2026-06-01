@@ -1351,6 +1351,18 @@
   </div>
 </div>
 
+<!-- 6C: Interview Prep Modal -->
+<div id="interviewModalOverlay" class="salary-modal-overlay hidden" onclick="closeInterviewModal(event)">
+  <div class="salary-modal" role="dialog" aria-modal="true" aria-labelledby="interviewModalTitle" style="max-width:700px">
+    <button class="salary-modal-close" onclick="closeInterviewModal()" data-en="✕ Close" data-fr="✕ Fermer">✕ Close</button>
+    <h2 id="interviewModalTitle" data-en="Interview Prep" data-fr="Préparation à l'entretien">Interview Prep</h2>
+    <p class="modal-sub" id="interviewModalSub"></p>
+    <div id="interviewModalBody">
+      <div class="salary-modal-loading">Generating your interview prep…</div>
+    </div>
+  </div>
+</div>
+
 <!-- B2B Section -->
 <div id="b2b-section" style="max-width:640px;margin:40px auto;padding:0 20px;">
   <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;">

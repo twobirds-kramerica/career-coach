@@ -521,6 +521,13 @@ function openJobDetail(id) {
           <button class="btn-salary-neg" onclick="openCoverLetterModal('${job.id}')" data-en="✉️ Generate cover letter" data-fr="✉️ Générer la lettre de motivation">✉️ Generate cover letter</button>
         </div>
 
+        <!-- 6C: Interview Prep -->
+        <div class="detail-section" style="margin-top:16px;">
+          <h3 data-en="Interview Prep" data-fr="Préparation à l'entretien">Interview Prep</h3>
+          <p style="font-size:0.88em;color:var(--muted);margin-bottom:4px;" data-en="Get likely interview questions, answer frameworks, and smart questions to ask — tailored to this role." data-fr="Obtenez des questions d'entretien probables, des cadres de réponse et des questions intelligentes à poser — adaptés à ce poste.">Get likely interview questions, answer frameworks, and smart questions to ask — tailored to this role.</p>
+          <button class="btn-salary-neg" onclick="openInterviewModal('${job.id}')" data-en="🎤 Prepare for interview" data-fr="🎤 Se préparer à l'entretien">🎤 Prepare for interview</button>
+        </div>
+
         <!-- Job Tracker -->
         <div class="detail-section">
           <h3>Job Tracker <span class="pro-badge">Pro</span></h3>
@@ -1635,6 +1642,101 @@ function copyCoverLetterText(btn) {
   }).catch(() => {
     btn.textContent = 'Copy failed — select text manually';
   });
+}
+
+// ── 6C: Interview Prep ──
+let interviewModalJobId = null;
+
+function openInterviewModal(jobId) {
+  interviewModalJobId = jobId;
+  const job = jobs.find(j => j.id === jobId);
+  if (!job) return;
+  const a = job.analysis || {};
+  const titleText = `${a.job_title || 'Role'} at ${a.company || 'Company'}`;
+  document.getElementById('interviewModalSub').textContent = titleText;
+  document.getElementById('interviewModalBody').innerHTML =
+    '<div class="salary-modal-loading">Generating your interview prep…</div>';
+  document.getElementById('interviewModalOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  fetchInterviewPrep(job);
+}
+
+function closeInterviewModal(e) {
+  if (e && e.target && e.target.id !== 'interviewModalOverlay' && !e.currentTarget?.classList?.contains('salary-modal-close')) return;
+  document.getElementById('interviewModalOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+async function fetchInterviewPrep(job) {
+  const provider = getActiveProvider();
+  const providerMeta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
+  const apiKey = getActiveApiKey();
+  if (providerMeta.needsKey && !apiKey) {
+    document.getElementById('interviewModalBody').innerHTML =
+      '<p style="color:#c0392b">Please add your API key in Settings (⚙) first.</p>';
+    return;
+  }
+  const a = job.analysis || {};
+  const jobTitle = a.job_title || 'this role';
+  const company = a.company || 'the company';
+
+  const prompt = `You are an expert Canadian career coach. Prepare this candidate for a job interview.
+
+Candidate CV summary (first 1000 chars):
+${profile ? profile.cv.substring(0, 1000) : 'Not provided'}
+
+Role: ${jobTitle} at ${company}
+CV strengths for this role: ${(a.cv_strengths || []).join(', ')}
+CV gaps to address: ${(a.cv_gaps || []).join(', ')}
+
+Job posting excerpt:
+${job.rawPosting.substring(0, 800)}
+
+Return a JSON object with exactly this structure — no markdown, no code fences, just raw JSON:
+{
+  "likely_questions": [
+    {"question": "string", "why_asked": "string (1 sentence)", "answer_framework": "string (2-3 sentences using STAR method)"},
+    {"question": "string", "why_asked": "string", "answer_framework": "string"},
+    {"question": "string", "why_asked": "string", "answer_framework": "string"},
+    {"question": "string", "why_asked": "string", "answer_framework": "string"},
+    {"question": "string", "why_asked": "string", "answer_framework": "string"}
+  ],
+  "questions_to_ask": ["string", "string", "string"],
+  "key_messages": ["string (one thing to emphasize)", "string", "string"]
+}`;
+
+  try {
+    const raw = await llmChat(prompt, { maxTokens: 1200, provider: provider, apiKey: apiKey });
+    let prep;
+    try { prep = JSON.parse(raw); }
+    catch(e) {
+      const match = raw.match(/\{[\s\S]*\}/);
+      prep = match ? JSON.parse(match[0]) : null;
+    }
+    if (!prep) throw new Error('Could not parse interview prep response.');
+
+    const qs = (prep.likely_questions || []).map((q, i) => `
+      <div style="border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;">
+        <p style="font-weight:700;margin-bottom:4px">${i+1}. ${q.question}</p>
+        <p style="font-size:0.82em;color:var(--muted);margin-bottom:6px"><em>Why asked: ${q.why_asked}</em></p>
+        <p style="font-size:0.88em;line-height:1.6"><strong>How to answer:</strong> ${q.answer_framework}</p>
+      </div>`).join('');
+
+    const ask = (prep.questions_to_ask || []).map(q => `<li style="margin-bottom:6px">${q}</li>`).join('');
+    const msgs = (prep.key_messages || []).map(m => `<li style="margin-bottom:4px">${m}</li>`).join('');
+
+    document.getElementById('interviewModalBody').innerHTML = `
+      <h3 style="font-size:0.9em;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin-bottom:12px">Likely Questions &amp; Answer Frameworks</h3>
+      ${qs}
+      <h3 style="font-size:0.9em;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin:16px 0 8px">Questions to Ask Them</h3>
+      <ul style="padding-left:1.2rem;font-size:0.9em;line-height:1.6">${ask}</ul>
+      <h3 style="font-size:0.9em;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin:16px 0 8px">Key Messages to Land</h3>
+      <ul style="padding-left:1.2rem;font-size:0.9em;line-height:1.6">${msgs}</ul>
+      <button class="btn-secondary" style="margin-top:12px;font-size:0.85em" onclick="openInterviewModal('${job.id}')" data-en="↺ Regenerate" data-fr="↺ Régénérer">↺ Regenerate</button>`;
+  } catch(err) {
+    document.getElementById('interviewModalBody').innerHTML =
+      '<p style="color:#c0392b">Could not generate interview prep. Check your API key and try again.</p>';
+  }
 }
 
 // ── Boot ──
