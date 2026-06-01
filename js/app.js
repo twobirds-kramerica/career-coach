@@ -528,6 +528,16 @@ function openJobDetail(id) {
           <button class="btn-salary-neg" onclick="openInterviewModal('${job.id}')" data-en="🎤 Prepare for interview" data-fr="🎤 Se préparer à l'entretien">🎤 Prepare for interview</button>
         </div>
 
+        <!-- 6D: Follow-Up Email -->
+        <div class="detail-section" style="margin-top:16px;">
+          <h3 data-en="Follow-Up Email" data-fr="Courriel de suivi">Follow-Up Email</h3>
+          <p style="font-size:0.88em;color:var(--muted);margin-bottom:4px;" data-en="Generate a professional thank-you or follow-up email after an interview or application — the step most candidates skip." data-fr="Générez un courriel de remerciement ou de suivi professionnel après un entretien ou une candidature — l'étape que la plupart des candidats sautent.">Generate a professional thank-you or follow-up email after an interview — the step most candidates skip.</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+            <button class="btn-salary-neg" onclick="openFollowUpModal('${job.id}','post-interview')" style="font-size:0.85em" data-en="📩 After interview" data-fr="📩 Après l'entretien">📩 After interview</button>
+            <button class="btn-salary-neg" onclick="openFollowUpModal('${job.id}','after-apply')" style="font-size:0.85em" data-en="📩 After applying" data-fr="📩 Après candidature">📩 After applying</button>
+          </div>
+        </div>
+
         <!-- Job Tracker -->
         <div class="detail-section">
           <h3>Job Tracker <span class="pro-badge">Pro</span></h3>
@@ -1568,6 +1578,83 @@ function exportApplicationsReport() {
 
   const w = window.open('', '_blank');
   if (w) { w.document.write(html); w.document.close(); }
+}
+
+// ── 6D: Follow-Up Email Generator ──
+let followUpModalJobId = null;
+
+function openFollowUpModal(jobId, type) {
+  followUpModalJobId = jobId;
+  const job = jobs.find(j => j.id === jobId);
+  if (!job) return;
+  const a = job.analysis || {};
+  const isPostInterview = type === 'post-interview';
+  const titleText = `${a.job_title || 'Role'} at ${a.company || 'Company'}`;
+  document.getElementById('followUpModalSub').textContent = (isPostInterview ? 'Post-interview thank-you — ' : 'After applying — ') + titleText;
+  document.getElementById('followUpModalBody').innerHTML =
+    '<div class="salary-modal-loading">Generating your follow-up email…</div>';
+  document.getElementById('followUpModalOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  fetchFollowUpEmail(job, type);
+}
+
+function closeFollowUpModal(e) {
+  if (e && e.target && e.target.id !== 'followUpModalOverlay' && !e.currentTarget?.classList?.contains('salary-modal-close')) return;
+  document.getElementById('followUpModalOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+async function fetchFollowUpEmail(job, type) {
+  const provider = getActiveProvider();
+  const providerMeta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
+  const apiKey = getActiveApiKey();
+  if (providerMeta.needsKey && !apiKey) {
+    document.getElementById('followUpModalBody').innerHTML =
+      '<p style="color:#c0392b">Please add your API key in Settings (⚙) first.</p>';
+    return;
+  }
+  const a = job.analysis || {};
+  const jobTitle = a.job_title || 'the role';
+  const company = a.company || 'the company';
+  const candidateName = profile && profile.name ? profile.name : 'the candidate';
+  const isPostInterview = type === 'post-interview';
+
+  const prompt = isPostInterview
+    ? `Write a professional post-interview thank-you email in Canadian English for this job candidate.
+
+Candidate name: ${candidateName}
+Role applied for: ${jobTitle} at ${company}
+Candidate's key strengths for this role: ${(a.cv_strengths || []).slice(0,3).join(', ')}
+
+Write a 3-paragraph thank-you email:
+1. Opening: thank them for the interview, express genuine enthusiasm for the specific role
+2. Middle: reinforce one specific strength or skill that came up (or would come up), confirm fit
+3. Close: polite call to action, offer to provide anything additional, sign-off
+
+Keep it under 180 words. Professional but warm. No hollow phrases like "I would be a great fit." Canadian English. Subject line on the first line formatted as: Subject: [subject here]`
+    : `Write a professional follow-up email in Canadian English for this job candidate who has applied but not yet heard back.
+
+Candidate name: ${candidateName}
+Role applied for: ${jobTitle} at ${company}
+Days since applying (assume approximately 7-10 business days): ~8
+
+Write a brief, professional 2-paragraph follow-up:
+1. Remind them of the application (role, date approximately), confirm continued interest
+2. Offer to provide additional information, polite close
+
+Keep it under 120 words. Not desperate, not pushy — just professional follow-through. Canadian English. Subject line on the first line formatted as: Subject: [subject here]`;
+
+  try {
+    const raw = await llmChat(prompt, { maxTokens: 400, provider: provider, apiKey: apiKey });
+    const escaped = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    document.getElementById('followUpModalBody').innerHTML =
+      `<pre style="white-space:pre-wrap;font-family:inherit;font-size:0.9em;line-height:1.65;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">${escaped}</pre>
+      <button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent).then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='📋 Copy',2000)})" style="margin-right:8px;background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:0.82em;cursor:pointer">📋 Copy</button>
+      <button class="btn-secondary" onclick="openFollowUpModal('${job.id}','${type}')" style="font-size:0.82em">↺ Regenerate</button>`;
+  } catch(err) {
+    document.getElementById('followUpModalBody').innerHTML =
+      '<p style="color:#c0392b">Could not generate email. Check your API key and try again.</p>';
+  }
 }
 
 // ── LinkedIn Profile Optimiser ──

@@ -1354,6 +1354,18 @@
   </div>
 </div>
 
+<!-- 6D: Follow-Up Email Modal -->
+<div id="followUpModalOverlay" class="salary-modal-overlay hidden" onclick="closeFollowUpModal(event)">
+  <div class="salary-modal" role="dialog" aria-modal="true" aria-labelledby="followUpModalTitle" style="max-width:660px">
+    <button class="salary-modal-close" onclick="closeFollowUpModal()" data-en="✕ Close" data-fr="✕ Fermer">✕ Close</button>
+    <h2 id="followUpModalTitle" data-en="Follow-Up Email" data-fr="Courriel de suivi">Follow-Up Email</h2>
+    <p class="modal-sub" id="followUpModalSub"></p>
+    <div id="followUpModalBody">
+      <div class="salary-modal-loading">Generating your follow-up email…</div>
+    </div>
+  </div>
+</div>
+
 <!-- LinkedIn Optimizer Modal -->
 <div id="linkedInModalOverlay" class="salary-modal-overlay hidden" onclick="closeLinkedInModal(event)">
   <div class="salary-modal" role="dialog" aria-modal="true" aria-labelledby="linkedInModalTitle" style="max-width:680px">
