@@ -1570,6 +1570,92 @@ function exportApplicationsReport() {
   if (w) { w.document.write(html); w.document.close(); }
 }
 
+// ── LinkedIn Profile Optimiser ──
+function openLinkedInModal() {
+  if (!profile) { alert('Please complete your profile first.'); return; }
+  document.getElementById('linkedInModalBody').innerHTML =
+    '<div class="salary-modal-loading">Generating your LinkedIn optimisations…</div>';
+  document.getElementById('linkedInModalOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  fetchLinkedInOptimisation();
+}
+
+function closeLinkedInModal(e) {
+  if (e && e.target && e.target.id !== 'linkedInModalOverlay' && !e.currentTarget?.classList?.contains('salary-modal-close')) return;
+  document.getElementById('linkedInModalOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+async function fetchLinkedInOptimisation() {
+  const provider = getActiveProvider();
+  const providerMeta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
+  const apiKey = getActiveApiKey();
+  if (providerMeta.needsKey && !apiKey) {
+    document.getElementById('linkedInModalBody').innerHTML =
+      '<p style="color:#c0392b">Please add your API key in Settings (⚙) first.</p>';
+    return;
+  }
+  const recentJobs = jobs.filter(j => j.analysis).slice(0, 3)
+    .map(j => `${j.analysis.job_title || 'Role'} at ${j.analysis.company || 'Company'}`).join(', ');
+
+  const prompt = `You are a LinkedIn profile expert and Canadian career coach. Optimise this candidate's LinkedIn profile for their target roles.
+
+Candidate CV (first 1200 chars):
+${profile.cv.substring(0, 1200)}
+
+Target salary range: $${profile.minSalary}–$${profile.targetSalary} CAD
+Open to remote: ${profile.remote} | Hybrid: ${profile.hybrid}
+Recent roles they are applying to: ${recentJobs || 'Not yet specified'}
+Location: ${profile.location || 'Canada'}
+
+Return a JSON object with no markdown, no code fences:
+{
+  "headline": "string (max 120 characters — punchy, keyword-rich, value-first)",
+  "about": "string (max 400 words — first-person, starts with a hook, ends with a call to action, no buzzwords like 'passionate' or 'synergy')",
+  "top_skills": ["skill1", "skill2", "skill3", "skill4", "skill5"],
+  "profile_tips": ["tip1 (specific, actionable)", "tip2", "tip3"]
+}`;
+
+  try {
+    const raw = await llmChat(prompt, { maxTokens: 900, provider: provider, apiKey: apiKey });
+    let li;
+    try { li = JSON.parse(raw); }
+    catch(e) {
+      const match = raw.match(/\{[\s\S]*\}/);
+      li = match ? JSON.parse(match[0]) : null;
+    }
+    if (!li) throw new Error('Could not parse LinkedIn response.');
+
+    const escH = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const skills = (li.top_skills || []).map(s => `<span style="display:inline-block;background:var(--teal);color:var(--bg);border-radius:20px;padding:3px 10px;font-size:0.82em;margin:3px 3px 3px 0">${escH(s)}</span>`).join('');
+    const tips = (li.profile_tips || []).map(t => `<li style="margin-bottom:6px">${escH(t)}</li>`).join('');
+
+    document.getElementById('linkedInModalBody').innerHTML = `
+      <div style="margin-bottom:16px">
+        <h3 style="font-size:0.82em;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin-bottom:6px">Headline (120 chars max)</h3>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-weight:600;font-size:1em;line-height:1.4">${escH(li.headline || '')}</div>
+        <button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent).then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='📋 Copy',2000)})" style="margin-top:6px;background:transparent;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:0.8em;cursor:pointer">📋 Copy</button>
+      </div>
+      <div style="margin-bottom:16px">
+        <h3 style="font-size:0.82em;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin-bottom:6px">About Section</h3>
+        <pre style="white-space:pre-wrap;font-family:inherit;font-size:0.88em;line-height:1.65;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;max-height:220px;overflow-y:auto">${escH(li.about || '')}</pre>
+        <button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent).then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='📋 Copy',2000)})" style="margin-top:6px;background:transparent;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:0.8em;cursor:pointer">📋 Copy</button>
+      </div>
+      <div style="margin-bottom:16px">
+        <h3 style="font-size:0.82em;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin-bottom:8px">Top Skills to Add</h3>
+        <div>${skills}</div>
+      </div>
+      <div>
+        <h3 style="font-size:0.82em;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin-bottom:8px">Profile Tips</h3>
+        <ul style="padding-left:1.2rem;font-size:0.88em;line-height:1.6">${tips}</ul>
+      </div>
+      <button class="btn-secondary" style="margin-top:14px;font-size:0.85em" onclick="fetchLinkedInOptimisation()">↺ Regenerate</button>`;
+  } catch(err) {
+    document.getElementById('linkedInModalBody').innerHTML =
+      '<p style="color:#c0392b">Could not generate LinkedIn optimisations. Check your API key and try again.</p>';
+  }
+}
+
 // ── 6B: Cover Letter Generator ──
 let coverLetterModalJobId = null;
 

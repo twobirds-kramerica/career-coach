@@ -1160,6 +1160,9 @@
       <button class="btn-export" onclick="exportCSV()" data-en="↓ Export CSV" data-fr="↓ Exporter CSV">↓ Export CSV</button>
       <button class="btn-export" onclick="exportApplicationsReport()" style="margin-top:6px;" data-en="↓ Export Application Report" data-fr="↓ Exporter le rapport de candidatures">↓ Export Application Report</button>
       <button class="btn-export" onclick="printJobsTable()" style="margin-top:6px;" data-en="🖨 Print My Jobs" data-fr="🖨 Imprimer mes offres">🖨 Print My Jobs</button>
+      <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:12px;">
+        <button class="btn-salary-neg" onclick="openLinkedInModal()" style="width:100%;justify-content:center;" data-en="💼 Optimise LinkedIn Profile" data-fr="💼 Optimiser le profil LinkedIn">💼 Optimise LinkedIn Profile</button>
+      </div>
     </div>
   </div>
 
@@ -1347,6 +1350,18 @@
     <p class="modal-sub" id="coverLetterModalSub"></p>
     <div id="coverLetterModalBody">
       <div class="salary-modal-loading">Generating your cover letter…</div>
+    </div>
+  </div>
+</div>
+
+<!-- LinkedIn Optimizer Modal -->
+<div id="linkedInModalOverlay" class="salary-modal-overlay hidden" onclick="closeLinkedInModal(event)">
+  <div class="salary-modal" role="dialog" aria-modal="true" aria-labelledby="linkedInModalTitle" style="max-width:680px">
+    <button class="salary-modal-close" onclick="closeLinkedInModal()" data-en="✕ Close" data-fr="✕ Fermer">✕ Close</button>
+    <h2 id="linkedInModalTitle" data-en="LinkedIn Profile Optimiser" data-fr="Optimiseur de profil LinkedIn">LinkedIn Profile Optimiser</h2>
+    <p class="modal-sub" data-en="Tailored to your CV and target roles" data-fr="Adapté à votre CV et à vos rôles cibles">Tailored to your CV and target roles</p>
+    <div id="linkedInModalBody">
+      <div class="salary-modal-loading">Generating your LinkedIn optimisations…</div>
     </div>
   </div>
 </div>
