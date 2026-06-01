@@ -514,6 +514,13 @@ function openJobDetail(id) {
           <button class="btn-salary-neg" onclick="openSalaryModal('${job.id}')" data-en="💰 Help me negotiate salary" data-fr="💰 Aider à négocier le salaire">💰 Help me negotiate salary</button>
         </div>
 
+        <!-- 6B: Cover Letter Generator -->
+        <div class="detail-section" style="margin-top:16px;">
+          <h3 data-en="Cover Letter" data-fr="Lettre de motivation">Cover Letter</h3>
+          <p style="font-size:0.88em;color:var(--muted);margin-bottom:4px;" data-en="Generate a tailored cover letter for this specific role using your CV and profile." data-fr="Générez une lettre de motivation adaptée pour ce poste en utilisant votre CV et votre profil.">Generate a tailored cover letter for this specific role using your CV and profile.</p>
+          <button class="btn-salary-neg" onclick="openCoverLetterModal('${job.id}')" data-en="✉️ Generate cover letter" data-fr="✉️ Générer la lettre de motivation">✉️ Generate cover letter</button>
+        </div>
+
         <!-- Job Tracker -->
         <div class="detail-section">
           <h3>Job Tracker <span class="pro-badge">Pro</span></h3>
@@ -1554,6 +1561,80 @@ function exportApplicationsReport() {
 
   const w = window.open('', '_blank');
   if (w) { w.document.write(html); w.document.close(); }
+}
+
+// ── 6B: Cover Letter Generator ──
+let coverLetterModalJobId = null;
+
+function openCoverLetterModal(jobId) {
+  coverLetterModalJobId = jobId;
+  const job = jobs.find(j => j.id === jobId);
+  if (!job) return;
+  const a = job.analysis || {};
+  const titleText = `${a.job_title || 'Role'} at ${a.company || 'Company'}`;
+  document.getElementById('coverLetterModalSub').textContent = titleText;
+  document.getElementById('coverLetterModalBody').innerHTML =
+    '<div class="salary-modal-loading">Generating your cover letter…</div>';
+  document.getElementById('coverLetterModalOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  fetchCoverLetter(job);
+}
+
+function closeCoverLetterModal(e) {
+  if (e && e.target && e.target.id !== 'coverLetterModalOverlay' && !e.currentTarget?.classList?.contains('salary-modal-close')) return;
+  document.getElementById('coverLetterModalOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+async function fetchCoverLetter(job) {
+  const provider = getActiveProvider();
+  const providerMeta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
+  const apiKey = getActiveApiKey();
+  if (providerMeta.needsKey && !apiKey) {
+    document.getElementById('coverLetterModalBody').innerHTML =
+      '<p style="color:#c0392b">Please add your API key in Settings (⚙) first.</p>';
+    return;
+  }
+  const a = job.analysis || {};
+  const jobTitle = a.job_title || 'this role';
+  const company = a.company || 'the company';
+  const toneRef = profile && profile.coverLetter ? `\n\nCandidate's cover letter tone/template preference:\n${profile.coverLetter.substring(0,500)}` : '';
+  const prompt = `Write a tailored, professional cover letter for a Canadian job application. Use Canadian English. The letter should be specific to this posting — not generic.
+
+Candidate CV summary:
+${profile ? profile.cv.substring(0, 1200) : 'Not provided'}
+
+Target role: ${jobTitle} at ${company}
+Key CV strengths relevant to this role: ${(a.cv_strengths || []).join(', ')}
+Gaps to address: ${(a.cv_gaps || []).join(', ')}${toneRef}
+
+Job posting excerpt:
+${job.rawPosting.substring(0, 1000)}
+
+Write a 3-paragraph cover letter (opening, body, close). Keep it under 300 words. Do not use em dashes. Do not use generic phrases like "I am writing to express my interest" — start with a strong opening sentence that connects the candidate directly to the role. End with a specific call to action. Format as plain text.`;
+
+  try {
+    const raw = await llmChat(prompt, { maxTokens: 600, provider: provider, apiKey: apiKey });
+    const escaped = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    document.getElementById('coverLetterModalBody').innerHTML =
+      `<pre style="white-space:pre-wrap;font-family:inherit;font-size:0.9em;line-height:1.65;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px">${escaped}</pre>
+      <button class="btn-salary-neg" onclick="copyCoverLetterText(this)" style="margin-right:8px" data-en="📋 Copy to clipboard" data-fr="📋 Copier dans le presse-papiers">📋 Copy to clipboard</button>
+      <button class="btn-secondary" onclick="openCoverLetterModal('${job.id}')" style="font-size:0.85em" data-en="↺ Regenerate" data-fr="↺ Régénérer">↺ Regenerate</button>`;
+  } catch(err) {
+    document.getElementById('coverLetterModalBody').innerHTML =
+      '<p style="color:#c0392b">Could not generate cover letter. Check your API key and try again.</p>';
+  }
+}
+
+function copyCoverLetterText(btn) {
+  const pre = btn.closest('#coverLetterModalBody').querySelector('pre');
+  if (!pre) return;
+  navigator.clipboard.writeText(pre.textContent).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = '📋 Copy to clipboard'; }, 2000);
+  }).catch(() => {
+    btn.textContent = 'Copy failed — select text manually';
+  });
 }
 
 // ── Boot ──

@@ -1339,6 +1339,18 @@
   </div>
 </div>
 
+<!-- 6B: Cover Letter Modal -->
+<div id="coverLetterModalOverlay" class="salary-modal-overlay hidden" onclick="closeCoverLetterModal(event)">
+  <div class="salary-modal" role="dialog" aria-modal="true" aria-labelledby="coverLetterModalTitle" style="max-width:680px">
+    <button class="salary-modal-close" onclick="closeCoverLetterModal()" data-en="✕ Close" data-fr="✕ Fermer">✕ Close</button>
+    <h2 id="coverLetterModalTitle" data-en="Cover Letter Generator" data-fr="Générateur de lettre de motivation">Cover Letter Generator</h2>
+    <p class="modal-sub" id="coverLetterModalSub"></p>
+    <div id="coverLetterModalBody">
+      <div class="salary-modal-loading">Generating your cover letter…</div>
+    </div>
+  </div>
+</div>
+
 <!-- B2B Section -->
 <div id="b2b-section" style="max-width:640px;margin:40px auto;padding:0 20px;">
   <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;">
