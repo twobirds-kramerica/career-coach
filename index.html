@@ -1371,6 +1371,18 @@
   </div>
 </div>
 
+<!-- ATS Keywords Modal -->
+<div id="atsModalOverlay" class="salary-modal-overlay hidden" onclick="closeAtsModal(event)">
+  <div class="salary-modal" role="dialog" aria-modal="true" aria-labelledby="atsModalTitle" style="max-width:680px">
+    <button class="salary-modal-close" onclick="closeAtsModal()" data-en="✕ Close" data-fr="✕ Fermer">✕ Close</button>
+    <h2 id="atsModalTitle" data-en="ATS Keyword Analysis" data-fr="Analyse des mots-clés ATS">ATS Keyword Analysis</h2>
+    <p class="modal-sub" id="atsModalSub"></p>
+    <div id="atsModalBody">
+      <div class="salary-modal-loading">Scanning posting for ATS keywords…</div>
+    </div>
+  </div>
+</div>
+
 <!-- LinkedIn Optimizer Modal -->
 <div id="linkedInModalOverlay" class="salary-modal-overlay hidden" onclick="closeLinkedInModal(event)">
   <div class="salary-modal" role="dialog" aria-modal="true" aria-labelledby="linkedInModalTitle" style="max-width:680px">

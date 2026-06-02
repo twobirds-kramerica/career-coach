@@ -547,6 +547,13 @@ function openJobDetail(id) {
           <button class="btn-salary-neg" onclick="openInterviewModal('${job.id}')" data-en="🎤 Prepare for interview" data-fr="🎤 Se préparer à l'entretien">🎤 Prepare for interview</button>
         </div>
 
+        <!-- 6E: ATS Keywords -->
+        <div class="detail-section" style="margin-top:16px;">
+          <h3 data-en="ATS Keyword Analysis" data-fr="Mots-clés ATS">ATS Keyword Analysis</h3>
+          <p style="font-size:0.88em;color:var(--muted);margin-bottom:4px;" data-en="Find the keywords an ATS is likely scanning for — and see which are missing from your CV." data-fr="Trouvez les mots-clés qu'un ATS est susceptible de scanner — et voyez lesquels manquent dans votre CV.">Find the keywords an ATS is likely scanning for — and see which are missing from your CV.</p>
+          <button class="btn-salary-neg" onclick="openAtsModal('${job.id}')" data-en="🔍 Analyse ATS keywords" data-fr="🔍 Analyser les mots-clés ATS">🔍 Analyse ATS keywords</button>
+        </div>
+
         <!-- 6D: Follow-Up Email -->
         <div class="detail-section" style="margin-top:16px;">
           <h3 data-en="Follow-Up Email" data-fr="Courriel de suivi">Follow-Up Email</h3>
@@ -1673,6 +1680,136 @@ Keep it under 120 words. Not desperate, not pushy — just professional follow-t
   } catch(err) {
     document.getElementById('followUpModalBody').innerHTML =
       '<p style="color:#c0392b">Could not generate email. Check your API key and try again.</p>';
+  }
+}
+
+// ── 6E: ATS Keyword Analyser ──
+let atsModalJobId = null;
+
+function openAtsModal(jobId) {
+  atsModalJobId = jobId;
+  const job = jobs.find(j => j.id === jobId);
+  if (!job) return;
+  const titleText = job.title || 'this role';
+  document.getElementById('atsModalSub').textContent = titleText + (job.company ? ' · ' + job.company : '');
+  document.getElementById('atsModalBody').innerHTML =
+    '<div class="salary-modal-loading">Scanning posting for ATS keywords…</div>';
+  document.getElementById('atsModalOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  fetchAtsKeywords(job);
+}
+
+function closeAtsModal(e) {
+  if (e && e.target && e.target.id !== 'atsModalOverlay' && !e.currentTarget?.classList?.contains('salary-modal-close')) return;
+  document.getElementById('atsModalOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+async function fetchAtsKeywords(job) {
+  const provider = getActiveProvider();
+  const providerMeta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
+  const apiKey = getActiveApiKey();
+  if (providerMeta.needsKey && !apiKey) {
+    document.getElementById('atsModalBody').innerHTML =
+      '<p style="color:#c0392b">Add your API key in Settings to use this feature.</p>';
+    return;
+  }
+  const a = job.analysis || {};
+  const cvSummary = profile ? `
+Candidate name: ${profile.name || 'Not provided'}
+Current/recent role: ${profile.currentRole || 'Not provided'}
+CV summary: ${profile.cvText ? profile.cvText.slice(0, 1200) : 'Not provided'}` : 'CV not provided.';
+
+  const prompt = `You are an ATS (applicant tracking system) keyword expert helping a Canadian job seeker optimise their CV for a specific role.
+
+JOB POSTING:
+Title: ${job.title || 'Not provided'}
+Company: ${job.company || 'Not provided'}
+Description: ${job.description ? job.description.slice(0, 1500) : 'Not provided'}
+
+CANDIDATE:
+${cvSummary}
+
+Return a JSON object with exactly these fields:
+{
+  "top_keywords": ["keyword1", "keyword2", ...],
+  "matched": ["keyword already in CV"],
+  "missing": ["important keyword NOT in CV"],
+  "phrases_to_add": ["exact phrase or sentence to insert into CV"],
+  "skills_reorder": "One sentence on which skills to list first"
+}
+
+Rules:
+- top_keywords: 10 most ATS-critical terms from the posting (titles, technologies, certifications, methodologies)
+- matched: which of top_keywords are clearly present in the CV (be generous — partial matches count)
+- missing: which of top_keywords are absent from the CV
+- phrases_to_add: 3 concrete CV bullet points or phrases the candidate could add to close the gap
+- skills_reorder: which skill category to lead with given this specific posting
+- Canadian English throughout
+- Return ONLY the JSON object, no markdown fences`;
+
+  try {
+    const raw = await llmChat(prompt, { maxTokens: 600, provider: provider, apiKey: apiKey });
+    let data;
+    try {
+      const jsonStr = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+      data = JSON.parse(jsonStr);
+    } catch(parseErr) {
+      document.getElementById('atsModalBody').innerHTML =
+        `<pre style="white-space:pre-wrap;font-size:0.88em;line-height:1.6">${raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>`;
+      return;
+    }
+
+    const matched  = Array.isArray(data.matched)  ? data.matched  : [];
+    const missing  = Array.isArray(data.missing)   ? data.missing  : [];
+    const phrases  = Array.isArray(data.phrases_to_add) ? data.phrases_to_add : [];
+    const topKw    = Array.isArray(data.top_keywords) ? data.top_keywords : [];
+    const reorder  = data.skills_reorder || '';
+
+    const matchedHtml = matched.length
+      ? matched.map(k => `<span style="display:inline-block;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;border-radius:14px;padding:3px 10px;font-size:0.82em;margin:2px;font-weight:600">✓ ${k}</span>`).join('')
+      : '<span style="color:var(--muted);font-size:0.88em">None identified — consider adding more detail to your CV.</span>';
+
+    const missingHtml = missing.length
+      ? missing.map(k => `<span style="display:inline-block;background:#ffebee;color:#c62828;border:1px solid #ef9a9a;border-radius:14px;padding:3px 10px;font-size:0.82em;margin:2px;font-weight:600">✗ ${k}</span>`).join('')
+      : '<span style="color:var(--muted);font-size:0.88em">Strong match — no critical gaps found.</span>';
+
+    const phrasesHtml = phrases.map((p, i) =>
+      `<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:0.88em;line-height:1.55">
+        <span style="font-size:0.75em;font-weight:700;color:var(--muted);display:block;margin-bottom:4px">ADD TO CV ${i+1}</span>
+        ${p.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+        <button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent||'').then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)})" style="float:right;background:transparent;border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-size:0.8em;cursor:pointer;margin-top:2px">📋</button>
+      </div>`
+    ).join('');
+
+    const coverageScore = topKw.length > 0 ? Math.round((matched.length / topKw.length) * 100) : 0;
+    const scoreColour = coverageScore >= 70 ? '#2e7d32' : coverageScore >= 40 ? '#e65100' : '#c62828';
+
+    document.getElementById('atsModalBody').innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px">
+        <div style="font-size:1.8em;font-weight:800;color:${scoreColour}">${coverageScore}%</div>
+        <div>
+          <div style="font-weight:700;font-size:0.95em">Keyword coverage</div>
+          <div style="font-size:0.82em;color:var(--muted)">${matched.length} of ${topKw.length} ATS keywords already in your CV</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:0.95em;font-weight:700;margin:0 0 6px">✓ Already in your CV</h3>
+      <div style="margin-bottom:14px">${matchedHtml}</div>
+
+      <h3 style="font-size:0.95em;font-weight:700;margin:0 0 6px">✗ Missing — add these</h3>
+      <div style="margin-bottom:14px">${missingHtml}</div>
+
+      ${phrases.length ? `<h3 style="font-size:0.95em;font-weight:700;margin:0 0 8px">📝 Suggested CV additions</h3>${phrasesHtml}` : ''}
+
+      ${reorder ? `<div style="background:#e8eaf6;border-left:4px solid #3949ab;border-radius:0 8px 8px 0;padding:10px 12px;font-size:0.88em;margin-top:4px"><strong>Skills reorder tip:</strong> ${reorder.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
+
+      <div style="margin-top:14px">
+        <button class="btn-secondary" onclick="openAtsModal('${job.id}')" style="font-size:0.82em">↺ Re-analyse</button>
+      </div>`;
+  } catch(err) {
+    document.getElementById('atsModalBody').innerHTML =
+      '<p style="color:#c0392b">Could not analyse keywords. Check your API key and try again.</p>';
   }
 }
 
