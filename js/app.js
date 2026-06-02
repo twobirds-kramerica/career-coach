@@ -263,6 +263,25 @@ function updateJobStats() {
   } else {
     document.getElementById('statDays').textContent = '—';
   }
+
+  // Pipeline breakdown
+  const pipelineSection = document.getElementById('pipelineSection');
+  const pipelineBar = document.getElementById('pipelineBar');
+  const statuses = ['Applied','Callback','Interview','Offer / Negotiating','Declined'];
+  const colours = { Applied:'#2196F3', Callback:'#FF9800', Interview:'#9C27B0', 'Offer / Negotiating':'#4CAF50', Declined:'#F44336' };
+  const counts = {};
+  statuses.forEach(s => { counts[s] = jobs.filter(j => j.status === s).length; });
+  const hasAny = statuses.some(s => counts[s] > 0);
+  if (hasAny && pipelineSection && pipelineBar) {
+    pipelineSection.style.display = '';
+    pipelineBar.innerHTML = statuses.filter(s => counts[s] > 0).map(s =>
+      '<span style="display:inline-flex;align-items:center;gap:4px;background:' + colours[s] + '22;border:1px solid ' + colours[s] + '44;border-radius:20px;padding:3px 10px;font-size:0.78em;font-weight:600;color:' + colours[s].replace('F','9') + '">' +
+      '<span style="width:8px;height:8px;border-radius:50%;background:' + colours[s] + ';flex-shrink:0"></span>' +
+      counts[s] + ' ' + s + '</span>'
+    ).join('');
+  } else if (pipelineSection) {
+    pipelineSection.style.display = 'none';
+  }
 }
 
 // ── Stats Card ──
