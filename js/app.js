@@ -282,6 +282,67 @@ function updateJobStats() {
   } else if (pipelineSection) {
     pipelineSection.style.display = 'none';
   }
+
+  // ── Priority action flags ──
+  const flagsSection = document.getElementById('priorityFlags');
+  const flagsBar     = document.getElementById('priorityFlagsBar');
+  if (!flagsSection || !flagsBar) return;
+
+  const flags = [];
+  const now = Date.now();
+  const FOLLOWUP_DAYS = 7;
+
+  // Flag 1: jobs needing Gate 0 verification
+  const needsVerify = jobs.filter(j =>
+    j.posting_url && !j.verified_live && j.analysis
+  );
+  if (needsVerify.length) {
+    flags.push({
+      colour: '#F57C00',
+      icon: '⚠',
+      text: needsVerify.length + ' job' + (needsVerify.length > 1 ? 's need' : ' needs') + ' link verification (Gate 0)',
+      jobId: needsVerify[0].id
+    });
+  }
+
+  // Flag 2: aggregator sources without canonical URL
+  const needsCanonical = jobs.filter(j =>
+    j.is_aggregator && !j.canonical_url && j.analysis
+  );
+  if (needsCanonical.length) {
+    flags.push({
+      colour: '#E53935',
+      icon: '🔍',
+      text: needsCanonical.length + ' job' + (needsCanonical.length > 1 ? 's from' : ' from') + ' aggregators — find the employer\'s direct link',
+      jobId: needsCanonical[0].id
+    });
+  }
+
+  // Flag 3: applied jobs overdue for follow-up
+  const overdueFollowUp = jobs.filter(j => {
+    if (j.status !== 'Applied' || !j.statusDate) return false;
+    const appliedMs = new Date(j.statusDate).getTime();
+    const daysSince = (now - appliedMs) / 86400000;
+    return daysSince >= FOLLOWUP_DAYS;
+  });
+  if (overdueFollowUp.length) {
+    flags.push({
+      colour: '#7B1FA2',
+      icon: '📩',
+      text: overdueFollowUp.length + ' application' + (overdueFollowUp.length > 1 ? 's' : '') + ' — ' + FOLLOWUP_DAYS + '+ days since applying, follow-up due',
+      jobId: overdueFollowUp[0].id
+    });
+  }
+
+  if (flags.length) {
+    flagsSection.style.display = '';
+    flagsBar.innerHTML = flags.map(f =>
+      '<div style="display:flex;align-items:center;gap:8px;background:' + f.colour + '15;border-left:3px solid ' + f.colour + ';border-radius:0 6px 6px 0;padding:5px 10px;cursor:pointer;font-size:0.82em;color:' + f.colour + ';font-weight:600" onclick="openJobDetail(\'' + f.jobId + '\')">' +
+      '<span>' + f.icon + '</span><span>' + f.text + '</span><span style="margin-left:auto;opacity:0.6">→</span></div>'
+    ).join('');
+  } else {
+    flagsSection.style.display = 'none';
+  }
 }
 
 // ── Stats Card ──
