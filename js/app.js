@@ -331,9 +331,82 @@ Work arrangements to avoid: ${(profile.workArrangementsToAvoid||[]).join(', ') |
 Other avoidances: ${profile.otherAvoid || 'None'}`;
 }
 
+// ── Gate 0: Aggregator detection ──────────────────────────────
+const AGGREGATOR_DOMAINS = [
+  'jobgether.com', 'bebee.com', 'indeed.com', 'ziprecruiter.com',
+  'jobted.com', 'glassdoor.com', 'monster.ca', 'monster.com',
+  'careerbuilder.ca', 'careerbuilder.com', 'simplyhired.ca', 'simplyhired.com',
+  'talent.com', 'jooble.org', 'eluta.ca', 'workopolis.com', 'adzuna.ca',
+  'jobs.lever.co'  // Lever is an ATS, NOT an aggregator — kept for awareness only
+];
+// Real ATS platforms (not aggregators — canonical sources):
+const ATS_DOMAINS = [
+  'greenhouse.io', 'lever.co', 'workday.com', 'taleo.net',
+  'smartrecruiters.com', 'icims.com', 'myworkdayjobs.com', 'applytojob.com'
+];
+
+function detectAggregator(url) {
+  if (!url) return null;
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, '');
+    // Lever is a real ATS — not an aggregator
+    if (ATS_DOMAINS.some(d => host.includes(d))) return null;
+    const match = AGGREGATOR_DOMAINS.find(d => host.includes(d));
+    return match || null;
+  } catch(e) { return null; }
+}
+
+function openPostingUrl() {
+  const url = document.getElementById('jobUrlInput')?.value?.trim();
+  if (url) window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+function markJobVerified(jobId) {
+  const job = jobs.find(j => j.id === jobId);
+  if (!job) return;
+  job.verified_live = new Date().toISOString().slice(0, 10);
+  saveJobs();
+  openJobDetail(jobId);
+}
+
+function setCanonicalUrl(jobId) {
+  const input = document.getElementById('canonicalUrlInput');
+  if (!input) return;
+  const url = input.value.trim();
+  const job = jobs.find(j => j.id === jobId);
+  if (!job) return;
+  job.canonical_url = url;
+  saveJobs();
+  openJobDetail(jobId);
+}
+
+// Wire aggregator warning on URL input change
+document.addEventListener('input', function(e) {
+  if (e.target.id !== 'jobUrlInput') return;
+  const url = e.target.value.trim();
+  const warning = document.getElementById('aggregatorWarning');
+  const openBtn = document.getElementById('btnUrlOpen');
+  const helpLink = document.getElementById('aggregatorHelpLink');
+  if (!warning) return;
+  const match = detectAggregator(url);
+  if (match) {
+    warning.classList.remove('hidden');
+    // Build a search link for the job title (extracted from textarea if present)
+    const jobText = document.getElementById('jobInput')?.value || '';
+    const titleMatch = jobText.match(/(?:job title|position|role)[:\s]+([^\n]+)/i);
+    const searchQuery = encodeURIComponent((titleMatch?.[1] || 'this role') + ' careers site');
+    if (helpLink) helpLink.href = 'https://www.google.ca/search?q=' + searchQuery;
+  } else {
+    warning.classList.add('hidden');
+  }
+  if (openBtn) openBtn.style.display = url ? 'inline-flex' : 'none';
+});
+
 async function analyseJob() {
   const jobText = document.getElementById('jobInput').value.trim();
   if (!jobText) { setStatus('Please paste a job posting first.', true); return; }
+  const postingUrl = document.getElementById('jobUrlInput')?.value?.trim() || '';
+  const aggregatorMatch = detectAggregator(postingUrl);
 
   const provider = getActiveProvider();
   const providerMeta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
@@ -361,6 +434,10 @@ async function analyseJob() {
       id: 'j' + Date.now(),
       addedAt: new Date().toISOString(),
       rawPosting: jobText,
+      posting_url: postingUrl || null,
+      canonical_url: null,
+      verified_live: null,
+      is_aggregator: !!aggregatorMatch,
       analysis,
       compositeScore: computeCompositeScore(analysis),
       status: 'Saved',
@@ -375,6 +452,12 @@ async function analyseJob() {
     // Save to analysis history
     saveToHistory(jobText, analysis, job.compositeScore);
     document.getElementById('jobInput').value = '';
+    const urlInput = document.getElementById('jobUrlInput');
+    if (urlInput) { urlInput.value = ''; }
+    const aggregatorWarning = document.getElementById('aggregatorWarning');
+    if (aggregatorWarning) aggregatorWarning.classList.add('hidden');
+    const openBtn = document.getElementById('btnUrlOpen');
+    if (openBtn) openBtn.style.display = 'none';
     setStatus('');
     updateDemoCardVisibility();
     // gtag('event', 'analysis_complete', { score: job.compositeScore });
@@ -446,6 +529,33 @@ function openJobDetail(id) {
         </div>
         <button class="btn-close-detail" onclick="closeJobDetail()">✕ Close</button>
       </div>
+
+      <!-- Gate 0: Verification status -->
+      ${(() => {
+        const isAgg = job.is_aggregator;
+        const postUrl = job.posting_url;
+        const canonUrl = job.canonical_url;
+        const verified = job.verified_live;
+        if (!postUrl && !isAgg && !canonUrl && !verified) return '';
+        const verifiedBadge = verified
+          ? `<span class="g0-badge g0-verified">✓ Verified live ${verified}</span>`
+          : `<span class="g0-badge g0-unverified">⚠ Unverified</span>`;
+        const aggBadge = isAgg
+          ? `<span class="g0-badge g0-aggregator">⚠ Aggregator source</span>` : '';
+        return `<div class="gate0-block">
+          <div class="gate0-header">
+            <span class="gate0-label">Gate 0 — Link Verification</span>
+            ${verifiedBadge}${aggBadge}
+          </div>
+          ${postUrl ? `<div class="gate0-row"><span class="gate0-field-label">Posting URL</span><a href="${esc(postUrl)}" target="_blank" rel="noopener noreferrer" class="gate0-link">${esc(postUrl.length > 60 ? postUrl.slice(0,60)+'…' : postUrl)}</a></div>` : ''}
+          ${canonUrl ? `<div class="gate0-row"><span class="gate0-field-label">Canonical URL</span><a href="${esc(canonUrl)}" target="_blank" rel="noopener noreferrer" class="gate0-link">${esc(canonUrl.length > 60 ? canonUrl.slice(0,60)+'…' : canonUrl)}</a></div>` : ''}
+          <div class="gate0-actions">
+            ${!verified ? `<button class="btn-g0" onclick="markJobVerified('${esc(job.id)}')">✓ Mark as verified today</button>` : ''}
+            ${postUrl ? `<button class="btn-g0" onclick="window.open('${esc(postUrl)}','_blank','noopener')">Open posting ↗</button>` : ''}
+            ${!canonUrl ? `<span class="gate0-canon-wrap"><input id="canonicalUrlInput" class="canonical-url-input" placeholder="Paste employer's direct ATS link…" type="url"><button class="btn-g0" onclick="setCanonicalUrl('${esc(job.id)}')">Save canonical URL</button></span>` : `<button class="btn-g0" onclick="window.open('${esc(canonUrl)}','_blank','noopener')">Open canonical ↗</button>`}
+          </div>
+        </div>`;
+      })()}
 
       <!-- Score bars -->
       <div class="score-bars">

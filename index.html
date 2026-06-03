@@ -189,6 +189,58 @@
     .stat-label { display: block; font-size: 0.78em; color: var(--muted); margin-top: 2px; }
     @media print { .job-stats-card { display: none; } }
 
+    /* ── URL input + aggregator warning ── */
+    .job-url-row { margin-bottom: 12px; }
+    .job-url-label { display: block; font-size: 0.8em; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+    .url-hint { font-weight: 400; opacity: 0.7; }
+    .job-url-field { display: flex; gap: 6px; }
+    .job-url-input {
+      flex: 1; background: var(--input-bg, #0F1B2D); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--fg); font-family: inherit;
+      font-size: 0.85em; padding: 8px 12px; outline: none;
+    }
+    .job-url-input:focus { border-color: var(--teal); }
+    .btn-url-open {
+      background: transparent; border: 1px solid var(--border); border-radius: 8px;
+      color: var(--teal); font-size: 0.82em; padding: 6px 12px; cursor: pointer;
+      white-space: nowrap; display: inline-flex; align-items: center;
+    }
+    .btn-url-open:hover { border-color: var(--teal); background: rgba(0,201,167,0.08); }
+    .aggregator-warning {
+      margin-top: 8px; background: rgba(243,156,18,0.12); border: 1px solid rgba(243,156,18,0.4);
+      border-radius: 8px; padding: 8px 12px; font-size: 0.82em; color: #F39C12; line-height: 1.45;
+    }
+    .aggregator-warning a { color: var(--teal); text-decoration: underline; }
+
+    /* ── Gate 0 verification block ── */
+    .gate0-block {
+      background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: 0.85em;
+    }
+    .gate0-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .gate0-label { font-weight: 700; font-size: 0.78em; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+    .g0-badge { border-radius: 20px; padding: 2px 10px; font-size: 0.78em; font-weight: 700; }
+    .g0-verified   { background: rgba(46,204,113,0.15); color: #2ECC71; }
+    .g0-unverified { background: rgba(231,76,60,0.15);  color: #E74C3C; }
+    .g0-aggregator { background: rgba(243,156,18,0.15); color: #F39C12; }
+    .gate0-row { display: flex; gap: 8px; align-items: baseline; margin-bottom: 5px; font-size: 0.82em; }
+    .gate0-field-label { color: var(--muted); flex-shrink: 0; min-width: 100px; }
+    .gate0-link { color: var(--teal); word-break: break-all; text-decoration: underline; }
+    .gate0-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+    .btn-g0 {
+      background: transparent; border: 1px solid var(--border); color: var(--fg);
+      border-radius: 20px; padding: 4px 12px; font-size: 0.78em; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .btn-g0:hover { border-color: var(--teal); color: var(--teal); }
+    .gate0-canon-wrap { display: flex; gap: 6px; flex: 1; min-width: 0; }
+    .canonical-url-input {
+      flex: 1; min-width: 0; background: var(--input-bg, #0F1B2D); border: 1px solid var(--border);
+      border-radius: 20px; color: var(--fg); font-family: inherit; font-size: 0.78em;
+      padding: 4px 12px; outline: none;
+    }
+    .canonical-url-input:focus { border-color: var(--teal); }
+
     /* ── Job Detail Panel ── */
     .job-detail { max-width: 800px; }
     .detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
@@ -1203,6 +1255,19 @@
     <div class="add-job-panel" id="addJobPanel">
       <h2 data-en="Add a Job" data-fr="Ajouter une offre">Add a Job</h2>
       <p>Paste a full job posting to analyse it against your profile. The AI will score the match, flag risks, and suggest CV tweaks.</p>
+
+      <!-- Gate 0: Posting URL -->
+      <div class="job-url-row">
+        <label for="jobUrlInput" class="job-url-label">Posting URL <span class="url-hint">(paste the link — helps detect aggregators)</span></label>
+        <div class="job-url-field">
+          <input type="url" id="jobUrlInput" class="job-url-input" placeholder="https://jobs.lever.co/company/... or https://indeed.com/..." autocomplete="off" spellcheck="false">
+          <button class="btn-url-open" id="btnUrlOpen" onclick="openPostingUrl()" title="Open URL in new tab to verify it is live" style="display:none" aria-label="Open posting URL in new tab">Open ↗</button>
+        </div>
+        <div class="aggregator-warning hidden" id="aggregatorWarning" role="alert">
+          ⚠️ <strong>Aggregator detected.</strong> Find the employer's direct careers page before building your package. <a href="#" id="aggregatorHelpLink" target="_blank" rel="noopener noreferrer">Search for the employer →</a>
+        </div>
+      </div>
+
       <div class="textarea-actions">
         <span class="hint">Press <kbd class="kbd-key">?</kbd> for keyboard shortcuts</span>
         <button class="btn-try-demo" onclick="tryDemo()" title="Fill with a sample posting to see what an analysis looks like">✦ Try Demo</button>
