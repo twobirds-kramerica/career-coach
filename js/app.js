@@ -211,6 +211,7 @@ function renderJobList() {
     return;
   }
 
+  const now = Date.now();
   container.innerHTML = list.map(job => {
     const sc = job.compositeScore || 0;
     const scoreClass = sc >= 70 ? 'score-high' : sc >= 45 ? 'score-mid' : 'score-low';
@@ -220,13 +221,28 @@ function renderJobList() {
     const risk = job.analysis?.ai_risk_rating || '';
     const riskClass = { low: 'risk-low', medium: 'risk-medium', high: 'risk-high' }[risk] || '';
 
+    // Action indicator badges
+    const needsVerify = job.posting_url && !job.verified_live && job.analysis;
+    const isAggNoCanon = job.is_aggregator && !job.canonical_url && job.analysis;
+    const overdueFU = job.status === 'Applied' && job.statusDate &&
+      (now - new Date(job.statusDate).getTime()) / 86400000 >= 7;
+
+    const actionDots = [
+      needsVerify  ? '<span title="Needs link verification (Gate 0)" style="width:7px;height:7px;border-radius:50%;background:#F57C00;flex-shrink:0;display:inline-block"></span>' : '',
+      isAggNoCanon ? '<span title="Aggregator — find employer\'s direct link" style="width:7px;height:7px;border-radius:50%;background:#E53935;flex-shrink:0;display:inline-block"></span>' : '',
+      overdueFU    ? '<span title="Follow-up overdue (7+ days since applying)" style="width:7px;height:7px;border-radius:50%;background:#7B1FA2;flex-shrink:0;display:inline-block"></span>' : ''
+    ].filter(Boolean).join('');
+
     return `<div class="job-card${job.id === selectedJobId ? ' selected' : ''}" onclick="openJobDetail('${job.id}')">
       <div class="job-card-header">
         <div class="job-title-co">
           <strong>${job.analysis?.job_title || 'Untitled'}</strong>
           <span>${job.analysis?.company || 'Unknown Company'}</span>
         </div>
-        <div class="score-circle ${scoreClass}">${sc}</div>
+        <div style="display:flex;align-items:center;gap:5px">
+          ${actionDots ? `<div style="display:flex;gap:3px;align-items:center">${actionDots}</div>` : ''}
+          <div class="score-circle ${scoreClass}">${sc}</div>
+        </div>
       </div>
       <div class="job-badges">
         <span class="badge ${badgeClass}">${badgeLabel}</span>
