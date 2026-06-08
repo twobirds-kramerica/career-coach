@@ -106,13 +106,16 @@ function showOnboarding() {
   document.getElementById('main-app').classList.add('hidden');
 }
 
+const WIZARD_LABELS = ['About You', 'Search Criteria', 'Review'];
 function goStep(n) {
   [1,2,3].forEach(i => {
     document.getElementById('step'+i).classList.toggle('hidden', i !== n);
     const ws = document.getElementById('ws'+i);
-    if (i < n) { ws.className = 'wizard-step done'; }
-    else if (i === n) { ws.className = 'wizard-step active'; }
-    else { ws.className = 'wizard-step'; }
+    let state;
+    if (i < n) { ws.className = 'wizard-step done'; state = 'complete'; }
+    else if (i === n) { ws.className = 'wizard-step active'; state = 'current'; }
+    else { ws.className = 'wizard-step'; state = 'not started'; }
+    ws.setAttribute('aria-label', `Step ${i} of 3: ${WIZARD_LABELS[i-1]} — ${state}`);
   });
 }
 

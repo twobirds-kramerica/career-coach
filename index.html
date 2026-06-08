@@ -14,6 +14,8 @@
   <meta property="og:locale" content="en_CA">
   <!-- Self-hosted fonts (SIL OFL 1.1) — see fonts/*/OFL.txt for licence -->
   <link rel="preload" href="fonts/dm-sans/DMSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/dm-sans/DMSans-Medium.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/dm-sans/DMSans-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/dm-sans/DMSans-Bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="fonts/dm-sans/dm-sans.css">
   <link rel="stylesheet" href="fonts/dm-serif-display/dm-serif-display.css">
@@ -964,10 +966,10 @@
     </div>
   </div>
 
-  <div class="wizard-progress">
-    <div class="wizard-step active" id="ws1"></div>
-    <div class="wizard-step" id="ws2"></div>
-    <div class="wizard-step" id="ws3"></div>
+  <div class="wizard-progress" role="list" aria-label="Setup progress">
+    <div class="wizard-step active" id="ws1" role="listitem" aria-label="Step 1 of 3: About You — current"></div>
+    <div class="wizard-step" id="ws2" role="listitem" aria-label="Step 2 of 3: Search Criteria — not started"></div>
+    <div class="wizard-step" id="ws3" role="listitem" aria-label="Step 3 of 3: Review — not started"></div>
   </div>
 
   <!-- Step 1 -->
