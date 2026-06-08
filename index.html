@@ -33,11 +33,10 @@
       --yellow: #F39C12;
       --red: #E74C3C;
       --purple: #9B59B6;
-      --text-primary: #F8F9FA;
-      --text-secondary: #8AA0B8;
+      --bg: #0F1B2D;
     }
 
-    body { background: var(--navy); color: var(--warm); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif; min-height: 100vh; font-size: 16px; line-height: 1.6; }
+    body { background: var(--navy); color: var(--warm); font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; font-size: 16px; line-height: 1.6; }
     h1 { font-size: 40px; line-height: 1.2; }
     h2 { font-size: 32px; line-height: 1.2; }
     h3 { font-size: 24px; line-height: 1.2; }
@@ -52,6 +51,7 @@
     .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
     input, select, textarea { font-family: inherit; font-size: 1em; }
     button { font-family: inherit; cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
 
     /* ── Header ── */
     .app-header {
@@ -64,7 +64,7 @@
     .app-logo span { color: var(--teal); }
     .app-tagline { color: var(--muted); font-size: 0.82em; margin-top: 2px; }
     .header-actions { display: flex; gap: 8px; align-items: center; }
-    .btn-icon { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 10px; border-radius: 6px; font-size: 1em; transition: border-color 0.2s; }
+    .btn-icon { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 10px; border-radius: 6px; font-size: 1em; transition: border-color 0.2s; min-height: 44px; min-width: 44px; }
     .btn-icon:hover { border-color: var(--teal); color: var(--teal); }
 
     /* ── Onboarding ── */
@@ -336,11 +336,13 @@
       height: 3px;
       background: var(--teal);
       border-radius: 2px;
-      width: 0;
+      width: 100%;
+      transform: scaleX(0);
+      transform-origin: left center;
       animation: underline-grow 0.8s 0.3s ease forwards;
     }
     @keyframes underline-grow {
-      to { width: 100%; }
+      to { transform: scaleX(1); }
     }
     .hero-sub {
       color: var(--muted);
@@ -401,9 +403,8 @@
 
     /* Job Market Insights panel */
     .market-insights-panel {
-      background: var(--card);
-      border: 1px solid var(--teal);
-      border-left: 4px solid var(--teal);
+      background: rgba(0,201,167,0.04);
+      border: 1px solid rgba(0,201,167,0.3);
       border-radius: 10px;
       margin-top: 28px;
       overflow: hidden;
@@ -548,7 +549,7 @@
       .field-group input, .field-group select, .field-group textarea { font-size: 16px; }
       .analyse-btn { min-height: 44px; font-size: 1em; }
       .btn-primary, .btn-secondary { min-height: 44px; }
-      .filter-btn { min-height: 36px; padding: 6px 12px; }
+      .filter-btn { min-height: 44px; padding: 6px 12px; }
       .score-bars { grid-template-columns: 1fr 1fr; }
       .detail-sections > div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
     }
@@ -779,8 +780,9 @@
     }
     .salary-modal .modal-sub { color: var(--muted); font-size: 0.88em; margin-bottom: 20px; }
     .salary-modal-close {
-      position: absolute; top: 18px; right: 18px; background: none;
-      border: 1px solid var(--border); color: var(--muted); padding: 4px 10px;
+      position: absolute; top: 14px; right: 14px; background: none;
+      border: 1px solid var(--border); color: var(--muted); padding: 10px 14px;
+      min-height: 44px; min-width: 44px;
       border-radius: 6px; font-size: 0.88em; cursor: pointer; transition: border-color 0.2s;
     }
     .salary-modal-close:hover { border-color: var(--teal); color: var(--teal); }
@@ -835,8 +837,8 @@
 
     /* ── 6D: Industry Insights card ── */
     .industry-insights-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-left: 4px solid var(--amber); border-radius: 10px; padding: 16px; margin-top: 16px;
+      background: rgba(255,159,28,0.04); border: 1px solid rgba(255,159,28,0.3);
+      border-radius: 10px; padding: 16px; margin-top: 16px;
     }
     .industry-insights-card .ii-header {
       font-size: 0.78em; font-weight: 700; color: var(--amber); text-transform: uppercase;
@@ -976,14 +978,14 @@
     <p class="voice-note" style="font-size:0.82em;color:var(--muted);margin-bottom:16px;" data-en="Prefer to speak? Tap 🎤 beside any field." data-fr="Préférez parler? Appuyez sur 🎤 à côté de n'importe quel champ.">Prefer to speak? Tap 🎤 beside any field.</p>
 
     <div class="field-group">
-      <label>Your Name (optional)</label>
+      <label for="pName">Your Name (optional)</label>
       <div style="display:flex;gap:8px;align-items:flex-start;">
         <input type="text" id="pName" placeholder="Your name (optional)" style="flex:1;">
         <button type="button" class="mic-btn" onclick="startVoice(this,'pName')" aria-label="Voice input">🎤</button>
       </div>
     </div>
     <div class="field-group">
-      <label>Employment Status</label>
+      <label for="pStatus">Employment Status</label>
       <select id="pStatus">
         <option value="">Select...</option>
         <option>Currently employed</option>
@@ -995,16 +997,16 @@
     </div>
     <div class="field-row">
       <div class="field-group">
-        <label>Minimum Salary ($ CAD)</label>
+        <label for="pMinSal">Minimum Salary ($ CAD)</label>
         <input type="number" id="pMinSal" placeholder="e.g. 65000">
       </div>
       <div class="field-group">
-        <label>Target Salary ($ CAD)</label>
+        <label for="pTargetSal">Target Salary ($ CAD)</label>
         <input type="number" id="pTargetSal" placeholder="e.g. 85000">
       </div>
     </div>
     <div class="field-group">
-      <label>Location</label>
+      <label for="pLocation">Location</label>
       <div style="display:flex;gap:8px;align-items:flex-start;">
         <input type="text" id="pLocation" placeholder="City, Province — e.g. London, ON" style="flex:1;">
         <button type="button" class="mic-btn" onclick="startVoice(this,'pLocation')" aria-label="Voice input">🎤</button>
@@ -1073,15 +1075,15 @@
     <p class="sub" data-en="Step 2 of 3 — rank your priorities (1 = most important, 5 = least)." data-fr="Étape 2 de 3 — classez vos priorités (1 = le plus important, 5 = le moins).">Step 2 of 3 — rank your priorities (1 = most important, 5 = least).</p>
 
     <div class="priority-grid" id="priorityGrid">
-      <div class="priority-row"><label>Salary &amp; Compensation</label><input type="number" id="p_salary" min="1" max="5" value="1"></div>
-      <div class="priority-row"><label>Work-Life Balance</label><input type="number" id="p_wlb" min="1" max="5" value="2"></div>
-      <div class="priority-row"><label>Job Security &amp; Stability</label><input type="number" id="p_security" min="1" max="5" value="3"></div>
-      <div class="priority-row"><label>Growth &amp; Learning</label><input type="number" id="p_growth" min="1" max="5" value="4"></div>
-      <div class="priority-row"><label>Company Culture &amp; Values</label><input type="number" id="p_culture" min="1" max="5" value="5"></div>
+      <div class="priority-row"><label for="p_salary">Salary &amp; Compensation</label><input type="number" id="p_salary" min="1" max="5" value="1"></div>
+      <div class="priority-row"><label for="p_wlb">Work-Life Balance</label><input type="number" id="p_wlb" min="1" max="5" value="2"></div>
+      <div class="priority-row"><label for="p_security">Job Security &amp; Stability</label><input type="number" id="p_security" min="1" max="5" value="3"></div>
+      <div class="priority-row"><label for="p_growth">Growth &amp; Learning</label><input type="number" id="p_growth" min="1" max="5" value="4"></div>
+      <div class="priority-row"><label for="p_culture">Company Culture &amp; Values</label><input type="number" id="p_culture" min="1" max="5" value="5"></div>
     </div>
 
     <div class="field-group" style="margin-top:18px;">
-      <label>Work Intensity</label>
+      <label for="pIntensity">Work Intensity</label>
       <select id="pIntensity">
         <option>Relaxed</option>
         <option selected>Balanced</option>
@@ -1198,7 +1200,7 @@
       <button class="filter-btn" data-filter="pending" onclick="setFilter('pending', this)">Not Analysed</button>
     </div>
     <div class="sort-bar">
-      <label>Sort:</label>
+      <label for="sortSelect">Sort:</label>
       <select id="sortSelect" onchange="renderJobList()">
         <option value="score">Score ↓</option>
         <option value="ats">ATS ↓</option>
@@ -1277,6 +1279,7 @@
         <span class="hint">Press <kbd class="kbd-key">?</kbd> for keyboard shortcuts</span>
         <button class="btn-try-demo" onclick="tryDemo()" title="Fill with a sample posting to see what an analysis looks like">✦ Try Demo</button>
       </div>
+      <label for="jobInput" class="sr-only">Job posting text</label>
       <textarea class="job-textarea" id="jobInput" placeholder="Paste job posting text here — include the full description for the best analysis"></textarea>
       <button class="analyse-btn" id="analyseBtn" onclick="analyseJob()" data-en="Analyse this job" data-fr="Analyser cette offre">Analyse this job</button>
       <div class="analysis-status" id="analysisStatus"></div>
@@ -1499,6 +1502,63 @@
 
 </main>
 
+<script>
+// Focus trap for all modal overlays — WCAG 2.1.2
+(function () {
+  var FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  function trapFocus(inner) {
+    var els = Array.from(inner.querySelectorAll(FOCUSABLE));
+    if (!els.length) return;
+    var first = els[0], last = els[els.length - 1];
+    inner._trapFn = function (e) {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    inner.addEventListener('keydown', inner._trapFn);
+    setTimeout(function () { first.focus(); }, 30);
+  }
+
+  function releaseFocus(inner, trigger) {
+    if (inner && inner._trapFn) {
+      inner.removeEventListener('keydown', inner._trapFn);
+      inner._trapFn = null;
+    }
+    if (trigger && trigger.focus) trigger.focus();
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var overlays = document.querySelectorAll('.salary-modal-overlay, #kbd-help-overlay');
+    overlays.forEach(function (overlay) {
+      var inner = overlay.querySelector('[role="dialog"], #kbd-help-panel');
+      var trigger = null;
+      var obs = new MutationObserver(function (muts) {
+        muts.forEach(function (m) {
+          if (m.attributeName !== 'class') return;
+          if (!overlay.classList.contains('hidden')) {
+            trigger = document.activeElement;
+            if (inner) trapFocus(inner);
+          } else {
+            releaseFocus(inner, trigger);
+          }
+        });
+      });
+      obs.observe(overlay, { attributes: true });
+      // Escape key to close
+      overlay.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !overlay.classList.contains('hidden')) {
+          var closeBtn = overlay.querySelector('.salary-modal-close, #kbd-close-btn');
+          if (closeBtn) closeBtn.click();
+        }
+      });
+    });
+  });
+})();
+</script>
 <script src="llm-provider.js"></script>
 <script src="js/app.js" defer></script>
 <script src="qa-audit.js" defer></script>
