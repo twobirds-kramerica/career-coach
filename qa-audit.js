@@ -44,7 +44,7 @@
       if (results.violations.length > 0) {
         html += '<div style="margin-bottom:12px;">';
         results.violations.forEach(function(v) {
-          html += '<div style="margin:4px 0;padding:6px 8px;background:rgba(230,57,70,0.15);border-left:3px solid #e63946;border-radius:2px;">';
+          html += '<div style="margin:4px 0;padding:6px 8px;background:rgba(230,57,70,0.15);border-top:3px solid #e63946;border-radius:2px;">';
           html += '<strong>' + v.impact.toUpperCase() + ':</strong> ' + v.help + ' <span style="color:#8b949e;">(' + v.nodes.length + ' instances)</span>';
           html += '</div>';
         });
@@ -56,7 +56,7 @@
         html += '<div style="margin-bottom:12px;">';
         html += '<strong style="color:#ff9f1c;">' + layoutIssues.length + ' layout issues:</strong>';
         layoutIssues.forEach(function(issue) {
-          html += '<div style="margin:2px 0;padding:4px 8px;background:rgba(255,159,28,0.15);border-left:3px solid #ff9f1c;border-radius:2px;">' + issue + '</div>';
+          html += '<div style="margin:2px 0;padding:4px 8px;background:rgba(255,159,28,0.15);border-top:3px solid #ff9f1c;border-radius:2px;">' + issue + '</div>';
         });
         html += '</div>';
       } else {
