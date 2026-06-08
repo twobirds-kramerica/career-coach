@@ -356,7 +356,7 @@ function updateJobStats() {
   if (flags.length) {
     flagsSection.style.display = '';
     flagsBar.innerHTML = flags.map(f =>
-      '<div style="display:flex;align-items:center;gap:8px;background:' + f.colour + '15;border-left:3px solid ' + f.colour + ';border-radius:0 6px 6px 0;padding:5px 10px;cursor:pointer;font-size:0.82em;color:' + f.colour + ';font-weight:600" onclick="openJobDetail(\'' + f.jobId + '\')">' +
+      '<div style="display:flex;align-items:center;gap:8px;background:' + f.colour + '15;border:1px solid ' + f.colour + '50;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:0.82em;color:' + f.colour + ';font-weight:600" onclick="openJobDetail(\'' + f.jobId + '\')">' +
       '<span>' + f.icon + '</span><span>' + f.text + '</span><span style="margin-left:auto;opacity:0.6">→</span></div>'
     ).join('');
   } else {
@@ -1992,7 +1992,7 @@ Rules:
 
       ${phrases.length ? `<h3 style="font-size:0.95em;font-weight:700;margin:0 0 8px">📝 Suggested CV additions</h3>${phrasesHtml}` : ''}
 
-      ${reorder ? `<div style="background:#e8eaf6;border-left:4px solid #3949ab;border-radius:0 8px 8px 0;padding:10px 12px;font-size:0.88em;margin-top:4px"><strong>Skills reorder tip:</strong> ${reorder.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
+      ${reorder ? `<div style="background:#e8eaf6;border:2px solid #3949ab;border-radius:8px;padding:10px 12px;font-size:0.88em;margin-top:4px"><strong>Skills reorder tip:</strong> ${reorder.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
 
       <div style="margin-top:14px">
         <button class="btn-secondary" onclick="openAtsModal('${job.id}')" style="font-size:0.82em">↺ Re-analyse</button>
