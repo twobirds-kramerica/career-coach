@@ -222,9 +222,16 @@
     .gate0-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
     .gate0-label { font-weight: 700; font-size: 0.78em; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
     .g0-badge { border-radius: 20px; padding: 2px 10px; font-size: 0.78em; font-weight: 700; }
-    .g0-verified   { background: rgba(46,204,113,0.15); color: #2ECC71; }
-    .g0-unverified { background: rgba(231,76,60,0.15);  color: #E74C3C; }
-    .g0-aggregator { background: rgba(243,156,18,0.15); color: #F39C12; }
+    .g0-verified     { background: rgba(46,204,113,0.15);  color: #2ECC71; }
+    .g0-unverified   { background: rgba(231,76,60,0.15);   color: #E74C3C; }
+    .g0-aggregator   { background: rgba(243,156,18,0.15);  color: #F39C12; }
+    .g0-likely-live  { background: rgba(46,204,113,0.12);  color: #2ECC71; }
+    .g0-unreachable  { background: rgba(231,76,60,0.15);   color: #E74C3C; }
+    .g0-check-result { margin-top: 10px; }
+    .g0-check-note   { font-size: 0.82em; color: var(--muted); margin: 6px 0 0; line-height: 1.4; }
+    .btn-g0-primary  { border-color: var(--teal) !important; color: var(--teal) !important; }
+    .btn-g0-confirm  { border-color: #2ECC71 !important; color: #2ECC71 !important; }
+    .btn-g0-dead     { border-color: #E74C3C !important; color: #E74C3C !important; }
     .gate0-row { display: flex; gap: 8px; align-items: baseline; margin-bottom: 5px; font-size: 0.82em; }
     .gate0-field-label { color: var(--muted); flex-shrink: 0; min-width: 100px; }
     .gate0-link { color: var(--teal); word-break: break-all; text-decoration: underline; }

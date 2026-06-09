@@ -442,9 +442,71 @@ function openPostingUrl() {
 }
 
 function markJobVerified(jobId) {
+  setVerificationResult(jobId, 'confirmed', 'manual', 'Manually marked verified');
+}
+
+// ── Posting Health Check — Gate Zero structural enforcement ───────────────────
+
+async function checkPostingHealth(url) {
+  try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 6000);
+    await fetch(url, { mode: 'no-cors', signal: ctrl.signal });
+    clearTimeout(tid);
+    return { reachable: true, method: 'direct-fetch', error: null };
+  } catch(e) {
+    if (e.name === 'AbortError') return { reachable: null, method: 'timeout', error: 'Request timed out' };
+    return { reachable: false, method: 'direct-fetch', error: e.message };
+  }
+}
+
+async function runPostingHealthCheck(jobId) {
+  const job = jobs.find(j => j.id === jobId);
+  if (!job || !job.posting_url) return;
+  const area = document.getElementById('g0-check-area-' + jobId);
+  if (!area) return;
+  area.innerHTML = '<span style="font-size:0.82em;color:var(--muted)">⏳ Checking posting…</span>';
+  const result = await checkPostingHealth(job.posting_url);
+  const jid = esc(jobId);
+  let html;
+  if (result.reachable === true) {
+    html = `<div class="g0-check-result">
+      <span class="g0-badge g0-likely-live">✓ Server reachable</span>
+      <p class="g0-check-note">The server responded. Open the posting and confirm the job is still live before proceeding.</p>
+      <div class="gate0-actions" style="margin-top:8px">
+        <button class="btn-g0 btn-g0-confirm" onclick="setVerificationResult('${jid}','confirmed','auto-fetch','Server reachable + user confirmed')">✓ Confirmed Live</button>
+        <button class="btn-g0 btn-g0-dead" onclick="setVerificationResult('${jid}','dead','auto-fetch','User confirmed dead after server check')">✗ Posting is Dead</button>
+        <button class="btn-g0" onclick="setVerificationResult('${jid}','uncertain','auto-fetch','User could not confirm')">? Cannot Confirm</button>
+      </div>
+    </div>`;
+  } else if (result.reachable === false) {
+    html = `<div class="g0-check-result">
+      <span class="g0-badge g0-unreachable">✗ Server unreachable</span>
+      <p class="g0-check-note">The URL returned an error — this posting is likely dead or the URL is wrong. Do not proceed.</p>
+      <div class="gate0-actions" style="margin-top:8px">
+        <button class="btn-g0 btn-g0-dead" onclick="setVerificationResult('${jid}','dead','auto-fetch','Server unreachable')">✗ Mark as Dead</button>
+        <button class="btn-g0" onclick="setVerificationResult('${jid}','uncertain','auto-fetch','Could not verify')">? Cannot Confirm</button>
+      </div>
+    </div>`;
+  } else {
+    html = `<div class="g0-check-result">
+      <span class="g0-badge g0-unverified">? Timed Out (6s)</span>
+      <p class="g0-check-note">Request timed out — open the posting manually to confirm it's live.</p>
+      <div class="gate0-actions" style="margin-top:8px">
+        <button class="btn-g0 btn-g0-confirm" onclick="setVerificationResult('${jid}','confirmed','manual','User confirmed after timeout')">✓ Confirmed Live</button>
+        <button class="btn-g0 btn-g0-dead" onclick="setVerificationResult('${jid}','dead','manual','User confirmed dead after timeout')">✗ Posting is Dead</button>
+        <button class="btn-g0" onclick="setVerificationResult('${jid}','uncertain','manual','Could not confirm after timeout')">? Cannot Confirm</button>
+      </div>
+    </div>`;
+  }
+  area.innerHTML = html;
+}
+
+function setVerificationResult(jobId, status, method, note) {
   const job = jobs.find(j => j.id === jobId);
   if (!job) return;
-  job.verified_live = new Date().toISOString().slice(0, 10);
+  job.verification_result = { status, method, checked_at: new Date().toISOString(), note: note || '' };
+  job.verified_live = status === 'confirmed' ? new Date().toISOString().slice(0, 10) : (status === 'dead' ? null : job.verified_live);
   saveJobs();
   openJobDetail(jobId);
 }
@@ -610,27 +672,40 @@ function openJobDetail(id) {
         <button class="btn-close-detail" onclick="closeJobDetail()">✕ Close</button>
       </div>
 
-      <!-- Gate 0: Verification status -->
+      <!-- Gate 0: Posting Health Check -->
       ${(() => {
         const isAgg = job.is_aggregator;
         const postUrl = job.posting_url;
         const canonUrl = job.canonical_url;
-        const verified = job.verified_live;
-        if (!postUrl && !isAgg && !canonUrl && !verified) return '';
-        const verifiedBadge = verified
-          ? `<span class="g0-badge g0-verified">✓ Verified live ${verified}</span>`
-          : `<span class="g0-badge g0-unverified">⚠ Unverified</span>`;
-        const aggBadge = isAgg
-          ? `<span class="g0-badge g0-aggregator">⚠ Aggregator source</span>` : '';
+        const vr = job.verification_result;
+        // Legacy compat: treat verified_live string as confirmed if no verification_result
+        const legacyVerified = !vr && job.verified_live;
+        if (!postUrl && !isAgg && !canonUrl && !vr && !legacyVerified) return '';
+
+        const statusBadge = (() => {
+          if (vr) {
+            if (vr.status === 'confirmed')  return `<span class="g0-badge g0-verified">✓ Verified live ${job.verified_live||''}</span>`;
+            if (vr.status === 'dead')       return `<span class="g0-badge g0-unreachable">✗ Posting Dead — do not apply</span>`;
+            if (vr.status === 'uncertain')  return `<span class="g0-badge g0-unverified">? Uncertain — proceed with caution</span>`;
+          }
+          if (legacyVerified) return `<span class="g0-badge g0-verified">✓ Verified live ${job.verified_live}</span>`;
+          return `<span class="g0-badge g0-unverified">⚠ Not yet verified</span>`;
+        })();
+        const aggBadge = isAgg ? `<span class="g0-badge g0-aggregator">⚠ Aggregator source</span>` : '';
+        const needsCheck = !vr && !legacyVerified;
+
         return `<div class="gate0-block">
           <div class="gate0-header">
-            <span class="gate0-label">Gate 0 — Link Verification</span>
-            ${verifiedBadge}${aggBadge}
+            <span class="gate0-label">Gate 0 — Posting Health Check</span>
+            ${statusBadge}${aggBadge}
           </div>
           ${postUrl ? `<div class="gate0-row"><span class="gate0-field-label">Posting URL</span><a href="${esc(postUrl)}" target="_blank" rel="noopener noreferrer" class="gate0-link">${esc(postUrl.length > 60 ? postUrl.slice(0,60)+'…' : postUrl)}</a></div>` : ''}
           ${canonUrl ? `<div class="gate0-row"><span class="gate0-field-label">Canonical URL</span><a href="${esc(canonUrl)}" target="_blank" rel="noopener noreferrer" class="gate0-link">${esc(canonUrl.length > 60 ? canonUrl.slice(0,60)+'…' : canonUrl)}</a></div>` : ''}
+          ${vr ? `<div class="gate0-row" style="font-size:0.78em;color:var(--muted)">Checked: ${vr.checked_at ? new Date(vr.checked_at).toLocaleString() : ''} · Method: ${vr.method||''}</div>` : ''}
+          <div id="g0-check-area-${esc(job.id)}"></div>
           <div class="gate0-actions">
-            ${!verified ? `<button class="btn-g0" onclick="markJobVerified('${esc(job.id)}')">✓ Mark as verified today</button>` : ''}
+            ${postUrl && needsCheck ? `<button class="btn-g0 btn-g0-primary" onclick="runPostingHealthCheck('${esc(job.id)}')">⚡ Run posting health check</button>` : ''}
+            ${postUrl && vr && vr.status !== 'confirmed' ? `<button class="btn-g0 btn-g0-primary" onclick="runPostingHealthCheck('${esc(job.id)}')">⚡ Re-check posting</button>` : ''}
             ${postUrl ? `<button class="btn-g0" onclick="window.open('${esc(postUrl)}','_blank','noopener')">Open posting ↗</button>` : ''}
             ${!canonUrl ? `<span class="gate0-canon-wrap"><input id="canonicalUrlInput" class="canonical-url-input" placeholder="Paste employer's direct ATS link…" type="url"><button class="btn-g0" onclick="setCanonicalUrl('${esc(job.id)}')">Save canonical URL</button></span>` : `<button class="btn-g0" onclick="window.open('${esc(canonUrl)}','_blank','noopener')">Open canonical ↗</button>`}
           </div>
@@ -795,6 +870,19 @@ function filterSuggestions() {
 async function generateCV(jobId) {
   const job = jobs.find(j => j.id === jobId);
   if (!job) return;
+
+  // Gate Zero: block CV customisation until posting is verified (when a URL is known)
+  if (job.posting_url) {
+    const vr = job.verification_result;
+    const legacyOk = !vr && job.verified_live;
+    if (!legacyOk && (!vr || vr.status === 'dead')) {
+      const g0 = document.querySelector('.gate0-block');
+      if (g0) { g0.scrollIntoView({ behavior: 'smooth', block: 'start' }); g0.style.outline = '2px solid #F57C00'; setTimeout(() => g0.style.outline = '', 2500); }
+      alert(vr && vr.status === 'dead' ? 'This posting is marked dead — do not customise or apply.' : 'Run the posting health check first. Gate Zero requires verification before CV customisation.');
+      return;
+    }
+  }
+
   const provider = getActiveProvider();
   const providerMeta = PROVIDER_META[provider] || PROVIDER_META.anthropic;
   const apiKey = getActiveApiKey();
