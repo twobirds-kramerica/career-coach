@@ -19,24 +19,9 @@
   <link rel="preload" href="fonts/dm-sans/DMSans-Bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="fonts/dm-sans/dm-sans.css">
   <link rel="stylesheet" href="fonts/dm-serif-display/dm-serif-display.css">
+  <link rel="stylesheet" href="css/cc-tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --navy: #1B3A4B;
-      --card: #1A2D44;
-      --border: #243d59;
-      --warm: #F8F9FA;
-      --teal: #2EC4B6;
-      --teal-dim: #239e93;
-      --amber: #FF9F1C;
-      --muted: #8AA0B8;
-      --green: #2ECC71;
-      --yellow: #F39C12;
-      --red: #E74C3C;
-      --purple: #9B59B6;
-      --bg: #0F1B2D;
-    }
 
     body { background: var(--navy); color: var(--warm); font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; font-size: 16px; line-height: 1.6; }
     h1 { font-size: 40px; line-height: 1.2; }
@@ -929,7 +914,7 @@
       <div class="field-group" id="settingsApiKeyGroup">
         <label for="settingsApiKey"><span id="settingsApiKeyLabel">Anthropic API Key</span></label>
         <input type="password" id="settingsApiKey" placeholder="sk-ant-..." autocomplete="off">
-        <p id="settingsApiKeyNote" style="font-size:0.8em;color:var(--muted);margin-top:6px;">Stored only in your browser. Never sent anywhere except to the provider's API.</p>
+        <p id="settingsApiKeyNote" style="font-size:0.8em;color:var(--muted);margin-top:6px;">Your key is stored in your browser only — never on our servers. You control your data.</p>
         <p style="font-size:0.8em;margin-top:8px;"><a id="settingsGetKeyLink" href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--teal);">Get an Anthropic API key →</a></p>
       </div>
       <button class="btn-primary" onclick="saveApiKey()" style="width:100%;">Save provider &amp; key</button>

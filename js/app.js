@@ -1368,6 +1368,7 @@ function applyLang() {
 function toggleLang() {
   currentLang = currentLang === 'en' ? 'fr' : 'en';
   localStorage.setItem('cc_lang', currentLang);
+  document.documentElement.lang = currentLang === 'fr' ? 'fr-CA' : 'en-CA';
   applyLang();
 }
 

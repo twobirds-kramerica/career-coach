@@ -1,0 +1,22 @@
+/* Career Coach — Design Tokens
+   Single source of truth for all brand colours.
+   Import this file in every HTML page before any other stylesheet.
+   Updated: 2026-06-11 (S-CAREERCOACH-P1-FIXES)
+   Note: --muted lightened from #8AA0B8 to #9DB5CC for WCAG AA 4.5:1 on --card background.
+*/
+:root {
+  --bg:       #0F1B2D;
+  --navy:     #1B3A4B;
+  --card:     #1A2D44;
+  --border:   #243d59;
+  --warm:     #F8F9FA;
+  --teal:     #2EC4B6;
+  --teal-dim: #239e93;
+  --amber:     #FF9F1C;
+  --amber-dim: #e87f3a;
+  --muted:    #9DB5CC;
+  --green:    #2ECC71;
+  --yellow:   #F39C12;
+  --red:      #E74C3C;
+  --purple:   #9B59B6;
+}
