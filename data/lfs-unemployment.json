@@ -2,7 +2,7 @@
   "rate": 6.6,
   "reference_period": "2026-05",
   "source": "Statistics Canada, Table 14-10-0287-01",
-  "updated": "2026-06-12",
+  "updated": "2026-06-19",
   "unit": "%",
   "note": "Canada, both sexes, 15 years and over, seasonally adjusted",
   "update_instructions": "Update monthly. StatCan LFS releases on the 3rd Friday of the following month. Source: https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028703"
