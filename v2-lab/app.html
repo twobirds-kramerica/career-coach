@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Analyse a job posting | Career Coach</title>
+  <meta name="description" content="Paste a job posting, verify the link, and get a straight verdict scored against your own CV. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A6B60'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='700' fill='%23F3F6F8' text-anchor='middle'%3ECC%3C/text%3E%3C/svg%3E">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("cc-v2-theme");
+        if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      } catch (e) {}
+    }());
+  </script>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="bar">
+      <a class="wordmark" href="index.html">Career<span class="mark">&nbsp;Coach</span></a>
+      <span class="byline">Two Birds Innovation · St. Thomas, Ontario</span>
+      <span class="header-spacer"></span>
+      <nav class="header-nav" aria-label="Site">
+        <a href="index.html">About</a>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false">Dark mode</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="app-main">
+    <div class="shell narrow">
+
+      <div class="flow-progress" aria-hidden="true">
+        <div class="track"><div class="fill" id="flowFill" style="width:33%"></div></div>
+        <span class="count" id="flowCount">Step 1 of 3</span>
+      </div>
+
+      <!-- ── STEP 1: Profile ─────────────────────────────────── -->
+      <section id="panel-profile">
+        <h1 class="flow-title">First, your side of the table</h1>
+        <p class="flow-sub">The verdict is only as good as what it is scored against. Two minutes, saved in your browser, editable any time.</p>
+
+        <div class="card">
+          <div class="field">
+            <label for="pCV">Your CV <span class="hint">(paste the full text; more detail means a sharper analysis)</span></label>
+            <textarea id="pCV" rows="10" placeholder="Paste your full CV text here"></textarea>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="pMinSal">Minimum salary <span class="hint">($ CAD)</span></label>
+              <input type="number" id="pMinSal" placeholder="65000" min="0" step="1000">
+            </div>
+            <div class="field">
+              <label for="pTargetSal">Target salary <span class="hint">($ CAD)</span></label>
+              <input type="number" id="pTargetSal" placeholder="85000" min="0" step="1000">
+            </div>
+          </div>
+          <div class="field">
+            <label for="pLocation">Location and arrangement</label>
+            <input type="text" id="pLocation" placeholder="e.g. London ON, hybrid or remote preferred">
+          </div>
+          <div class="field">
+            <label for="pPriorities">What matters most right now <span class="hint">(one line, plain English)</span></label>
+            <input type="text" id="pPriorities" placeholder="e.g. stability and salary first, growth second, no on-call">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label for="pAvoid">Hard passes <span class="hint">(industries, arrangements, anything that is an automatic no)</span></label>
+            <input type="text" id="pAvoid" placeholder="e.g. gambling, 100% in-office, heavy travel">
+          </div>
+        </div>
+
+        <details class="byok-details" id="byokDetails">
+          <summary>AI provider and key (bring your own; stored in this browser only)</summary>
+          <div class="card">
+            <div class="field">
+              <label for="provider">Provider</label>
+              <select id="provider">
+                <option value="anthropic">Claude (Anthropic)</option>
+                <option value="openai">GPT (OpenAI)</option>
+                <option value="gemini">Gemini (Google)</option>
+                <option value="ollama">Ollama (local, no key needed)</option>
+              </select>
+            </div>
+            <div class="field" id="keyField">
+              <label for="apiKey">API key</label>
+              <input type="password" id="apiKey" placeholder="sk-..." autocomplete="off">
+              <p class="fine" style="margin-top:var(--s2);">Stored in your browser only, sent directly to the provider you chose. It never touches our servers, because there are none.</p>
+            </div>
+            <p class="fine hidden" id="noKeyNote">Ollama runs on your own machine. No key, and nothing leaves your computer at all.</p>
+          </div>
+        </details>
+
+        <div class="flow-nav">
+          <span class="fine" id="profileSavedNote" aria-live="polite"></span>
+          <button type="button" class="btn btn-primary" id="toStep2">Save and add a job</button>
+        </div>
+      </section>
+
+      <!-- ── STEP 2: Gate 0 + posting ────────────────────────── -->
+      <section id="panel-job" class="hidden">
+        <h1 class="flow-title">Now, the job</h1>
+        <p class="flow-sub">Verify the link before you invest a minute. Working on a dead posting is the most expensive mistake in a job search.</p>
+
+        <div class="card analyse-zone">
+          <div class="gate0">
+            <div class="g0-head">
+              <span class="g0-label">Gate zero · posting link</span>
+              <span class="g0-status" id="g0Status"></span>
+            </div>
+            <div class="g0-row">
+              <label for="jobUrl" class="sr-only">Posting URL</label>
+              <input type="url" id="jobUrl" placeholder="https://careers.company.ca/role or https://jobs.lever.co/..." autocomplete="off" spellcheck="false">
+              <button type="button" class="btn-mini" id="openUrlBtn" hidden>Open &#8599;</button>
+            </div>
+            <div class="g0-warning hidden" id="aggWarning" role="alert">
+              <b>Aggregator detected.</b> This is a repost, not the source. Find the employer's own careers page before building your package. <a href="#" id="aggSearchLink" target="_blank" rel="noopener noreferrer">Search for the direct posting &#8594;</a>
+            </div>
+            <div class="g0-actions" id="g0Actions" hidden>
+              <button type="button" class="btn-mini" id="g0Confirm" aria-pressed="false">&#10003; I opened it, the posting is live</button>
+            </div>
+            <p class="g0-note">Optional but recommended. Aggregator reposts and dead links get flagged here.</p>
+          </div>
+
+          <div class="analyse-actions">
+            <label for="jobText" style="margin:0;">Job posting text</label>
+            <button type="button" class="btn-mini" id="demoBtn">Load a sample posting</button>
+          </div>
+          <textarea id="jobText" placeholder="Paste the full job posting here. Include requirements and salary if listed; the more complete the posting, the sharper the verdict."></textarea>
+          <div class="flow-nav">
+            <button type="button" class="link-btn" id="backTo1">Back to profile</button>
+            <button type="button" class="btn btn-primary" id="analyseBtn">Get the verdict</button>
+          </div>
+          <p class="status-line" id="statusLine" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <!-- ── STEP 3: Verdict ─────────────────────────────────── -->
+      <section id="panel-verdict" class="hidden">
+        <div class="report" aria-live="polite">
+          <div class="report-masthead">
+            <h2 id="repRole">Your verdict</h2>
+            <span class="meta" id="repMeta"></span>
+          </div>
+          <div class="report-body">
+
+            <div class="report-block">
+              <p class="label">The verdict</p>
+              <div class="verdict-line">
+                <span class="chip" id="verdictChip">Apply custom</span>
+                <span class="v-word" id="verdictWord"></span>
+              </div>
+              <p class="verdict-reason" id="verdictReason"></p>
+            </div>
+
+            <div class="report-block">
+              <p class="label">The numbers</p>
+              <div class="meters">
+                <div class="meter-card">
+                  <span class="m-label">ATS match</span>
+                  <div class="m-value" id="mAts">0</div>
+                  <div class="meter-track"><div class="meter-fill" id="mAtsFill" style="width:0%"></div></div>
+                </div>
+                <div class="meter-card">
+                  <span class="m-label">Overall fit</span>
+                  <div class="m-value" id="mFit">0</div>
+                  <div class="meter-track"><div class="meter-fill" id="mFitFill" style="width:0%"></div></div>
+                </div>
+                <div class="meter-card">
+                  <span class="m-label">Salary signal</span>
+                  <div class="m-value" id="mSal" style="font-size:1.15rem;padding-top:6px;">Not specified</div>
+                  <div class="meter-track"><div class="meter-fill" id="mSalFill" style="width:0%"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="report-block">
+              <div class="two-col">
+                <div>
+                  <p class="label">Where you are strong</p>
+                  <ul class="list-plain" id="strengthList"></ul>
+                </div>
+                <div>
+                  <p class="label">Where the gaps are</p>
+                  <ul class="list-plain" id="gapList"></ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="report-block">
+              <p class="label">Your next three moves</p>
+              <div class="moves" id="movesList"></div>
+            </div>
+
+            <div class="report-block">
+              <div class="flow-nav" style="margin-top:0;">
+                <button type="button" class="link-btn" id="analyseAnother">Analyse another posting</button>
+                <button type="button" class="btn btn-ghost" id="copyVerdict">Copy verdict as text</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell">
+      <p>&copy; 2026 Two Birds Innovation. Built with care in Ontario, Canada.</p>
+      <p>Your CV, your key, and your pipeline live in your browser. Nothing is stored, tracked, or sold.</p>
+      <p>v2 lab preview build · the live Career Coach app is unchanged.</p>
+    </div>
+  </footer>
+
+  <script src="js/llm-provider.js" defer></script>
+  <script src="js/coach-v2.js" defer></script>
+</body>
+</html>

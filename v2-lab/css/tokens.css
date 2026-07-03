@@ -1,0 +1,218 @@
+/* ============================================================================
+   Career Coach v2 Design Tokens  ·  Fable pass (2026-07-03)
+   ----------------------------------------------------------------------------
+   Identity: a sharp colleague in your corner. Momentum-focused, practical,
+   plain English. Grounded in PRODUCT.md: the job posting is the centre of
+   gravity, verify before you build, BYOK is a feature.
+
+   Type pairing (self-hosted, SIL OFL — mandated by PRODUCT.md: "Maintain"):
+     Headings  DM Serif Display   confident, high-contrast display serif
+     Body/UI   DM Sans            geometric, energetic, crisp at UI sizes
+   Distinct from DCC (Merriweather warm-gentle) and Clarity (Fraunces+Inter
+   editorial-boardroom) by both face and register.
+
+   Palette: deep harbour navy + working teal, amber for operational signals.
+   Evolves Career Coach v1's navy/teal; adds a first-class LIGHT theme.
+
+   --------------------------------------------------------------------------
+   VERIFIED WCAG CONTRAST (computed 2026-07-03, all text pairs >= 4.5:1)
+   --------------------------------------------------------------------------
+   LIGHT
+     ink        #132433 on bg #F3F6F8       14.6:1  AAA
+     ink        #132433 on white            15.8:1  AAA
+     ink-soft   #43596B on bg                6.7:1  AA+
+     ink-soft   #43596B on white             7.3:1  AAA
+     primary    #0A6B60 on bg                5.9:1  AA+
+     primary    #0A6B60 on white             6.4:1  AA+
+     white on primary #0A6B60 (buttons)      6.4:1  AA+
+     primary    #0A6B60 on tint #DFF0ED      5.4:1  AA+
+     ink        #132433 on tint #DFF0ED     13.4:1  AAA
+     amber-deep #8A5309 on tint #FCF1DE      5.7:1  AA+
+     amber-deep #8A5309 on white             6.3:1  AA+
+     success    #1C6B33 on #E4F3E8           5.7:1  AA+
+     error      #B3321B on #FCEAE5           5.3:1  AA+
+     error      #B3321B on white             6.2:1  AA+
+   DARK
+     ink        #EAF1F6 on bg #0F1B2A       15.2:1  AAA
+     ink        #EAF1F6 on surface #17293C  13.0:1  AAA
+     ink-soft   #A3BACC on surface           7.4:1  AAA
+     teal       #45D6C4 on bg                9.6:1  AAA
+     teal       #45D6C4 on surface           8.2:1  AAA
+     dark ink #0F1B2A on teal btn #45D6C4    9.6:1  AAA  (buttons)
+     amber      #F5B65C on bg                9.7:1  AAA
+     amber      #F5B65C on tint #33270F      8.2:1  AAA
+     success    #8FD9A0 on bg               10.4:1  AAA
+     success    #8FD9A0 on tint #12301B      8.6:1  AAA
+     error      #F5A08F on bg                8.5:1  AAA
+     error      #F5A08F on tint #3A1810      7.8:1  AAA
+     teal on tint #123430                    7.5:1  AAA
+   ========================================================================== */
+
+/* --- Self-hosted fonts (SIL OFL 1.1 — see fonts/(dir)/OFL.txt) ------------ */
+@font-face {
+  font-family: 'DM Sans';
+  src: url('../fonts/dm-sans/DMSans-Regular.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'DM Sans';
+  src: url('../fonts/dm-sans/DMSans-Medium.woff2') format('woff2');
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'DM Sans';
+  src: url('../fonts/dm-sans/DMSans-SemiBold.woff2') format('woff2');
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'DM Sans';
+  src: url('../fonts/dm-sans/DMSans-Bold.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'DM Serif Display';
+  src: url('../fonts/dm-serif-display/DMSerifDisplay-Regular.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --bg:            #F3F6F8;  /* cool paper */
+  --surface:       #FFFFFF;
+  --surface-tint:  #DFF0ED;  /* teal-tinted fill */
+  --surface-amber: #FCF1DE;  /* amber-tinted fill (signals) */
+
+  /* Brand */
+  --primary:          #0A6B60;  /* working teal, deep */
+  --primary-hover:    #085249;
+  --primary-contrast: #FFFFFF;
+  --accent:           #C07C10;  /* amber — rules and marks only on light */
+  --accent-deep:      #8A5309;  /* amber TEXT on light fills */
+
+  /* Text */
+  --ink:       #132433;
+  --ink-soft:  #43596B;
+  --link:      #0A6B60;
+  --link-hover:#085249;
+
+  /* Structure */
+  --border:        #D8DFE4;
+  --border-strong: #AEBCC6;
+  --rule:          #C9D3DA;
+
+  /* State */
+  --success-deep:  #1C6B33;
+  --success-light: #E4F3E8;
+  --error:         #B3321B;
+  --error-light:   #FCEAE5;
+
+  /* Score bands (text-on-tint, all verified) */
+  --band-strong:      var(--success-deep);
+  --band-strong-bg:   var(--success-light);
+  --band-caution:     var(--accent-deep);
+  --band-caution-bg:  var(--surface-amber);
+  --band-weak:        var(--error);
+  --band-weak-bg:     var(--error-light);
+
+  /* Type */
+  --font-display: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  --font-body:    'DM Sans', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+
+  --fs-base: 17px;
+  --fs-sm:      0.882rem;  /* 15px */
+  --fs-caption: 0.824rem;  /* 14px */
+  --fs-h1: clamp(2.15rem, 4.6vw + 1rem, 3.5rem);
+  --fs-h2: clamp(1.5rem, 1.6vw + 1rem, 1.9rem);
+  --fs-h3: 1.22rem;
+  --fs-lead: clamp(1.06rem, 0.5vw + 0.95rem, 1.22rem);
+
+  --lh-tight: 1.1;
+  --lh-body:  1.6;
+
+  /* Spacing (4px base) */
+  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
+  --s5: 20px; --s6: 24px; --s8: 32px; --s10: 40px;
+  --s12: 48px; --s16: 64px; --s20: 80px;
+
+  /* Radii */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(15, 27, 42, 0.08);
+  --shadow-md: 0 4px 16px rgba(15, 27, 42, 0.10);
+
+  /* Motion */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-1: 130ms;
+  --dur-2: 220ms;
+  --dur-3: 420ms;
+
+  /* Focus */
+  --focus-ring: 3px solid #8A5309;
+  --focus-offset: 2px;
+
+  /* Buttons (theme-dependent — see dark block) */
+  --btn-bg:    #0A6B60;
+  --btn-text:  #FFFFFF;
+  --btn-hover: #085249;
+
+  /* Layout */
+  --content-max: 920px;
+  --narrow-max: 700px;
+  --tap-min: 44px;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:            #0F1B2A;
+  --surface:       #17293C;
+  --surface-tint:  #123430;
+  --surface-amber: #33270F;
+
+  --primary:          #45D6C4;  /* headings, links, marks on dark */
+  --primary-hover:    #7AE3D6;
+  --primary-contrast: #0F1B2A;
+  --accent:           #F5B65C;
+  --accent-deep:      #F5B65C;
+
+  --ink:       #EAF1F6;
+  --ink-soft:  #A3BACC;
+  --link:      #45D6C4;
+  --link-hover:#7AE3D6;
+
+  --border:        #24384D;
+  --border-strong: #3B5570;
+  --rule:          #24384D;
+
+  --success-deep:  #8FD9A0;
+  --success-light: #12301B;
+  --error:         #F5A08F;
+  --error-light:   #3A1810;
+
+  --band-strong:      var(--success-deep);
+  --band-strong-bg:   var(--success-light);
+  --band-caution:     var(--accent-deep);
+  --band-caution-bg:  var(--surface-amber);
+  --band-weak:        var(--error);
+  --band-weak-bg:     var(--error-light);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+  --focus-ring: 3px solid #F5B65C;
+
+  /* Dark buttons: dark ink on bright teal, 9.6:1 */
+  --btn-bg:    #45D6C4;
+  --btn-text:  #0F1B2A;
+  --btn-hover: #7AE3D6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-1: 0ms; --dur-2: 0ms; --dur-3: 0ms; }
+}
