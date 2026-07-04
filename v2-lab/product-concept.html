@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Concept: a job-application tool that never sees your data | Two Birds Innovation</title>
+  <meta name="description" content="A product concept from Two Birds Innovation: tailor your CV and cover letter to a real job posting, without fabrication, using your own AI key. Your data never touches our servers.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A6B60'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='700' fill='%23F3F6F8' text-anchor='middle'%3ECC%3C/text%3E%3C/svg%3E">
+  <script>
+    /* Set theme before first paint to avoid a flash */
+    (function () {
+      try {
+        var t = localStorage.getItem("cc-v2-theme");
+        if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      } catch (e) {}
+    }());
+  </script>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/core.css">
+  <style>
+    /* ---- Concept-page components (tokens only, verified pairs) ---- */
+
+    .concept-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font: 600 var(--fs-caption) var(--font-body);
+      padding: 4px 12px; border-radius: var(--r-pill);
+      background: var(--surface-amber); color: var(--accent-deep);
+      border: 1px solid var(--accent);
+    }
+
+    /* Two moats */
+    .moats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5); margin-top: var(--s6); }
+    .moat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--primary);
+      border-radius: var(--r-lg);
+      padding: var(--s6);
+      box-shadow: var(--shadow-md);
+    }
+    .moat .m-tag {
+      font: 600 0.72rem var(--font-body); letter-spacing: 0.13em; text-transform: uppercase;
+      color: var(--accent-deep); display: block; margin-bottom: var(--s3);
+    }
+    .moat h3 { font-size: 1.35rem; margin-bottom: var(--s3); color: var(--primary); }
+    .moat p { font-size: var(--fs-sm); color: var(--ink-soft); }
+    .moat p + p { margin-top: var(--s3); }
+    .moat p b { color: var(--ink); }
+    .moat ul { list-style: none; margin-top: var(--s4); display: grid; gap: var(--s3); }
+    .moat li { display: flex; gap: var(--s2); font-size: var(--fs-sm); color: var(--ink-soft); align-items: flex-start; }
+    .moat li .ic { color: var(--success-deep); font-weight: 700; flex-shrink: 0; }
+    .moat li b { color: var(--ink); }
+
+    /* Flow (vertical rail) */
+    .flow { display: grid; gap: var(--s3); margin-top: var(--s6); counter-reset: flowstep; }
+    .flow-step {
+      display: grid; grid-template-columns: auto 1fr; gap: var(--s4);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: var(--s4) var(--s5);
+      box-shadow: var(--shadow-sm);
+    }
+    .flow-step::before {
+      counter-increment: flowstep; content: counter(flowstep, decimal-leading-zero);
+      font: 600 0.9rem var(--font-body);
+      color: var(--accent-deep); padding-top: 3px;
+    }
+    .flow-step .k {
+      font-family: var(--font-display); font-size: 1.08rem;
+      color: var(--primary); display: block; margin-bottom: 2px;
+    }
+    .flow-step p { font-size: var(--fs-sm); color: var(--ink-soft); max-width: 66ch; }
+    .flow-step.flow-gate { border-inline-start: 4px solid var(--accent); }
+    .flow-step.flow-gate .gate-chip {
+      display: inline-flex; margin-inline-start: var(--s2);
+      font: 600 0.68rem var(--font-body); letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 2px 10px; border-radius: var(--r-pill);
+      background: var(--band-caution-bg); color: var(--band-caution);
+      vertical-align: middle;
+    }
+    .flow-note {
+      margin-top: var(--s4); font-size: var(--fs-sm); color: var(--ink-soft);
+      background: var(--surface-tint); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: var(--s3) var(--s4);
+    }
+    .flow-note b { color: var(--primary); }
+
+    /* Refusal sample */
+    .refusal {
+      margin-top: var(--s6);
+      background: var(--band-caution-bg);
+      border: 1px solid var(--accent);
+      border-radius: var(--r-md);
+      padding: var(--s4) var(--s5);
+      max-width: 66ch;
+    }
+    .refusal .r-label {
+      font: 600 0.7rem var(--font-body); letter-spacing: 0.13em; text-transform: uppercase;
+      color: var(--band-caution); display: block; margin-bottom: var(--s2);
+    }
+    .refusal p { font-size: var(--fs-sm); color: var(--band-caution); line-height: 1.55; }
+
+    /* Audience cards */
+    .audience { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); margin-top: var(--s6); }
+    .aud {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: var(--s5);
+      box-shadow: var(--shadow-sm);
+    }
+    .aud .a-tag {
+      font: 600 0.7rem var(--font-body); letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent-deep); display: block; margin-bottom: var(--s2);
+    }
+    .aud h3 { font-size: 1.05rem; margin-bottom: var(--s2); }
+    .aud p { font-size: var(--fs-sm); color: var(--ink-soft); }
+
+    /* Honesty / concept note */
+    .honesty {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--r-lg);
+      padding: var(--s6);
+      display: grid; gap: var(--s4);
+    }
+    .honesty p { font-size: var(--fs-sm); color: var(--ink-soft); max-width: 68ch; }
+    .honesty p b { color: var(--ink); }
+    .honesty .cta-row { display: flex; flex-wrap: wrap; gap: var(--s4); align-items: center; }
+
+    @media (max-width: 860px) {
+      .moats { grid-template-columns: 1fr; }
+      .audience { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="bar">
+      <a class="wordmark" href="index.html">Career<span class="mark">&nbsp;Coach</span></a>
+      <span class="byline">Two Birds Innovation · St. Thomas, Ontario</span>
+      <span class="header-spacer"></span>
+      <nav class="header-nav" aria-label="Site">
+        <a href="index.html">Career Coach today</a>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false">Dark mode</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="shell">
+        <p class="eyebrow">Product concept · where Career Coach goes next</p>
+        <h1>Tailors your CV and cover letter to the job. <span class="u">Without making anything up.</span> And it never sees your data.</h1>
+        <p class="lead">A job-application tool built on two promises most AI resume tools cannot make: every word it writes is pulled from things you actually did and approved, and your CV, your history, and your API key never touch our servers. You bring your own AI key, so it costs nothing to run and nothing to trust.</p>
+        <div class="hero-cta">
+          <span class="concept-badge">Concept preview, not a live app</span>
+        </div>
+        <div class="hero-facts">
+          <span><span class="tick">&#10003;</span> Your own AI key, stored in your browser only</span>
+          <span><span class="tick">&#10003;</span> No fabrication, ever. You approve every word</span>
+          <span><span class="tick">&#10003;</span> Refuses to tailor against a truncated posting</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- The two moats -->
+    <section class="section" id="moats">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-num">01</span>
+          <h2>The two promises</h2>
+        </div>
+        <p class="section-sub">Plenty of tools will rewrite your resume with AI. These two things are what make this one different, and they are both structural, not marketing.</p>
+        <div class="moats">
+          <article class="moat">
+            <span class="m-tag">Moat one · privacy and cost</span>
+            <h3>Bring your own AI key</h3>
+            <p>You paste your own LLM API key (Claude, GPT, or another provider). Your CV, your job history, the posting, and every draft flow through <b>your key, in your browser</b>. We store none of it. There is no account holding your work history and no server to leak it from.</p>
+            <p>The same choice makes it <b>essentially free to run</b>: you pay your AI provider pennies per application, and we carry no inference cost that has to be recovered from you or your data.</p>
+          </article>
+          <article class="moat">
+            <span class="m-tag">Moat two · trust</span>
+            <h3>Guardrails that will not embarrass you</h3>
+            <ul>
+              <li><span class="ic">&#10003;</span><span><b>Pull, not invent.</b> It tailors from a word bank of claims you wrote and approved. It rearranges and emphasizes your real experience. It does not create new experience.</span></li>
+              <li><span class="ic">&#10003;</span><span><b>Every figure defensible.</b> If a number or claim is not something you could stand behind in an interview, it does not go in.</span></li>
+              <li><span class="ic">&#10003;</span><span><b>Truncated-posting check.</b> If a job description is cut off (the LinkedIn "see more" trap), it flags it and refuses to tailor against a fraction of the requirements.</span></li>
+              <li><span class="ic">&#10003;</span><span><b>You approve every word.</b> Nothing is sent, saved, or finalized until you have read it and said yes.</span></li>
+              <li><span class="ic">&#10003;</span><span><b>Your pattern, not a template.</b> It learns how you actually open, address a gap honestly, and close, instead of pasting in the same opener every applicant uses.</span></li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section" id="how">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-num">02</span>
+          <h2>How it works</h2>
+        </div>
+        <p class="section-sub">One posting at a time, verified before anything is written, checked before anything is shown, approved before anything leaves.</p>
+        <div class="flow">
+          <div class="flow-step">
+            <div>
+              <span class="k">Paste a job posting</span>
+              <p>Title plus the full description. That posting becomes the centre of everything that follows.</p>
+            </div>
+          </div>
+          <div class="flow-step flow-gate">
+            <div>
+              <span class="k">Gate Zero verifies it <span class="gate-chip">Guardrail</span></span>
+              <p>Is the posting real, live, and complete? Dead links, aggregator reposts, and truncated descriptions are caught here, before you spend a minute of effort on them.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div>
+              <span class="k">It tailors, in your voice</span>
+              <p>The tool recommends a customization level (low, medium, or high), then tailors your CV summary and competencies and drafts a cover letter in your own pattern, using your own AI key.</p>
+            </div>
+          </div>
+          <div class="flow-step flow-gate">
+            <div>
+              <span class="k">Guardrails check the output <span class="gate-chip">Guardrail</span></span>
+              <p>Every draft is checked against your approved word bank: no fabricated claims, no invented figures, no words you have banned from your own writing.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div>
+              <span class="k">You approve</span>
+              <p>You read the final CV and letter. You change what you want. Nothing ships without your yes.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div>
+              <span class="k">Clean, formatted output</span>
+              <p>A polished CV and cover letter in a locked format that never drifts between applications.</p>
+            </div>
+          </div>
+        </div>
+        <p class="flow-note"><b>Every posting is archived.</b> Job postings vanish. If the role disappears the night before your interview, your copy of the description, and everything you prepared from it, is still there.</p>
+
+        <div class="refusal">
+          <span class="r-label">What refusing looks like</span>
+          <p>"This posting appears truncated: the description ends mid-sentence at 480 characters. Tailoring against a fraction of the requirements would misrepresent the fit. Paste the full description to continue."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Who it's for -->
+    <section class="section" id="who">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-num">03</span>
+          <h2>Who this is for</h2>
+        </div>
+        <div class="audience">
+          <article class="aud">
+            <span class="a-tag">The careful applicant</span>
+            <h3>People who dread being caught out</h3>
+            <p>If the idea of an AI-embellished claim surfacing in an interview makes your stomach drop, this tool was designed around exactly that fear. Everything it writes, you could defend at three in the morning.</p>
+          </article>
+          <article class="aud">
+            <span class="a-tag">The privacy-conscious</span>
+            <h3>People who will not upload their history</h3>
+            <p>Your CV is a map of your life. Bring-your-own-key means it stays on your machine, processed by a provider you chose, under terms you accepted. We are not in that loop.</p>
+          </article>
+          <article class="aud">
+            <span class="a-tag">The assisted search</span>
+            <h3>A fractional job helper</h3>
+            <p>The same engine can back a human-assisted service: a careful, honest operator running your search with you, using tools that cannot exaggerate on your behalf. One possible shape for this product.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Where it comes from -->
+    <section class="section" id="origin">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-num">04</span>
+          <h2>This is not a whiteboard idea</h2>
+        </div>
+        <p class="section-sub">Every piece described above exists as working logic, proven daily on a real job search: the posting verification, the no-fabrication discipline, the truncation check, the pattern library, the JD archive. <a href="index.html">Career Coach</a> is the seed already built in this space, with bring-your-own-key and Gate Zero live today. This concept is Career Coach grown into the full tailor-and-guardrail suite.</p>
+      </div>
+    </section>
+
+    <!-- Honesty note + call -->
+    <section class="section" id="try">
+      <div class="shell">
+        <div class="honesty">
+          <h2>An honest note</h2>
+          <p><b>This page is a concept to react to, not a product you can sign up for.</b> The logic is real and battle-tested, the packaging is not built yet, and the name is not even settled. We would rather show you the idea straight than dress it up as a launch.</p>
+          <p>If you are running a job search and would try this with your own AI key, that interest is exactly the signal that decides what gets built first.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="mailto:aaron.patzalek@gmail.com?subject=Job%20application%20tool%20concept%20-%20I%20would%20try%20it">I would try this with my own key</a>
+            <a class="btn btn-ghost" href="index.html">See what exists today: Career Coach</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell">
+      <p>&copy; 2026 Two Birds Innovation. Built with care in Ontario, Canada.</p>
+      <p>Concept preview. No account, no tracking, no data collected by this page.</p>
+    </div>
+  </footer>
+
+  <script>
+    /* Theme toggle (matches index.html behaviour, self-contained) */
+    (function () {
+      var btn = document.getElementById("themeToggle");
+      if (!btn) return;
+      function apply(dark) {
+        if (dark) { document.documentElement.setAttribute("data-theme", "dark"); }
+        else { document.documentElement.removeAttribute("data-theme"); }
+        btn.textContent = dark ? "Light mode" : "Dark mode";
+        btn.setAttribute("aria-pressed", String(dark));
+      }
+      apply(document.documentElement.getAttribute("data-theme") === "dark");
+      btn.addEventListener("click", function () {
+        var dark = document.documentElement.getAttribute("data-theme") !== "dark";
+        apply(dark);
+        try { localStorage.setItem("cc-v2-theme", dark ? "dark" : "light"); } catch (e) {}
+      });
+    }());
+  </script>
+</body>
+</html>
