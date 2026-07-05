@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privacy Policy — Career Coach by Two Birds Innovation</title>
+  <title>Privacy Policy - Career Coach by Two Birds Innovation</title>
   <meta name="description" content="Privacy Policy for Career Coach. Your job data and API key never leave your browser except for direct API calls. No accounts. No tracking.">
-  <meta property="og:title" content="Privacy Policy — Career Coach">
+  <meta property="og:title" content="Privacy Policy - Career Coach">
   <meta property="og:description" content="Career Coach stores your job data and API key locally in your browser only. Plain-language privacy policy.">
   <meta property="og:type" content="website">
   <meta name="robots" content="index, follow">
@@ -22,6 +22,7 @@
       --border: #243d59;
       --warm: #F8F9FA;
       --teal: #2EC4B6;
+      --amber: #FF9F1C;
       --muted: #8AA0B8;
       --bg: #0F1B2D;
     }
@@ -64,6 +65,17 @@
       margin-bottom: 2rem;
     }
 
+    .draft-note {
+      background: var(--card);
+      border: 1px solid var(--amber);
+      border-left: 4px solid var(--amber);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 2rem;
+      font-size: 0.92rem;
+    }
+    .draft-note strong { color: var(--amber); }
+
     .summary-box {
       background: var(--card);
       border: 1px solid var(--teal);
@@ -104,6 +116,7 @@
       font-size: 0.85rem;
       color: var(--muted);
     }
+    .footer a { color: var(--teal); }
 
     @media (max-width: 600px) {
       body { font-size: 16px; padding: 1.25rem 1rem 3rem; }
@@ -116,6 +129,10 @@
 
     <h1>Privacy Policy</h1>
     <p class="last-updated">Career Coach by Two Birds Innovation &nbsp;|&nbsp; Last updated: June 2026</p>
+
+    <div class="draft-note">
+      <p><strong>DRAFT - not legal advice.</strong> This is a draft policy pending professional review. It is not legal, tax, or financial advice. Have a licensed Ontario lawyer review it before you rely on it.</p>
+    </div>
 
     <div class="summary-box">
       <p><strong>Plain language summary:</strong> Career Coach runs entirely in your browser. Your job data, your API key, and your cover letters are stored only on your device. They are never sent to Two Birds Innovation. The only data that leaves your browser is what you explicitly send to your AI provider (Anthropic, OpenAI, or another). We do not have accounts, cookies, or analytics.</p>
@@ -184,7 +201,7 @@
     </section>
 
     <footer class="footer">
-      <p>Career Coach by Two Birds Innovation™ &nbsp;|&nbsp; <a href="index.html">Back to app</a></p>
+      <p>Career Coach by Two Birds Innovation™ &nbsp;|&nbsp; <a href="index.html">Back to app</a> &nbsp;|&nbsp; <a href="privacy.html">Privacy Policy</a> &nbsp;|&nbsp; <a href="terms.html">Terms of Service</a> &nbsp;|&nbsp; <a href="disclaimer.html">Disclaimer</a></p>
     </footer>
   </div>
 </body>
