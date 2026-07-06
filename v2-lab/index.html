@@ -4,34 +4,277 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <title>Career Coach: AI job application tools that respect your judgment | Two Birds Innovation</title>
-  <meta name="description" content="Career Coach analyses your CV against a real job posting and gives you a straight verdict: apply custom, apply generic, or skip. Your data stays in your browser.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A6B60'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='700' fill='%23F3F6F8' text-anchor='middle'%3ECC%3C/text%3E%3C/svg%3E">
-  <script>
-    /* Set theme before first paint to avoid a flash */
-    (function () {
-      try {
-        var t = localStorage.getItem("cc-v2-theme");
-        if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-          document.documentElement.setAttribute("data-theme", "dark");
-        }
-      } catch (e) {}
-    }());
-  </script>
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/core.css">
+  <title>Career Coach: a straight verdict on every job posting | Two Birds Innovation</title>
+  <meta name="description" content="Career Coach analyses a real job posting against your actual CV and gives you one clear recommendation: apply custom, apply generic, or skip. Private by design. Your data stays in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F1B2D'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='700' fill='%232EC4B6' text-anchor='middle'%3ECC%3C/text%3E%3C/svg%3E">
+  <style>
+    /* ── Two Birds / Career Coach tokens (harbour navy, teal, amber) ── */
+    :root{
+      --bg:#0F1B2D;          /* harbour navy */
+      --bg-deep:#0A1520;
+      --card:#1A2D44;
+      --border:#2A4059;
+      --ink:#F3F6F8;         /* warm off-white */
+      --muted:#A9BEd3;
+      --muted-strong:#C7D6E4;
+      --teal:#2EC4B6;
+      --teal-deep:#1FA396;
+      --amber:#FFA02E;
+      --green:#3DDC84;
+      --red:#FF6B5E;
+      --radius:12px;
+      --shell:1080px;
+    }
+    @font-face{font-family:'DM Sans';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/dm-sans/DMSans-Regular.woff2') format('woff2')}
+    @font-face{font-family:'DM Sans';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/dm-sans/DMSans-Medium.woff2') format('woff2')}
+    @font-face{font-family:'DM Sans';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/dm-sans/DMSans-Bold.woff2') format('woff2')}
+    @font-face{font-family:'DM Serif Display';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/dm-serif-display/DMSerifDisplay-Regular.woff2') format('woff2')}
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      *,*::before,*::after{animation:none !important;transition:none !important}
+    }
+    body{
+      background:var(--bg);
+      color:var(--ink);
+      font-family:'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      font-size:1rem;
+      line-height:1.65;
+      -webkit-font-smoothing:antialiased;
+    }
+    img,svg{display:block;max-width:100%}
+    a{color:var(--teal)}
+    :focus-visible{outline:3px solid var(--teal);outline-offset:3px;border-radius:4px}
+
+    .shell{max-width:var(--shell);margin:0 auto;padding:0 20px}
+
+    /* Skip link (WCAG 2.4.1) */
+    .skip-link{
+      position:absolute;top:-52px;left:12px;z-index:999;
+      background:var(--teal);color:var(--bg-deep);font-weight:700;
+      padding:12px 18px;border-radius:0 0 8px 8px;text-decoration:none;
+      transition:top .2s ease;
+    }
+    .skip-link:focus{top:0}
+
+    /* ── Header ── */
+    .site-header{
+      border-bottom:1px solid var(--border);
+      background:linear-gradient(135deg,var(--bg-deep),var(--bg));
+    }
+    .site-header .bar{
+      display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+      padding:16px 0;
+    }
+    .wordmark{
+      display:inline-flex;align-items:center;gap:10px;
+      font-family:'DM Serif Display',Georgia,serif;
+      font-size:1.35rem;color:var(--ink);text-decoration:none;
+    }
+    .wordmark .mark{color:var(--teal)}
+    .byline{color:var(--muted);font-size:.82rem}
+    .header-spacer{flex:1}
+    .header-nav a{
+      display:inline-flex;align-items:center;min-height:44px;padding:0 16px;
+      color:var(--ink);text-decoration:none;font-weight:500;
+      border:1px solid var(--border);border-radius:8px;
+    }
+    .header-nav a:hover{border-color:var(--teal);color:var(--teal)}
+
+    /* ── Hero ── */
+    .hero{
+      padding:72px 0 56px;
+      background:
+        radial-gradient(900px 420px at 85% -10%, rgba(46,196,182,.12), transparent 60%),
+        radial-gradient(700px 380px at 0% 110%, rgba(255,160,46,.07), transparent 60%);
+    }
+    .eyebrow{
+      display:inline-block;
+      color:var(--teal);font-weight:700;font-size:.8rem;
+      letter-spacing:.12em;text-transform:uppercase;
+      margin-bottom:18px;
+    }
+    .hero h1{
+      font-family:'DM Serif Display',Georgia,serif;
+      font-weight:400;
+      font-size:clamp(2.1rem,5.5vw,3.4rem);
+      line-height:1.12;
+      max-width:15ch;
+      margin-bottom:20px;
+    }
+    .hero h1 .u{
+      color:var(--teal);
+      box-shadow:inset 0 -0.14em rgba(46,196,182,.28);
+    }
+    .lead{
+      color:var(--muted-strong);
+      font-size:clamp(1.02rem,2.2vw,1.15rem);
+      max-width:56ch;
+      margin-bottom:30px;
+    }
+    .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:30px}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-height:48px;padding:0 26px;border-radius:10px;
+      font-weight:700;font-size:1rem;text-decoration:none;
+      transition:background .15s ease,color .15s ease,border-color .15s ease;
+    }
+    .btn-primary{background:var(--teal);color:var(--bg-deep)}
+    .btn-primary:hover{background:var(--teal-deep)}
+    .btn-ghost{border:1px solid var(--border);color:var(--ink)}
+    .btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+    .hero-facts{display:flex;gap:10px 24px;flex-wrap:wrap;color:var(--muted);font-size:.9rem}
+    .hero-facts .tick{color:var(--green);font-weight:700;margin-right:6px}
+
+    /* ── Sample verdict card (in hero flow) ── */
+    .verdict-sample{
+      margin-top:44px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-left:4px solid var(--teal);
+      border-radius:var(--radius);
+      padding:24px 26px;
+      max-width:720px;
+    }
+    .vs-label{
+      display:inline-block;background:rgba(46,196,182,.14);color:var(--teal);
+      font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+      border-radius:20px;padding:3px 12px;margin-bottom:12px;
+    }
+    .vs-role{font-weight:700;margin-bottom:12px}
+    .vs-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .chip{
+      border-radius:20px;padding:5px 13px;font-size:.82rem;font-weight:700;
+      border:1px solid transparent;
+    }
+    .chip-strong{background:rgba(61,220,132,.14);color:var(--green);border-color:rgba(61,220,132,.35)}
+    .chip-teal{background:rgba(46,196,182,.12);color:var(--teal);border-color:rgba(46,196,182,.3)}
+    .chip-caution{background:rgba(255,160,46,.12);color:var(--amber);border-color:rgba(255,160,46,.3)}
+    .vs-quote{color:var(--muted-strong);font-size:.95rem}
+    .vs-quote b{color:var(--ink)}
+
+    /* ── Sections ── */
+    .section{padding:64px 0;border-top:1px solid var(--border)}
+    .section-head{display:flex;align-items:baseline;gap:14px;margin-bottom:10px}
+    .section-num{
+      font-family:'DM Serif Display',Georgia,serif;
+      color:var(--teal);font-size:1.1rem;
+    }
+    .section h2{
+      font-family:'DM Serif Display',Georgia,serif;
+      font-weight:400;
+      font-size:clamp(1.5rem,3.6vw,2.1rem);
+      line-height:1.2;
+    }
+    .section-sub{color:var(--muted);max-width:62ch;margin-bottom:34px}
+
+    /* ── Value strip ── */
+    .values{display:grid;gap:14px;grid-template-columns:1fr}
+    .value{
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:22px;
+    }
+    .value h3{font-size:1.05rem;margin-bottom:8px}
+    .value h3 .vh{color:var(--teal);margin-right:8px}
+    .value p{color:var(--muted);font-size:.93rem}
+    @media (min-width:720px){.values{grid-template-columns:repeat(3,1fr)}}
+
+    /* ── How it works ── */
+    .loop{display:grid;gap:14px;grid-template-columns:1fr;counter-reset:step}
+    .loop-step{
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:22px;position:relative;counter-increment:step;
+    }
+    .loop-step::before{
+      content:counter(step,decimal-leading-zero);
+      font-family:'DM Serif Display',Georgia,serif;
+      color:var(--teal);font-size:1.35rem;display:block;margin-bottom:8px;
+    }
+    .loop-step .k{display:block;font-weight:700;margin-bottom:6px}
+    .loop-step p{color:var(--muted);font-size:.92rem}
+    @media (min-width:720px){.loop{grid-template-columns:repeat(2,1fr)}}
+    @media (min-width:980px){.loop{grid-template-columns:repeat(4,1fr)}}
+
+    /* ── Toolkit ── */
+    .toolkit{display:grid;gap:14px;grid-template-columns:1fr}
+    .tool{
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:20px 22px;
+    }
+    .tool-anchor{border-color:rgba(46,196,182,.5);background:linear-gradient(160deg,rgba(46,196,182,.08),var(--card) 55%)}
+    .t-tag{
+      display:inline-block;color:var(--amber);font-size:.72rem;font-weight:700;
+      letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;
+    }
+    .tool-anchor .t-tag{color:var(--teal)}
+    .tool h3{font-size:1.05rem;margin-bottom:6px}
+    .tool p{color:var(--muted);font-size:.92rem}
+    @media (min-width:640px){.toolkit{grid-template-columns:repeat(2,1fr)}}
+    @media (min-width:980px){
+      .toolkit{grid-template-columns:repeat(3,1fr)}
+      .tool-anchor{grid-column:span 3}
+    }
+
+    /* ── BYOK / privacy ── */
+    .byok{
+      display:grid;gap:24px;grid-template-columns:1fr;align-items:start;
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:28px;
+    }
+    .byok h3{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:1.35rem;margin-bottom:10px}
+    .byok p{color:var(--muted-strong);font-size:.96rem;margin-bottom:12px;max-width:60ch}
+    .byok ul{list-style:none;display:grid;gap:10px}
+    .byok li{display:flex;gap:10px;color:var(--muted-strong);font-size:.94rem}
+    .byok li::before{content:"\2713";color:var(--green);font-weight:700;flex-shrink:0}
+    @media (min-width:820px){.byok{grid-template-columns:1.3fr 1fr}}
+
+    /* ── Final CTA band ── */
+    .cta-band{
+      text-align:center;
+      padding:72px 0;
+      border-top:1px solid var(--border);
+      background:
+        radial-gradient(700px 320px at 50% 120%, rgba(46,196,182,.14), transparent 65%);
+    }
+    .cta-band h2{
+      font-family:'DM Serif Display',Georgia,serif;font-weight:400;
+      font-size:clamp(1.6rem,4vw,2.3rem);margin-bottom:12px;
+    }
+    .cta-band p{color:var(--muted);max-width:52ch;margin:0 auto 28px}
+    .cta-band .hero-cta{justify-content:center;margin-bottom:0}
+
+    /* ── Footer ── */
+    .site-footer{
+      border-top:1px solid var(--border);
+      padding:32px 0 44px;color:var(--muted);font-size:.85rem;
+      background:var(--bg-deep);
+    }
+    .site-footer p{margin-bottom:6px}
+    .lab-note{color:var(--amber)}
+  </style>
 </head>
 <body>
+
   <a href="#main" class="skip-link">Skip to main content</a>
 
   <header class="site-header">
-    <div class="bar">
-      <a class="wordmark" href="index.html">Career<span class="mark">&nbsp;Coach</span></a>
-      <span class="byline">Two Birds Innovation · St. Thomas, Ontario</span>
+    <div class="shell bar">
+      <a class="wordmark" href="index.html" aria-label="Career Coach home">
+        <svg width="26" height="26" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="#2EC4B6">
+          <polygon points="14,1 16,13 14,11 12,13"/>
+          <polygon points="27,14 15,12 17,14 15,16"/>
+          <polygon points="14,27 12,15 14,17 16,15"/>
+          <polygon points="1,14 13,16 11,14 13,12"/>
+          <circle cx="14" cy="14" r="2.5"/>
+        </svg>
+        Career<span class="mark">&nbsp;Coach</span>
+      </a>
+      <span class="byline">Two Birds Innovation &middot; St. Thomas, Ontario</span>
       <span class="header-spacer"></span>
       <nav class="header-nav" aria-label="Site">
         <a href="app.html">Open the app</a>
-        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false">Dark mode</button>
       </nav>
     </div>
   </header>
@@ -39,63 +282,24 @@
   <main id="main">
 
     <!-- Hero -->
-    <section class="hero">
+    <section class="hero" aria-labelledby="hero-h">
       <div class="shell">
-        <p class="eyebrow">AI job application tools · BYOK · private by design</p>
-        <h1>Every application, backed by a <span class="u">straight verdict</span>.</h1>
+        <p class="eyebrow">AI job application tools &middot; bring your own key &middot; private by design</p>
+        <h1 id="hero-h">Know which jobs deserve your <span class="u">thirty minutes</span>.</h1>
         <p class="lead">Career Coach reads a job posting against your actual CV and tells you what a sharp colleague would: apply with a custom package, apply generic and save your energy, or skip it entirely. The AI does the research and the first draft. You make the call.</p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="app.html">Analyse a job posting</a>
-          <a class="btn btn-ghost" href="#how">See the working loop</a>
+          <a class="btn btn-ghost" href="#how">See how it works</a>
         </div>
         <div class="hero-facts">
-          <span><span class="tick">&#10003;</span> Your CV never touches our servers</span>
-          <span><span class="tick">&#10003;</span> Bring your own AI key, or run local</span>
-          <span><span class="tick">&#10003;</span> Built in Ontario, in Canadian English</span>
+          <span><span class="tick" aria-hidden="true">&#10003;</span> Your CV never touches a server</span>
+          <span><span class="tick" aria-hidden="true">&#10003;</span> Your own AI key, or a local model</span>
+          <span><span class="tick" aria-hidden="true">&#10003;</span> Built in Ontario, in Canadian English</span>
         </div>
-      </div>
-    </section>
 
-    <!-- How it works -->
-    <section class="section" id="how">
-      <div class="shell">
-        <div class="section-head">
-          <span class="section-num">01</span>
-          <h2>The working loop</h2>
-        </div>
-        <p class="section-sub">One job posting at a time, verified before you spend a minute on it. Under 30 minutes from posting to submitted application.</p>
-        <div class="loop">
-          <div class="loop-step">
-            <span class="k">Verify the posting</span>
-            <p>Gate Zero checks the link first. Aggregator reposts and dead listings get flagged before you build anything on them.</p>
-          </div>
-          <div class="loop-step">
-            <span class="k">Get the verdict</span>
-            <p>ATS match, overall fit, and salary signal, scored against your CV and your stated priorities. Then one clear recommendation.</p>
-          </div>
-          <div class="loop-step">
-            <span class="k">Build the package</span>
-            <p>Tailored CV tweaks and a cover letter draft that use your real experience. Nothing invented, everything defensible in an interview.</p>
-          </div>
-          <div class="loop-step">
-            <span class="k">Keep the momentum</span>
-            <p>Every application lands in your pipeline with a follow-up date. The tool shows what needs action next, not just a status label.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Sample verdict -->
-    <section class="section">
-      <div class="shell">
-        <div class="section-head">
-          <span class="section-num">02</span>
-          <h2>What a verdict looks like</h2>
-        </div>
-        <p class="section-sub">No dashboards with twenty metrics. One posting, three scores, one recommendation, and the reason behind it.</p>
-        <div class="verdict-sample">
-          <span class="vs-label">Sample analysis</span>
-          <p class="vs-role">Senior Product Manager · Acme Health Tech · Toronto, hybrid</p>
+        <div class="verdict-sample" role="group" aria-label="Sample analysis output">
+          <span class="vs-label">Sample verdict</span>
+          <p class="vs-role">Senior Product Manager &middot; Acme Health Tech &middot; Toronto, hybrid</p>
           <div class="vs-chips">
             <span class="chip chip-strong">Verdict: apply custom</span>
             <span class="chip chip-teal">ATS match 82</span>
@@ -107,22 +311,76 @@
       </div>
     </section>
 
-    <!-- Toolkit -->
-    <section class="section" id="toolkit">
+    <!-- Value -->
+    <section class="section" id="value" aria-labelledby="value-h">
       <div class="shell">
         <div class="section-head">
-          <span class="section-num">03</span>
-          <h2>Seven tools, one job at a time</h2>
+          <span class="section-num" aria-hidden="true">01</span>
+          <h2 id="value-h">Why it earns a place in your search</h2>
+        </div>
+        <p class="section-sub">The market screens with AI first. Career Coach puts the same class of tool on your side of the table, without cheerleading and without a subscription.</p>
+        <div class="values">
+          <div class="value">
+            <h3><span class="vh" aria-hidden="true">&#9670;</span>A verdict, not a vibe</h3>
+            <p>Every analysis ends in one clear recommendation with its reasoning. No dashboards with twenty metrics. One posting, three scores, one call.</p>
+          </div>
+          <div class="value">
+            <h3><span class="vh" aria-hidden="true">&#9670;</span>Nothing invented</h3>
+            <p>Drafts are built from your real experience and the posting's actual asks. Everything it writes is defensible in an interview, because it came from your CV.</p>
+          </div>
+          <div class="value">
+            <h3><span class="vh" aria-hidden="true">&#9670;</span>No dead-link work</h3>
+            <p>Gate Zero verifies the posting is live and canonical before you spend a minute on it. Aggregator reposts and expired listings get flagged up front.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section" id="how" aria-labelledby="how-h">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-num" aria-hidden="true">02</span>
+          <h2 id="how-h">The working loop</h2>
+        </div>
+        <p class="section-sub">One job posting at a time, verified before you build on it. Under thirty minutes from posting to submitted application.</p>
+        <div class="loop">
+          <div class="loop-step">
+            <span class="k">Verify the posting</span>
+            <p>Gate Zero checks the link first. Aggregator reposts and dead listings get flagged before you build anything on them.</p>
+          </div>
+          <div class="loop-step">
+            <span class="k">Get the verdict</span>
+            <p>ATS match, overall fit, and salary signal, scored against your CV and your stated priorities. Then one clear recommendation.</p>
+          </div>
+          <div class="loop-step">
+            <span class="k">Build the package</span>
+            <p>Tailored CV suggestions and a cover letter draft that use your real experience. You edit, you approve, you send.</p>
+          </div>
+          <div class="loop-step">
+            <span class="k">Keep the momentum</span>
+            <p>Every application lands in your pipeline with a follow-up date. The tracker surfaces what needs action next, not just a status label.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toolkit -->
+    <section class="section" id="toolkit" aria-labelledby="toolkit-h">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-num" aria-hidden="true">03</span>
+          <h2 id="toolkit-h">Seven tools, one job at a time</h2>
         </div>
         <p class="section-sub">Everything orbits the posting in front of you. No tool asks you to start from a blank page.</p>
         <div class="toolkit">
           <div class="tool tool-anchor">
             <span class="t-tag">The anchor</span>
             <h3>Posting analysis</h3>
-            <p>Scores the match, flags the gaps, names the strengths, and gives the apply-or-skip verdict with its reasoning.</p>
+            <p>Scores the match, flags the gaps, names the strengths, and gives the apply-or-skip verdict with its reasoning. Every other tool builds on this analysis.</p>
           </div>
           <div class="tool">
-            <span class="t-tag">Gate zero</span>
+            <span class="t-tag">Gate Zero</span>
             <h3>Link verification</h3>
             <p>Detects aggregator reposts and unreachable postings so you never build a package on a dead listing.</p>
           </div>
@@ -156,31 +414,38 @@
     </section>
 
     <!-- BYOK / privacy -->
-    <section class="section" id="private">
+    <section class="section" id="private" aria-labelledby="private-h">
       <div class="shell">
         <div class="section-head">
-          <span class="section-num">04</span>
-          <h2>Your key, your data, your call</h2>
+          <span class="section-num" aria-hidden="true">04</span>
+          <h2 id="private-h">Your key, your data, your call</h2>
         </div>
+        <p class="section-sub">Bring-your-own-key is a deliberate design choice, not a limitation. Nobody mines your job search.</p>
         <div class="byok">
           <div>
             <h3>Bring your own AI</h3>
             <p>Career Coach connects to the AI provider you choose: Claude, GPT, Gemini, or a local Ollama model that never leaves your machine. Your API key and your CV are stored in your browser only.</p>
-            <p>That is a deliberate design choice, not a limitation. Nobody mines your job search. There is no account, no server, and nothing to leak.</p>
+            <p>There is no account, no server, and nothing to leak. Close the tab and your job search stays yours.</p>
           </div>
-          <a class="btn btn-primary" href="app.html">Set up in two minutes</a>
+          <ul>
+            <li>No sign-up and no subscription</li>
+            <li>CV, key, and pipeline live in your browser</li>
+            <li>Works fully offline with a local model</li>
+            <li>Export your data any time</li>
+          </ul>
         </div>
       </div>
     </section>
 
-    <!-- Who built it -->
-    <section class="section" id="why">
+    <!-- Final CTA -->
+    <section class="cta-band" aria-labelledby="cta-h">
       <div class="shell">
-        <div class="section-head">
-          <span class="section-num">05</span>
-          <h2>Built by someone in the same market</h2>
+        <h2 id="cta-h">The next posting you open deserves a verdict.</h2>
+        <p>Built by a senior product manager running his own search through an AI-first screening market. Every tool exists because the generic advice failed first.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="app.html">Analyse a job posting</a>
+          <a class="btn btn-ghost" href="#toolkit">Browse the seven tools</a>
         </div>
-        <p class="section-sub">Career Coach was built by a senior product manager running his own job search through an AI-first screening market. Every tool exists because the generic advice failed first. It is the workbench of an active job seeker, shared.</p>
       </div>
     </section>
 
@@ -190,11 +455,9 @@
     <div class="shell">
       <p>&copy; 2026 Two Birds Innovation. Built with care in Ontario, Canada.</p>
       <p>Your CV, your key, and your pipeline live in your browser. Nothing is stored, tracked, or sold.</p>
-      <p>v2 lab preview build · the live Career Coach app is unchanged.</p>
+      <p class="lab-note">v2 lab preview build. The live Career Coach app is unchanged.</p>
     </div>
   </footer>
 
-  <script src="js/coach-v2.js" defer></script>
-  <script src="feedback-widget.js" defer></script>
 </body>
 </html>
