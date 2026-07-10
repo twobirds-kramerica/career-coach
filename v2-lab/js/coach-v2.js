@@ -167,7 +167,7 @@
 
   /* ── File upload: drag-and-drop + button (plain text only) ──── */
   var MAX_UPLOAD = 200 * 1024;
-  function wireUpload(fileInput, uploadBtn, dropZone, targetEl, onDone) {
+  function wireUpload(fileInput, uploadBtn, dropZone, targetEl, onDone, replaceLabel) {
     function handle(file) {
       if (!file) return;
       var name = (file.name || "").toLowerCase();
@@ -180,6 +180,13 @@
       if (file.size > MAX_UPLOAD) {
         window.alert("That file is larger than 200 KB. Please paste the relevant text instead.");
         return;
+      }
+      // Guard against silently overwriting existing content. Autosave persists
+      // the overwrite shortly after, so there is no practical undo window.
+      var existing = String(targetEl.value || "").trim();
+      if (existing.length > 20) {
+        var prompt = replaceLabel || "Replace the current text with the dropped file?";
+        if (!window.confirm(prompt)) return;
       }
       var reader = new FileReader();
       reader.onload = function () {
@@ -211,7 +218,7 @@
       });
     }
   }
-  wireUpload($("cvFile"), $("cvUploadBtn"), $("cvDrop"), $("pCV"), function () { autosaveProfile(); });
+  wireUpload($("cvFile"), $("cvUploadBtn"), $("cvDrop"), $("pCV"), function () { autosaveProfile(); }, "Replace your current CV text with the dropped file?");
 
   /* ── Gate 0: aggregator detection (reused from v1 app.js) ──── */
   var AGGREGATOR_DOMAINS = [
@@ -323,7 +330,7 @@
   } catch (e) {}
   $("jobText").addEventListener("input", function () { markDirty(); saveJob(); });
   $("jobUrl").addEventListener("input", saveJob);
-  wireUpload($("jobFile"), $("jobUploadBtn"), $("jobDrop"), $("jobText"), function () { saveJob(); });
+  wireUpload($("jobFile"), $("jobUploadBtn"), $("jobDrop"), $("jobText"), function () { saveJob(); }, "Replace the current job posting text with the dropped file?");
 
   /* beforeunload backstop: warn only when there is entered content
      that has not yet been acted on (autosave already persists it). */
