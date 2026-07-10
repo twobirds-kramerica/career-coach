@@ -399,6 +399,10 @@ textarea { resize: vertical; line-height: 1.55; }
 .report-masthead h2 { font-size: 1.4rem; }
 .report-masthead .meta { font-size: var(--fs-caption); color: var(--ink-soft); }
 .report-body { padding: var(--s6); display: grid; gap: var(--s6); }
+/* Grid items default to min-width auto, so the keyword table's intrinsic
+   width would stretch every block past the card on small screens and clip
+   the verdict (and push Copy/Download off-screen). Let blocks shrink. */
+.report-body > * { min-width: 0; }
 .report-block > .label {
   font: 600 0.72rem var(--font-body); letter-spacing: 0.13em; text-transform: uppercase;
   color: var(--accent-deep); margin-bottom: var(--s3);
