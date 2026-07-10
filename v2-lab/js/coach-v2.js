@@ -57,13 +57,54 @@
   }
 
   /* ── Step 1: profile + BYOK ────────────────────────────────── */
+  function getChecked(cls) {
+    return Array.prototype.slice
+      .call(document.querySelectorAll("input." + cls + ":checked"))
+      .map(function (el) { return el.value; });
+  }
+  function setChecked(cls, vals) {
+    vals = vals || [];
+    Array.prototype.forEach.call(document.querySelectorAll("input." + cls), function (el) {
+      el.checked = vals.indexOf(el.value) !== -1;
+    });
+  }
+  function currentCurrency() {
+    var el = document.querySelector('input[name="cur"]:checked');
+    return el ? el.value : "CAD";
+  }
+  function updateCurrencyHints(cur) {
+    var t = "($ " + cur + ")";
+    if ($("minSalHint")) $("minSalHint").textContent = t;
+    if ($("targetSalHint")) $("targetSalHint").textContent = t;
+  }
+  function gatherProfile() {
+    return {
+      cv: $("pCV").value.trim(),
+      minSal: $("pMinSal").value.trim(),
+      targetSal: $("pTargetSal").value.trim(),
+      currency: currentCurrency(),
+      location: $("pLocation").value.trim(),
+      arrangement: getChecked("arr"),
+      priorities: getChecked("pri"),
+      prioritiesOther: $("pPrioritiesOther").value.trim(),
+      avoid: $("pAvoid").value.trim()
+    };
+  }
+
   var profile = loadProfile();
   if (profile.cv) $("pCV").value = profile.cv;
   if (profile.minSal) $("pMinSal").value = profile.minSal;
   if (profile.targetSal) $("pTargetSal").value = profile.targetSal;
   if (profile.location) $("pLocation").value = profile.location;
-  if (profile.priorities) $("pPriorities").value = profile.priorities;
+  setChecked("arr", profile.arrangement);
+  setChecked("pri", profile.priorities);
+  if (profile.prioritiesOther) $("pPrioritiesOther").value = profile.prioritiesOther;
   if (profile.avoid) $("pAvoid").value = profile.avoid;
+
+  var startCur = profile.currency || "CAD";
+  var startCurEl = document.querySelector('input[name="cur"][value="' + startCur + '"]');
+  if (startCurEl) startCurEl.checked = true;
+  updateCurrencyHints(startCur);
 
   try {
     var savedProvider = localStorage.getItem("llm_provider");
@@ -80,6 +121,30 @@
   $("provider").addEventListener("change", syncProviderUI);
   syncProviderUI();
 
+  /* ── Session-loss safeguard: autosave in-progress state ──────
+     Fits the existing localStorage architecture with the least new
+     surface: everything typed is persisted as it is entered, so a
+     reload or accidental navigation restores the form. A beforeunload
+     warning (below) is a backstop for content not yet acted on. */
+  var dirty = false;
+  function markDirty() { dirty = true; }
+  function autosaveProfile() {
+    profile = gatherProfile();
+    saveProfile(profile);
+  }
+  var saveTimer;
+  var panelProfile = $("panel-profile");
+  panelProfile.addEventListener("input", function () {
+    markDirty();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(autosaveProfile, 400);
+  });
+  panelProfile.addEventListener("change", function () { autosaveProfile(); });
+
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="cur"]'), function (el) {
+    el.addEventListener("change", function () { updateCurrencyHints(currentCurrency()); });
+  });
+
   $("toStep2").addEventListener("click", function () {
     var cv = $("pCV").value.trim();
     if (!cv) {
@@ -87,14 +152,7 @@
       $("pCV").focus();
       return;
     }
-    profile = {
-      cv: cv,
-      minSal: $("pMinSal").value.trim(),
-      targetSal: $("pTargetSal").value.trim(),
-      location: $("pLocation").value.trim(),
-      priorities: $("pPriorities").value.trim(),
-      avoid: $("pAvoid").value.trim()
-    };
+    profile = gatherProfile();
     saveProfile(profile);
     try {
       localStorage.setItem("llm_provider", $("provider").value);
@@ -102,9 +160,58 @@
       if (k) localStorage.setItem("llm_api_key", k);
     } catch (e) {}
     $("profileSavedNote").textContent = "";
+    dirty = false;
     goStep(2);
   });
   $("backTo1").addEventListener("click", function () { goStep(1); });
+
+  /* ── File upload: drag-and-drop + button (plain text only) ──── */
+  var MAX_UPLOAD = 200 * 1024;
+  function wireUpload(fileInput, uploadBtn, dropZone, targetEl, onDone) {
+    function handle(file) {
+      if (!file) return;
+      var name = (file.name || "").toLowerCase();
+      var textLike = /\.(txt|md|markdown|text|csv|log)$/.test(name) ||
+        (file.type && file.type.indexOf("text") === 0);
+      if (!textLike) {
+        window.alert("We keep everything in your browser, so we can only read plain-text files (.txt or .md). For a PDF or Word file, open it and paste the text in.");
+        return;
+      }
+      if (file.size > MAX_UPLOAD) {
+        window.alert("That file is larger than 200 KB. Please paste the relevant text instead.");
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function () {
+        targetEl.value = String(reader.result || "");
+        markDirty();
+        if (onDone) onDone();
+      };
+      reader.readAsText(file);
+    }
+    if (uploadBtn && fileInput) {
+      uploadBtn.addEventListener("click", function () { fileInput.click(); });
+      fileInput.addEventListener("change", function () {
+        if (fileInput.files && fileInput.files[0]) handle(fileInput.files[0]);
+        fileInput.value = "";
+      });
+    }
+    if (dropZone) {
+      ["dragenter", "dragover"].forEach(function (ev) {
+        dropZone.addEventListener(ev, function (e) { e.preventDefault(); dropZone.classList.add("drag"); });
+      });
+      ["dragleave", "dragend"].forEach(function (ev) {
+        dropZone.addEventListener(ev, function () { dropZone.classList.remove("drag"); });
+      });
+      dropZone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropZone.classList.remove("drag");
+        var dt = e.dataTransfer;
+        if (dt && dt.files && dt.files[0]) handle(dt.files[0]);
+      });
+    }
+  }
+  wireUpload($("cvFile"), $("cvUploadBtn"), $("cvDrop"), $("pCV"), function () { autosaveProfile(); });
 
   /* ── Gate 0: aggregator detection (reused from v1 app.js) ──── */
   var AGGREGATOR_DOMAINS = [
@@ -198,7 +305,31 @@
 
   $("demoBtn").addEventListener("click", function () {
     $("jobText").value = DEMO_JOB;
+    saveJob();
     setStatus("Sample posting loaded. Get the verdict to see the full analysis. Without an API key you get a built-in sample verdict.", false);
+  });
+
+  /* ── Job posting: persistence + file upload ────────────────── */
+  var JOB_KEY = "cc-v2-job";
+  function saveJob() {
+    try {
+      localStorage.setItem(JOB_KEY, JSON.stringify({ url: $("jobUrl").value, text: $("jobText").value }));
+    } catch (e) {}
+  }
+  try {
+    var savedJob = JSON.parse(localStorage.getItem(JOB_KEY) || "{}");
+    if (savedJob.text) $("jobText").value = savedJob.text;
+    if (savedJob.url) $("jobUrl").value = savedJob.url;
+  } catch (e) {}
+  $("jobText").addEventListener("input", function () { markDirty(); saveJob(); });
+  $("jobUrl").addEventListener("input", saveJob);
+  wireUpload($("jobFile"), $("jobUploadBtn"), $("jobDrop"), $("jobText"), function () { saveJob(); });
+
+  /* beforeunload backstop: warn only when there is entered content
+     that has not yet been acted on (autosave already persists it). */
+  window.addEventListener("beforeunload", function (e) {
+    var hasContent = $("pCV").value.trim() || $("jobText").value.trim();
+    if (dirty && hasContent) { e.preventDefault(); e.returnValue = ""; return ""; }
   });
 
   /* ── Analysis ──────────────────────────────────────────────── */
@@ -211,10 +342,17 @@
   var SYSTEM_PROMPT = 'You are a sharp, practical career coach. Analyse the job posting against the candidate profile and return ONLY valid JSON, no markdown, no code fences, exactly this structure: {"job_title":"string","company":"string","ats_score":0,"overall_fit":0,"salary_match":"above target|at target|below target|not specified","application_recommendation":"apply custom|apply generic|skip","recommendation_reason":"string, 2 sentences, plain Canadian English, specific to this posting","cv_strengths":["3 to 5 items"],"cv_gaps":["2 to 4 items"],"next_moves":[{"title":"string","detail":"one sentence"},{"title":"string","detail":"one sentence"},{"title":"string","detail":"one sentence"}]}';
 
   function buildProfileText() {
-    return "Minimum salary: " + (profile.minSal ? "$" + profile.minSal + " CAD" : "not specified") +
-      "\nTarget salary: " + (profile.targetSal ? "$" + profile.targetSal + " CAD" : "not specified") +
-      "\nLocation and arrangement: " + (profile.location || "not specified") +
-      "\nPriorities: " + (profile.priorities || "not specified") +
+    var cur = profile.currency || "CAD";
+    var arr = (profile.arrangement && profile.arrangement.length)
+      ? profile.arrangement.join(", ") : "not specified";
+    var pri = (profile.priorities && profile.priorities.length) ? profile.priorities.slice() : [];
+    if (profile.prioritiesOther) pri.push(profile.prioritiesOther);
+    var priStr = pri.length ? pri.join(", ") : "not specified";
+    return "Minimum salary: " + (profile.minSal ? "$" + profile.minSal + " " + cur : "not specified") +
+      "\nTarget salary: " + (profile.targetSal ? "$" + profile.targetSal + " " + cur : "not specified") +
+      "\nPreferred location: " + (profile.location || "not specified") +
+      "\nWork arrangement: " + arr +
+      "\nWhat matters most: " + priStr +
       "\nHard passes: " + (profile.avoid || "none stated") +
       "\n\nCV:\n" + profile.cv;
   }
@@ -321,6 +459,7 @@
     });
 
     lastVerdict = a;
+    dirty = false;
     goStep(3);
   }
 
@@ -384,6 +523,7 @@
   $("analyseAnother").addEventListener("click", function () {
     $("jobText").value = "";
     $("jobUrl").value = "";
+    saveJob();
     confirmedLive = false;
     $("aggWarning").classList.add("hidden");
     $("openUrlBtn").hidden = true;
@@ -393,10 +533,10 @@
     goStep(2);
   });
 
-  $("copyVerdict").addEventListener("click", function () {
-    if (!lastVerdict) return;
+  function buildVerdictText() {
     var a = lastVerdict;
-    var lines = [
+    if (!a) return "";
+    return [
       (a.job_title || "Role") + (a.company ? " - " + a.company : ""),
       "Verdict: " + (a.application_recommendation || ""),
       "Why: " + (a.recommendation_reason || ""),
@@ -410,12 +550,32 @@
       "",
       "Next moves:",
       (a.next_moves || []).map(function (m, i) { return (i + 1) + ". " + m.title + ": " + m.detail; }).join("\n")
-    ];
+    ].join("\n");
+  }
+
+  $("copyVerdict").addEventListener("click", function () {
+    if (!lastVerdict) return;
     var btn = this;
-    navigator.clipboard.writeText(lines.join("\n")).then(function () {
+    navigator.clipboard.writeText(buildVerdictText()).then(function () {
       btn.textContent = "Copied";
-      setTimeout(function () { btn.textContent = "Copy verdict as text"; }, 1600);
+      setTimeout(function () { btn.textContent = "Copy"; }, 1600);
     });
+  });
+
+  $("downloadVerdict").addEventListener("click", function () {
+    if (!lastVerdict) return;
+    var a = lastVerdict;
+    var base = ((a.job_title || "verdict") + " " + (a.company || ""))
+      .replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+    var blob = new Blob([buildVerdictText()], { type: "text/plain;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = (base || "career-coach-verdict") + ".txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   });
 
   /* If a profile already exists, land on step 2 (the job is the centre of gravity). */

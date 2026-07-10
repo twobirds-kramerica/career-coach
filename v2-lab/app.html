@@ -50,27 +50,65 @@
 
         <div class="card">
           <div class="field">
-            <label for="pCV">Your CV <span class="hint">(paste the full text; more detail means a sharper analysis)</span></label>
-            <textarea id="pCV" rows="10" placeholder="Paste your full CV text here"></textarea>
+            <label for="pCV">Your CV <span class="hint">(paste the text, or drop a file in below)</span></label>
+            <div class="dropzone" id="cvDrop">
+              <textarea id="pCV" rows="10" placeholder="Paste your full CV text here, or drag a .txt or .md file onto this box"></textarea>
+              <div class="dz-bar">
+                <button type="button" class="btn-mini" id="cvUploadBtn">Upload a file</button>
+                <input type="file" id="cvFile" accept=".txt,.md,.markdown,.text" class="sr-only" aria-label="Upload your CV as a text file">
+                <span class="dz-hint">Drag in or upload a plain-text file (.txt or .md, up to 200&nbsp;KB). For PDF or Word, open the file and paste the text; everything stays in your browser, so we cannot read those formats here.</span>
+              </div>
+            </div>
           </div>
+
           <div class="field-row">
-            <div class="field">
-              <label for="pMinSal">Minimum salary <span class="hint">($ CAD)</span></label>
+            <div class="field" style="margin-bottom:0;">
+              <label for="pMinSal">Minimum salary <span class="hint" id="minSalHint">($ CAD)</span></label>
               <input type="number" id="pMinSal" placeholder="65000" min="0" step="1000">
             </div>
-            <div class="field">
-              <label for="pTargetSal">Target salary <span class="hint">($ CAD)</span></label>
+            <div class="field" style="margin-bottom:0;">
+              <label for="pTargetSal">Target salary <span class="hint" id="targetSalHint">($ CAD)</span></label>
               <input type="number" id="pTargetSal" placeholder="85000" min="0" step="1000">
             </div>
           </div>
-          <div class="field">
-            <label for="pLocation">Location and arrangement</label>
-            <input type="text" id="pLocation" placeholder="e.g. London ON, hybrid or remote preferred">
+          <div class="field currency-field">
+            <span class="field-label">Currency</span>
+            <div class="seg" role="radiogroup" aria-label="Salary currency">
+              <label class="seg-btn"><input type="radio" name="cur" value="CAD" checked> CAD</label>
+              <label class="seg-btn"><input type="radio" name="cur" value="USD"> USD</label>
+            </div>
           </div>
+
           <div class="field">
-            <label for="pPriorities">What matters most right now <span class="hint">(one line, plain English)</span></label>
-            <input type="text" id="pPriorities" placeholder="e.g. stability and salary first, growth second, no on-call">
+            <span class="field-label">Work arrangement <span class="hint">(tick all that work for you)</span></span>
+            <div class="check-grid">
+              <label class="check"><input type="checkbox" class="arr" value="Remote"> Remote</label>
+              <label class="check"><input type="checkbox" class="arr" value="Hybrid"> Hybrid</label>
+              <label class="check"><input type="checkbox" class="arr" value="On-site"> On-site</label>
+              <label class="check"><input type="checkbox" class="arr" value="Open to relocating"> Open to relocating</label>
+            </div>
           </div>
+
+          <div class="field">
+            <label for="pLocation">Preferred location <span class="hint">(optional; city or region)</span></label>
+            <input type="text" id="pLocation" placeholder="e.g. London ON, or anywhere in Ontario">
+          </div>
+
+          <div class="field">
+            <span class="field-label">What matters most right now <span class="hint">(tick the ones that count)</span></span>
+            <div class="check-grid">
+              <label class="check"><input type="checkbox" class="pri" value="Salary"> Salary</label>
+              <label class="check"><input type="checkbox" class="pri" value="Job stability"> Job stability</label>
+              <label class="check"><input type="checkbox" class="pri" value="Growth and advancement"> Growth and advancement</label>
+              <label class="check"><input type="checkbox" class="pri" value="Work-life balance"> Work-life balance</label>
+              <label class="check"><input type="checkbox" class="pri" value="Remote flexibility"> Remote flexibility</label>
+              <label class="check"><input type="checkbox" class="pri" value="Mission and impact"> Mission and impact</label>
+              <label class="check"><input type="checkbox" class="pri" value="Team and culture"> Team and culture</label>
+              <label class="check"><input type="checkbox" class="pri" value="Learning new skills"> Learning new skills</label>
+            </div>
+            <input type="text" id="pPrioritiesOther" placeholder="Anything else that matters (optional)" style="margin-top:var(--s3);">
+          </div>
+
           <div class="field" style="margin-bottom:0;">
             <label for="pAvoid">Hard passes <span class="hint">(industries, arrangements, anything that is an automatic no)</span></label>
             <input type="text" id="pAvoid" placeholder="e.g. gambling, 100% in-office, heavy travel">
@@ -131,11 +169,17 @@
 
           <div class="analyse-actions">
             <label for="jobText" style="margin:0;">Job posting text</label>
-            <button type="button" class="btn-mini" id="demoBtn">Load a sample posting</button>
+            <div class="aa-btns">
+              <button type="button" class="btn-mini" id="jobUploadBtn">Upload a file</button>
+              <input type="file" id="jobFile" accept=".txt,.md,.markdown,.text" class="sr-only" aria-label="Upload the job posting as a text file">
+              <button type="button" class="btn-mini" id="demoBtn">Load a sample posting</button>
+            </div>
           </div>
-          <textarea id="jobText" placeholder="Paste the full job posting here. Include requirements and salary if listed; the more complete the posting, the sharper the verdict."></textarea>
+          <div class="dropzone" id="jobDrop">
+            <textarea id="jobText" placeholder="Paste the full job posting here, or drag a .txt or .md file onto this box. Include requirements and salary if listed; the more complete the posting, the sharper the verdict."></textarea>
+          </div>
           <div class="flow-nav">
-            <button type="button" class="link-btn" id="backTo1">Back to profile</button>
+            <button type="button" class="btn btn-ghost" id="backTo1">Back to profile</button>
             <button type="button" class="btn btn-primary" id="analyseBtn">Get the verdict</button>
           </div>
           <p class="status-line" id="statusLine" aria-live="polite"></p>
@@ -201,8 +245,11 @@
 
             <div class="report-block">
               <div class="flow-nav" style="margin-top:0;">
-                <button type="button" class="link-btn" id="analyseAnother">Analyse another posting</button>
-                <button type="button" class="btn btn-ghost" id="copyVerdict">Copy verdict as text</button>
+                <button type="button" class="btn btn-ghost" id="analyseAnother">Analyse another posting</button>
+                <div class="verdict-actions">
+                  <button type="button" class="btn btn-ghost" id="copyVerdict">Copy</button>
+                  <button type="button" class="btn btn-primary" id="downloadVerdict">Download</button>
+                </div>
               </div>
             </div>
 

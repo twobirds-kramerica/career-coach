@@ -7,9 +7,42 @@
   <title>Career Coach: a straight verdict on every job posting | Two Birds Innovation</title>
   <meta name="description" content="Career Coach analyses a real job posting against your actual CV and gives you one clear recommendation: apply custom, apply generic, or skip. Private by design. Your data stays in your browser.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F1B2D'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='700' fill='%232EC4B6' text-anchor='middle'%3ECC%3C/text%3E%3C/svg%3E">
+  <script>
+    /* Apply the shared theme preference before paint (same key as app.html)
+       so dark/light carries across the landing and the app. */
+    (function () {
+      try {
+        var t = localStorage.getItem("cc-v2-theme");
+        if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      } catch (e) {}
+    }());
+  </script>
   <style>
-    /* ── Two Birds / Career Coach tokens (harbour navy, teal, amber) ── */
+    /* ── Two Birds / Career Coach tokens (harbour navy, teal, amber) ──
+       Light is the default; dark is applied via html[data-theme="dark"].
+       Light values mirror the app's WCAG-verified light tokens so the
+       landing and the app read as one product. */
     :root{
+      color-scheme:light;
+      --bg:#F3F6F8;          /* cool paper */
+      --bg-deep:#E9EEF2;
+      --card:#FFFFFF;
+      --border:#D8DFE4;
+      --ink:#132433;
+      --muted:#43596B;
+      --muted-strong:#2A3E4E;
+      --teal:#0A6B60;        /* working teal, deep - text/marks on light */
+      --teal-deep:#085249;
+      --amber:#8A5309;       /* amber text on light */
+      --green:#1C6B33;
+      --red:#B3321B;
+      --radius:12px;
+      --shell:1080px;
+    }
+    html[data-theme="dark"]{
+      color-scheme:dark;
       --bg:#0F1B2D;          /* harbour navy */
       --bg-deep:#0A1520;
       --card:#1A2D44;
@@ -22,8 +55,6 @@
       --amber:#FFA02E;
       --green:#3DDC84;
       --red:#FF6B5E;
-      --radius:12px;
-      --shell:1080px;
     }
     @font-face{font-family:'DM Sans';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/dm-sans/DMSans-Regular.woff2') format('woff2')}
     @font-face{font-family:'DM Sans';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/dm-sans/DMSans-Medium.woff2') format('woff2')}
@@ -82,6 +113,15 @@
       border:1px solid var(--border);border-radius:8px;
     }
     .header-nav a:hover{border-color:var(--teal);color:var(--teal)}
+    .header-nav{display:inline-flex;align-items:center;gap:10px}
+    .theme-toggle{
+      font:600 .82rem 'DM Sans',-apple-system,sans-serif;
+      color:var(--ink);background:none;
+      border:1px solid var(--border);border-radius:8px;
+      min-height:44px;padding:0 16px;cursor:pointer;white-space:nowrap;
+      transition:border-color .15s ease,color .15s ease;
+    }
+    .theme-toggle:hover{border-color:var(--teal);color:var(--teal)}
 
     /* ── Hero ── */
     .hero{
@@ -275,6 +315,7 @@
       <span class="header-spacer"></span>
       <nav class="header-nav" aria-label="Site">
         <a href="app.html">Open the app</a>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false">Dark mode</button>
       </nav>
     </div>
   </header>
@@ -458,6 +499,28 @@
       <p class="lab-note">v2 lab preview build. The live Career Coach app is unchanged.</p>
     </div>
   </footer>
+
+  <script>
+    /* Theme toggle: writes the shared cc-v2-theme key read by the app. */
+    (function () {
+      var root = document.documentElement;
+      var btn = document.getElementById("themeToggle");
+      if (!btn) return;
+      function sync() {
+        var dark = root.getAttribute("data-theme") === "dark";
+        btn.textContent = dark ? "Light mode" : "Dark mode";
+        btn.setAttribute("aria-pressed", String(dark));
+      }
+      btn.addEventListener("click", function () {
+        var dark = root.getAttribute("data-theme") === "dark";
+        if (dark) { root.removeAttribute("data-theme"); }
+        else { root.setAttribute("data-theme", "dark"); }
+        try { localStorage.setItem("cc-v2-theme", dark ? "light" : "dark"); } catch (e) {}
+        sync();
+      });
+      sync();
+    }());
+  </script>
 
 </body>
 </html>
