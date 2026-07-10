@@ -208,9 +208,10 @@
               <p class="label">The numbers</p>
               <div class="meters">
                 <div class="meter-card">
-                  <span class="m-label">ATS match</span>
+                  <span class="m-label">ATS keyword match</span>
                   <div class="m-value" id="mAts">0</div>
-                  <div class="meter-track"><div class="meter-fill" id="mAtsFill" style="width:0%"></div></div>
+                  <div class="meter-track"><div class="meter-fill ghost" id="mAtsGhost" style="width:0%"></div><div class="meter-fill" id="mAtsFill" style="width:0%"></div></div>
+                  <p class="m-note" id="mAtsNote"></p>
                 </div>
                 <div class="meter-card">
                   <span class="m-label">Overall fit</span>
@@ -225,17 +226,37 @@
               </div>
             </div>
 
-            <div class="report-block">
-              <div class="two-col">
-                <div>
-                  <p class="label">Where you are strong</p>
-                  <ul class="list-plain" id="strengthList"></ul>
-                </div>
-                <div>
-                  <p class="label">Where the gaps are</p>
-                  <ul class="list-plain" id="gapList"></ul>
-                </div>
+            <div class="report-block" id="reqBlock">
+              <p class="label">The posting's requirements, one by one</p>
+              <p class="block-sub" id="reqSummary"></p>
+              <ul class="req-list" id="reqList"></ul>
+            </div>
+
+            <div class="report-block" id="kwBlock">
+              <p class="label">The exact words the screening software looks for</p>
+              <p class="block-sub" id="kwSummary"></p>
+              <div class="kw-scroll">
+                <table class="kw-table">
+                  <thead>
+                    <tr><th scope="col">Term from the posting</th><th scope="col" class="kw-num">In posting</th><th scope="col" class="kw-num">In your CV</th><th scope="col">Status</th></tr>
+                  </thead>
+                  <tbody id="kwBody"></tbody>
+                </table>
               </div>
+              <details class="ats-explainer">
+                <summary>What is ATS matching, in plain English?</summary>
+                <div class="ats-explainer-body">
+                  <p>An ATS (applicant tracking system) is the software most employers use to collect applications. Before a person reads your CV, a recruiter often filters or searches the pile using words from the posting. If the posting says "project management" and your CV says "led cross-functional delivery", the software may not connect the two, even though a human would.</p>
+                  <p>That creates a real tension. A CV stuffed with keywords reads badly to the human who interviews you; a beautifully written CV with none of the posting's terms may never reach that human. The honest resolution: write for the person, then check for the machine. Make sure the exact terms for skills you genuinely have appear somewhere the software can see them, usually the skills line or the wording of a bullet.</p>
+                  <p>Never add words for skills you do not have. The amber rows above are the fair game: skills your CV already proves, just not in this posting's vocabulary. The red rows are real gaps; closing those takes more than editing, which is what the section below is for.</p>
+                </div>
+              </details>
+            </div>
+
+            <div class="report-block" id="gapBlock">
+              <p class="label">Closing the gaps for real</p>
+              <p class="block-sub">The CV edit gets you past the software. The longer play builds the skill. Directions only; no course names or price tags, because we will not pretend to know what fits your life.</p>
+              <div class="gap-actions" id="gapActions"></div>
             </div>
 
             <div class="report-block">

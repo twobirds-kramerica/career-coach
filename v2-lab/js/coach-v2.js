@@ -339,7 +339,13 @@
     el.className = "status-line" + (isErr ? " err" : "");
   }
 
-  var SYSTEM_PROMPT = 'You are a sharp, practical career coach. Analyse the job posting against the candidate profile and return ONLY valid JSON, no markdown, no code fences, exactly this structure: {"job_title":"string","company":"string","ats_score":0,"overall_fit":0,"salary_match":"above target|at target|below target|not specified","application_recommendation":"apply custom|apply generic|skip","recommendation_reason":"string, 2 sentences, plain Canadian English, specific to this posting","cv_strengths":["3 to 5 items"],"cv_gaps":["2 to 4 items"],"next_moves":[{"title":"string","detail":"one sentence"},{"title":"string","detail":"one sentence"},{"title":"string","detail":"one sentence"}]}';
+  var SYSTEM_PROMPT = 'You are a sharp, practical career coach. Compare the job posting against the candidate profile and CV in three passes. ' +
+    'PASS 1: extract the requirements the posting itself states, from its requirements or qualifications section; if none is labelled, infer up to 6 from the responsibilities. Keep each requirement short (max 12 words) and use the posting\'s own wording. Mark each as "must" (stated as required) or "nice" (preferred, an asset, or inferred). ' +
+    'PASS 2: judge each requirement against the CV only: "met" means clear evidence on the CV (name the line), "partial" means adjacent or implied evidence but not in the posting\'s words, "missing" means no evidence. Never invent CV content. ' +
+    'PASS 3: list the exact keywords and short phrases an applicant tracking system would match on for this posting (skills, tools, methods, credentials, domain terms): 8 to 14 items, spelled exactly as the posting spells them. For each keyword set "claimable" true only if the CV shows real evidence the candidate has that skill even though the exact word is absent from the CV; otherwise false. ' +
+    'Return ONLY valid JSON, no markdown, no code fences, exactly this structure: ' +
+    '{"job_title":"string","company":"string","overall_fit":0,"salary_match":"above target|at target|below target|not specified","application_recommendation":"apply custom|apply generic|skip","recommendation_reason":"2 or 3 sentences, plain Canadian English, specific to this posting and this CV","requirements":[{"requirement":"string","priority":"must|nice","status":"met|partial|missing","evidence":"one sentence naming the CV line that meets it, or exactly what is absent"}],"keywords":[{"term":"string","claimable":false}],"gap_actions":[{"gap":"string","cv_fix":"string","beyond_cv":"string"}],"next_moves":[{"title":"string","detail":"one sentence"},{"title":"string","detail":"one sentence"},{"title":"string","detail":"one sentence"}]} ' +
+    'Rules: every evidence line and the recommendation_reason must be specific to THIS posting and THIS CV; quote or closely paraphrase both. gap_actions: one item per missing or partial requirement, up to 5; cv_fix must name the CV section and the wording to add, and may only claim what the CV supports; beyond_cv is a general, honest direction for closing the gap for real (for example a short course or certification area, a volunteer angle, or a side project to build), never a named course, provider, price, or promised outcome; use an empty string when a CV edit alone covers it. If the posting text looks truncated (very short, or it ends with "see more"), say so plainly in recommendation_reason and be conservative.';
 
   function buildProfileText() {
     var cur = profile.currency || "CAD";
@@ -360,35 +366,82 @@
   var SAMPLE_VERDICT = {
     job_title: "Senior Product Manager",
     company: "Acme Health Tech",
-    ats_score: 82,
     overall_fit: 74,
     salary_match: "at target",
     application_recommendation: "apply custom",
-    recommendation_reason: "Your platform and stakeholder experience covers most of the stated requirements, and the salary band overlaps your target. The gap is healthcare domain language, which a custom CV can close.",
-    cv_strengths: [
-      "Direct roadmap ownership across multiple squads",
-      "Shipping record on consumer-scale mobile products",
-      "Executive-level communication and quarterly reviews",
-      "Mentoring junior product managers"
+    recommendation_reason: "The posting asks for product management depth, mobile shipping record, and stakeholder communication, and a CV like yours typically covers those outright. The gap is healthcare and regulated-industry vocabulary plus named analytics tools, and both are wording problems a custom CV can close.",
+    requirements: [
+      { requirement: "5+ years of product management experience", priority: "must", status: "met", evidence: "Sample judgment: senior product roles across the CV cover the stated experience bar." },
+      { requirement: "Experience in healthcare, health-tech, or regulated industries", priority: "nice", status: "missing", evidence: "No healthcare, health-tech, or regulated-industry language appears on the CV." },
+      { requirement: "Strong data analysis skills: SQL and product analytics tools", priority: "must", status: "partial", evidence: "Data-informed decisions are implied, but SQL and specific analytics tools are not named." },
+      { requirement: "Track record of shipping mobile products used by 10,000+ users", priority: "must", status: "met", evidence: "Sample judgment: shipped consumer-scale mobile products with stated user counts." },
+      { requirement: "Excellent communication with technical and non-technical stakeholders", priority: "must", status: "met", evidence: "Executive reviews and cross-team delivery on the CV evidence this directly." }
     ],
-    cv_gaps: [
-      "No explicit healthcare or regulated-industry vocabulary",
-      "SQL and analytics tooling not named on the CV",
-      "No A/B testing programme called out"
+    keywords: [
+      { term: "product management", claimable: false },
+      { term: "product roadmap", claimable: true },
+      { term: "mobile", claimable: false },
+      { term: "SQL", claimable: true },
+      { term: "product analytics", claimable: true },
+      { term: "A/B tests", claimable: true },
+      { term: "user research", claimable: false },
+      { term: "healthcare", claimable: false },
+      { term: "regulated industries", claimable: false },
+      { term: "stakeholders", claimable: true },
+      { term: "mentor", claimable: false }
+    ],
+    gap_actions: [
+      { gap: "Healthcare and regulated-industry vocabulary", cv_fix: "Reword one summary or experience bullet to use compliance and privacy language you have genuinely earned, for example privacy-regulated data handling, only if it is true of your work.", beyond_cv: "If the gap is real, a short course or certification in health informatics or privacy compliance builds it credibly, and a volunteer product role with a health organisation counts as experience." },
+      { gap: "SQL and analytics tools not named", cv_fix: "Add SQL and your actual analytics stack by name to the skills line; the screening software matches exact words, not implications.", beyond_cv: "" },
+      { gap: "A/B testing not called out", cv_fix: "If you have run experiments, name one in a results bullet with the metric it moved; if not, leave it out.", beyond_cv: "Running a small experiment on a side project gives you an honest line here within weeks." }
     ],
     next_moves: [
-      { title: "Surface your regulated-industry work", detail: "Rename one CV bullet to use compliance and privacy language the screener will search for." },
-      { title: "Name your tools", detail: "Add SQL and your analytics stack to the skills line; the ATS is matching on exact words." },
-      { title: "Verify the posting at the source", detail: "Confirm the role on the employer's own careers page before you submit." }
+      { title: "Make the honest keyword edits first", detail: "The amber rows in the keyword table are skills you already have; add the exact words and your match score rises before anything else changes." },
+      { title: "Close the healthcare wording gap", detail: "One reworded bullet using compliance and privacy language addresses the posting's preferred requirement." },
+      { title: "Verify the posting at the source", detail: "Confirm the role on the employer's own careers page before you invest the tailoring time." }
     ],
     _sample: true
   };
+
+  /* ── Keyword counting: computed here, never by the AI ────────
+     The model extracts the terms; this code counts them in both
+     texts, so every number shown is verifiable against the inputs. */
+  function countTerm(text, term) {
+    if (!text || !term) return 0;
+    var esc = String(term).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    var re = new RegExp("(^|[^A-Za-z0-9])" + esc + "(?=$|[^A-Za-z0-9])", "gi");
+    var m = String(text).match(re);
+    return m ? m.length : 0;
+  }
+  function scoreKeywords(keywords, jobText, cvText) {
+    var rows = [];
+    (keywords || []).forEach(function (k) {
+      var term = (k && k.term) ? String(k.term).trim() : "";
+      if (!term) return;
+      var inPosting = countTerm(jobText, term);
+      var inCv = countTerm(cvText, term);
+      var status = inCv > 0 ? "have" : (k.claimable ? "claimable" : "gap");
+      rows.push({ term: term, inPosting: Math.max(inPosting, 1), inCv: inCv, status: status });
+    });
+    var total = rows.length;
+    var have = rows.filter(function (r) { return r.status === "have"; }).length;
+    var claimable = rows.filter(function (r) { return r.status === "claimable"; }).length;
+    var order = { claimable: 0, gap: 1, have: 2 };
+    rows.sort(function (a, b) {
+      return (order[a.status] - order[b.status]) || (b.inPosting - a.inPosting);
+    });
+    return {
+      rows: rows,
+      now: total ? Math.round((have / total) * 100) : 0,
+      potential: total ? Math.round(((have + claimable) / total) * 100) : 0
+    };
+  }
 
   function bandClass(score) {
     return score >= 70 ? "strong" : score >= 45 ? "caution" : "weak";
   }
 
-  function renderVerdict(a, meta) {
+  function renderVerdict(a, meta, jobText) {
     $("repRole").textContent = (a.job_title || "Role") + (a.company ? " · " + a.company : "");
     $("repMeta").textContent = meta;
 
@@ -407,12 +460,23 @@
     }
     $("verdictReason").textContent = a.recommendation_reason || "";
 
-    var ats = Math.max(0, Math.min(100, a.ats_score || 0));
+    /* ATS score is computed here from the keyword table, not taken
+       from the model, so the number always matches the rows shown. */
+    var kw = scoreKeywords(a.keywords, jobText || "", profile.cv || "");
+    var ats = kw.rows.length ? kw.now : Math.max(0, Math.min(100, a.ats_score || 0));
     var fit = Math.max(0, Math.min(100, a.overall_fit || 0));
     $("mAts").textContent = ats;
     $("mAts").className = "m-value " + bandClass(ats);
     $("mAtsFill").style.width = ats + "%";
     $("mAtsFill").className = "meter-fill " + bandClass(ats);
+    var ghost = $("mAtsGhost");
+    if (ghost) {
+      ghost.style.width = (kw.rows.length ? kw.potential : ats) + "%";
+      ghost.className = "meter-fill ghost " + bandClass(kw.rows.length ? kw.potential : ats);
+    }
+    $("mAtsNote").textContent = kw.rows.length && kw.potential > kw.now
+      ? kw.potential + " is reachable with honest wording edits alone."
+      : (kw.rows.length ? "The exact-word edits are already in place." : "");
     $("mFit").textContent = fit;
     $("mFit").className = "m-value " + bandClass(fit);
     $("mFitFill").style.width = fit + "%";
@@ -426,21 +490,115 @@
     $("mSalFill").style.width = sal[0] + "%";
     $("mSalFill").className = "meter-fill " + sal[1];
 
-    function fillList(id, items, icon, iconClass) {
-      var ul = $(id);
-      ul.innerHTML = "";
-      (items || []).forEach(function (t) {
-        var li = document.createElement("li");
-        var ic = document.createElement("span");
-        ic.className = "ic " + iconClass;
-        ic.textContent = icon;
-        li.appendChild(ic);
-        li.appendChild(document.createTextNode(t));
-        ul.appendChild(li);
-      });
-    }
-    fillList("strengthList", a.cv_strengths, "✓", "yes");
-    fillList("gapList", a.cv_gaps, "✗", "no");
+    /* Requirements scorecard: the posting's own asks, judged one by one */
+    var reqMap = {
+      met:     { icon: "✓", cls: "req-met",     word: "Met" },
+      partial: { icon: "~", cls: "req-partial", word: "Partial" },
+      missing: { icon: "✗", cls: "req-missing", word: "Missing" }
+    };
+    var reqList = $("reqList");
+    reqList.innerHTML = "";
+    var reqs = a.requirements || [];
+    reqs.forEach(function (r) {
+      var st = reqMap[r.status] || reqMap.missing;
+      var li = document.createElement("li");
+      li.className = "req " + st.cls;
+      var ic = document.createElement("span");
+      ic.className = "req-ic";
+      ic.textContent = st.icon;
+      ic.setAttribute("aria-hidden", "true");
+      var body = document.createElement("div");
+      var head = document.createElement("div");
+      head.className = "req-head";
+      var b = document.createElement("b");
+      b.textContent = r.requirement || "";
+      head.appendChild(b);
+      var pr = document.createElement("span");
+      pr.className = "req-pill" + (r.priority === "must" ? " must" : "");
+      pr.textContent = r.priority === "must" ? "Must-have" : "Nice-to-have";
+      head.appendChild(pr);
+      var srWord = document.createElement("span");
+      srWord.className = "sr-only";
+      srWord.textContent = st.word + ".";
+      head.appendChild(srWord);
+      body.appendChild(head);
+      var p = document.createElement("p");
+      p.textContent = r.evidence || "";
+      body.appendChild(p);
+      li.appendChild(ic);
+      li.appendChild(body);
+      reqList.appendChild(li);
+    });
+    var met = reqs.filter(function (r) { return r.status === "met"; }).length;
+    $("reqSummary").textContent = reqs.length
+      ? "You meet " + met + " of the " + reqs.length + " requirements this posting states."
+      : "";
+    $("reqBlock").classList.toggle("hidden", !reqs.length);
+
+    /* Keyword table: counts computed from the actual texts */
+    var kwStatus = {
+      have:      { cls: "kw-have",      label: "In your CV" },
+      claimable: { cls: "kw-claimable", label: "You have it; add the words" },
+      gap:       { cls: "kw-gap",       label: "Real gap" }
+    };
+    var kwBody = $("kwBody");
+    kwBody.innerHTML = "";
+    kw.rows.forEach(function (r) {
+      var st = kwStatus[r.status];
+      var tr = document.createElement("tr");
+      var tdTerm = document.createElement("td");
+      tdTerm.className = "kw-term";
+      tdTerm.textContent = r.term;
+      var tdPost = document.createElement("td");
+      tdPost.className = "kw-num";
+      tdPost.textContent = r.inPosting + "×";
+      var tdCv = document.createElement("td");
+      tdCv.className = "kw-num" + (r.inCv === 0 ? " zero" : "");
+      tdCv.textContent = r.inCv + "×";
+      var tdSt = document.createElement("td");
+      var pill = document.createElement("span");
+      pill.className = "kw-pill " + st.cls;
+      pill.textContent = st.label;
+      tdSt.appendChild(pill);
+      tr.appendChild(tdTerm); tr.appendChild(tdPost); tr.appendChild(tdCv); tr.appendChild(tdSt);
+      kwBody.appendChild(tr);
+    });
+    $("kwSummary").textContent = kw.rows.length
+      ? kw.now + " of 100 keyword match today. Add the exact words for skills you already have (the amber rows) and it reaches " + kw.potential + "."
+      : "";
+    $("kwBlock").classList.toggle("hidden", !kw.rows.length);
+
+    /* Closing the gaps: the CV edit plus the honest longer play */
+    var gapsEl = $("gapActions");
+    gapsEl.innerHTML = "";
+    var gapActions = a.gap_actions || [];
+    gapActions.forEach(function (g) {
+      var div = document.createElement("div");
+      div.className = "gap-action";
+      var b = document.createElement("b");
+      b.textContent = g.gap || "";
+      div.appendChild(b);
+      if (g.cv_fix) {
+        var p1 = document.createElement("p");
+        var s1 = document.createElement("span");
+        s1.className = "ga-tag";
+        s1.textContent = "On the CV: ";
+        p1.appendChild(s1);
+        p1.appendChild(document.createTextNode(g.cv_fix));
+        div.appendChild(p1);
+      }
+      if (g.beyond_cv) {
+        var p2 = document.createElement("p");
+        var s2 = document.createElement("span");
+        s2.className = "ga-tag";
+        s2.textContent = "Beyond the CV: ";
+        p2.appendChild(s2);
+        p2.appendChild(document.createTextNode(g.beyond_cv));
+        div.appendChild(p2);
+      }
+      gapsEl.appendChild(div);
+    });
+    $("gapBlock").classList.toggle("hidden", !gapActions.length);
 
     var moves = $("movesList");
     moves.innerHTML = "";
@@ -459,11 +617,13 @@
     });
 
     lastVerdict = a;
+    lastKw = kw;
     dirty = false;
     goStep(3);
   }
 
   var lastVerdict = null;
+  var lastKw = null;
 
   $("analyseBtn").addEventListener("click", function () {
     var jobText = $("jobText").value.trim();
@@ -484,7 +644,7 @@
     var needsKey = provider !== "ollama";
     if (needsKey && !apiKey) {
       if (jobText.indexOf("Acme Health Tech") !== -1) {
-        renderVerdict(SAMPLE_VERDICT, meta + " · Sample verdict (no API key set)");
+        renderVerdict(SAMPLE_VERDICT, meta + " · Sample verdict (no API key set)", jobText);
         return;
       }
       setStatus("Add an API key in step 1 (AI provider and key), or switch to Ollama to run locally.", true);
@@ -505,7 +665,7 @@
       }
       if (!a) throw new Error("The AI returned an unreadable response. Try again.");
       setStatus("");
-      renderVerdict(a, meta);
+      renderVerdict(a, meta, jobText);
     }).catch(function (err) {
       var msg = String(err && err.message || err);
       if (msg.indexOf("401") !== -1 || /auth/i.test(msg)) {
@@ -536,21 +696,40 @@
   function buildVerdictText() {
     var a = lastVerdict;
     if (!a) return "";
-    return [
+    var kw = lastKw || { rows: [], now: 0, potential: 0 };
+    var statusWord = { met: "MET", partial: "PARTIAL", missing: "MISSING" };
+    var kwWord = { have: "in your CV", claimable: "you have it; add the words", gap: "real gap" };
+    var out = [
       (a.job_title || "Role") + (a.company ? " - " + a.company : ""),
       "Verdict: " + (a.application_recommendation || ""),
       "Why: " + (a.recommendation_reason || ""),
-      "ATS match: " + (a.ats_score || 0) + " / Overall fit: " + (a.overall_fit || 0) + " / Salary: " + (a.salary_match || ""),
-      "",
-      "Strengths:",
-      (a.cv_strengths || []).map(function (s) { return "- " + s; }).join("\n"),
-      "",
-      "Gaps:",
-      (a.cv_gaps || []).map(function (s) { return "- " + s; }).join("\n"),
-      "",
-      "Next moves:",
-      (a.next_moves || []).map(function (m, i) { return (i + 1) + ". " + m.title + ": " + m.detail; }).join("\n")
-    ].join("\n");
+      "ATS keyword match: " + kw.now + (kw.potential > kw.now ? " (reachable with honest edits: " + kw.potential + ")" : "") +
+        " / Overall fit: " + (a.overall_fit || 0) + " / Salary: " + (a.salary_match || "")
+    ];
+    if (a.requirements && a.requirements.length) {
+      out.push("", "Requirements scorecard (the posting's own asks):");
+      a.requirements.forEach(function (r) {
+        out.push("- [" + (statusWord[r.status] || "MISSING") + "] " + (r.requirement || "") +
+          " (" + (r.priority === "must" ? "must-have" : "nice-to-have") + "): " + (r.evidence || ""));
+      });
+    }
+    if (kw.rows.length) {
+      out.push("", "Keywords (times in posting vs times in your CV):");
+      kw.rows.forEach(function (r) {
+        out.push("- " + r.term + ": " + r.inPosting + "x in posting, " + r.inCv + "x in CV (" + kwWord[r.status] + ")");
+      });
+    }
+    if (a.gap_actions && a.gap_actions.length) {
+      out.push("", "Closing the gaps:");
+      a.gap_actions.forEach(function (g) {
+        out.push("- " + (g.gap || ""));
+        if (g.cv_fix) out.push("  On the CV: " + g.cv_fix);
+        if (g.beyond_cv) out.push("  Beyond the CV: " + g.beyond_cv);
+      });
+    }
+    out.push("", "Next moves:");
+    out.push((a.next_moves || []).map(function (m, i) { return (i + 1) + ". " + m.title + ": " + m.detail; }).join("\n"));
+    return out.join("\n");
   }
 
   $("copyVerdict").addEventListener("click", function () {
