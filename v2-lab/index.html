@@ -195,6 +195,23 @@
     .vs-quote{color:var(--muted-strong);font-size:.95rem}
     .vs-quote b{color:var(--ink)}
 
+    /* ── Hiring trends (live StatCan data) ── */
+    .trend-grid{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+    @media (min-width:640px){.trend-grid{grid-template-columns:repeat(3,1fr)}}
+    @media (min-width:980px){.trend-grid{grid-template-columns:repeat(5,1fr)}}
+    .trend-card{
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:18px 16px;
+    }
+    .trend-value{
+      font-family:'DM Serif Display',Georgia,serif;
+      font-size:1.65rem;color:var(--teal);line-height:1.1;
+    }
+    .trend-label{font-weight:700;font-size:.88rem;margin-top:8px;line-height:1.35}
+    .trend-prev{color:var(--muted);font-size:.8rem;margin-top:6px}
+    .trend-note{color:var(--muted);font-size:.85rem;margin-top:18px;max-width:76ch}
+    .trend-note a{color:var(--teal)}
+
     /* ── Sections ── */
     .section{padding:64px 0;border-top:1px solid var(--border)}
     .section-head{display:flex;align-items:baseline;gap:14px;margin-bottom:10px}
@@ -349,6 +366,19 @@
           </div>
           <p class="vs-quote"><b>Why:</b> your platform and stakeholder experience covers eight of the ten stated requirements. The gap is healthcare domain language. A custom CV that surfaces your regulated-industry work closes most of it. Worth the thirty minutes.</p>
         </div>
+      </div>
+    </section>
+
+    <!-- Hiring trends: live StatCan figures fetched client-side.
+         Stays hidden unless real data loads; no numbers are hard-coded here. -->
+    <section class="section" id="trends" aria-labelledby="trends-h" hidden>
+      <div class="shell">
+        <div class="section-head">
+          <h2 id="trends-h">The Canadian market right now</h2>
+        </div>
+        <p class="section-sub">Real figures from Statistics Canada, refreshed monthly. The same labour market your verdict has to hold up in.</p>
+        <div class="trend-grid" id="trendGrid"></div>
+        <p class="trend-note" id="trendNote"></p>
       </div>
     </section>
 
@@ -519,6 +549,99 @@
         sync();
       });
       sync();
+    }());
+
+    /* Hiring trends: fetch real StatCan figures from data/hiring-trends.json
+       (written by scripts/fetch-hiring-trends.py via the monthly workflow).
+       The section only appears when live data loads. Nothing is fabricated:
+       every value, period, and source link comes from the fetched file. */
+    (function () {
+      var section = document.getElementById("trends");
+      var grid = document.getElementById("trendGrid");
+      var note = document.getElementById("trendNote");
+      if (!section || !grid || !note || !window.fetch) return;
+
+      var MONTHS = ["", "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"];
+
+      function periodLabel(p) {
+        if (!p) return "";
+        var parts = String(p).split("-");
+        var m = MONTHS[parseInt(parts[1], 10)] || "";
+        return m ? m + " " + parts[0] : p;
+      }
+
+      function fmtValue(value, unit) {
+        if (typeof value !== "number" || !isFinite(value)) return null;
+        if (unit === "%") return value.toFixed(1) + "%";
+        if (unit === "thousands") return (value / 1000).toFixed(2) + " million";
+        return Math.round(value).toLocaleString("en-CA");
+      }
+
+      function makeCard(stat) {
+        var val = fmtValue(stat.value, stat.unit);
+        if (val === null || !stat.label) return null;
+        var card = document.createElement("div");
+        card.className = "trend-card";
+        var v = document.createElement("div");
+        v.className = "trend-value";
+        v.textContent = val;
+        card.appendChild(v);
+        var l = document.createElement("div");
+        l.className = "trend-label";
+        l.textContent = stat.label + " (" + periodLabel(stat.reference_period) + ")";
+        card.appendChild(l);
+        var prev = fmtValue(stat.previous_value, stat.unit);
+        if (prev !== null && stat.previous_period) {
+          var p = document.createElement("div");
+          p.className = "trend-prev";
+          p.textContent = periodLabel(stat.previous_period) + ": " + prev;
+          card.appendChild(p);
+        }
+        return card;
+      }
+
+      function buildNote(d, shown) {
+        note.textContent = "";
+        note.appendChild(document.createTextNode("Source: "));
+        var seen = {};
+        var first = true;
+        shown.forEach(function (stat) {
+          if (!stat.source_url || seen[stat.source_url]) return;
+          seen[stat.source_url] = true;
+          if (!first) note.appendChild(document.createTextNode("; "));
+          first = false;
+          var a = document.createElement("a");
+          a.href = stat.source_url;
+          a.rel = "noopener";
+          a.textContent = stat.source || "Statistics Canada";
+          note.appendChild(a);
+          note.appendChild(document.createTextNode(", data through " + periodLabel(stat.reference_period)));
+        });
+        if (d.updated) {
+          var parts = String(d.updated).split("-");
+          var m = MONTHS[parseInt(parts[1], 10)];
+          var upd = m ? (parseInt(parts[2], 10) + " " + m + " " + parts[0]) : d.updated;
+          note.appendChild(document.createTextNode(". Last updated: " + upd + "."));
+        } else {
+          note.appendChild(document.createTextNode("."));
+        }
+      }
+
+      fetch("../data/hiring-trends.json")
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
+        .then(function (d) {
+          if (!d || !Array.isArray(d.stats) || !d.stats.length) return;
+          var shown = [];
+          d.stats.forEach(function (stat) {
+            var card = makeCard(stat);
+            if (card) { grid.appendChild(card); shown.push(stat); }
+          });
+          if (!shown.length) return;
+          buildNote(d, shown);
+          section.hidden = false;
+        })
+        .catch(function () { /* leave the section hidden; never show placeholder numbers */ });
     }());
   </script>
 

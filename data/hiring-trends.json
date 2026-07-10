@@ -1,0 +1,61 @@
+{
+  "updated": "2026-07-10",
+  "note": "All figures fetched from the Statistics Canada Web Data Service. Never hand-edit values.",
+  "stats": [
+    {
+      "id": "canada_unemployment_rate",
+      "label": "Unemployment rate, Canada",
+      "unit": "%",
+      "value": 6.5,
+      "reference_period": "2026-06",
+      "previous_value": 6.6,
+      "previous_period": "2026-05",
+      "source": "Statistics Canada, Table 14-10-0287-01 (Labour Force Survey, seasonally adjusted)",
+      "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701"
+    },
+    {
+      "id": "ontario_unemployment_rate",
+      "label": "Unemployment rate, Ontario",
+      "unit": "%",
+      "value": 7.0,
+      "reference_period": "2026-06",
+      "previous_value": 7.0,
+      "previous_period": "2026-05",
+      "source": "Statistics Canada, Table 14-10-0287-01 (Labour Force Survey, seasonally adjusted)",
+      "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701"
+    },
+    {
+      "id": "canada_employment_thousands",
+      "label": "People employed, Canada",
+      "unit": "thousands",
+      "value": 21139.7,
+      "reference_period": "2026-06",
+      "previous_value": 21121.5,
+      "previous_period": "2026-05",
+      "source": "Statistics Canada, Table 14-10-0287-01 (Labour Force Survey, seasonally adjusted)",
+      "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701"
+    },
+    {
+      "id": "canada_job_vacancies",
+      "label": "Job vacancies, Canada",
+      "unit": "count",
+      "value": 490450.0,
+      "reference_period": "2026-04",
+      "previous_value": 493875.0,
+      "previous_period": "2026-03",
+      "source": "Statistics Canada, Table 14-10-0432-01 (job vacancies, seasonally adjusted)",
+      "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410043201"
+    },
+    {
+      "id": "canada_job_vacancy_rate",
+      "label": "Job vacancy rate, Canada",
+      "unit": "%",
+      "value": 2.7,
+      "reference_period": "2026-04",
+      "previous_value": 2.8,
+      "previous_period": "2026-03",
+      "source": "Statistics Canada, Table 14-10-0432-01 (job vacancies, seasonally adjusted)",
+      "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410043201"
+    }
+  ]
+}
