@@ -433,6 +433,11 @@ textarea { resize: vertical; line-height: 1.55; }
 .meter-fill.weak    { background: var(--band-weak); }
 .meter-fill.ghost   { opacity: 0.32; }
 .meter-card .m-note { font-size: var(--fs-caption); color: var(--ink-soft); margin-top: var(--s2); }
+/* Before/after forecast lockup (ATS meter) */
+.m-ba { display: flex; align-items: baseline; gap: var(--s3); }
+.m-ba .m-col { display: inline-flex; flex-direction: column; }
+.m-ba .m-ba-word { font-size: var(--fs-caption); color: var(--ink-soft); margin-top: -6px; }
+.m-ba .m-arrow { color: var(--ink-soft); font-size: 1.2rem; align-self: center; }
 
 /* Strengths / gaps */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5); }

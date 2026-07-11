@@ -484,8 +484,16 @@
       ghost.style.width = (kw.rows.length ? kw.potential : ats) + "%";
       ghost.className = "meter-fill ghost " + bandClass(kw.rows.length ? kw.potential : ats);
     }
-    $("mAtsNote").textContent = kw.rows.length && kw.potential > kw.now
-      ? kw.potential + " is reachable with honest wording edits alone."
+    /* Before/after forecast: shown only when honest edits would move the score */
+    var improves = kw.rows.length && kw.potential > kw.now;
+    $("mAtsArrow").hidden = !improves;
+    $("mAtsAfterCol").hidden = !improves;
+    if (improves) {
+      $("mAtsAfter").textContent = kw.potential;
+      $("mAtsAfter").className = "m-value m-forecast " + bandClass(kw.potential);
+    }
+    $("mAtsNote").textContent = improves
+      ? "The forecast counts only the amber keywords: skills your CV already proves, reworded in the posting's vocabulary. No invention required."
       : (kw.rows.length ? "The exact-word edits are already in place." : "");
     $("mFit").textContent = fit;
     $("mFit").className = "m-value " + bandClass(fit);
