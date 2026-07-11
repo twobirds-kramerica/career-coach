@@ -75,12 +75,14 @@ h3 { font-size: var(--fs-h3); }
   display: inline-flex; align-items: baseline; gap: 2px;
 }
 .wordmark .mark { color: var(--primary); }
+.wordmark svg { align-self: center; margin-right: 6px; flex-shrink: 0; color: var(--primary); }
 .byline { font-size: var(--fs-caption); color: var(--ink-soft); }
 .header-spacer { flex: 1; }
 .header-nav { display: flex; align-items: center; gap: var(--s4); }
 .header-nav a { font-size: var(--fs-sm); font-weight: 500; color: var(--ink-soft); text-decoration: none; }
 .header-nav a:hover { color: var(--ink); text-decoration: underline; }
 .theme-toggle {
+  display: inline-flex; align-items: center; gap: 7px;
   font: 600 var(--fs-caption) var(--font-body);
   color: var(--ink-soft); background: none;
   border: 1px solid var(--border); border-radius: var(--r-pill);

@@ -15,7 +15,9 @@
   function syncToggle() {
     var dark = root.getAttribute("data-theme") === "dark";
     if (toggle) {
-      toggle.textContent = dark ? "Light mode" : "Dark mode";
+      var word = document.getElementById("themeWord");
+      if (word) { word.textContent = dark ? "Light mode" : "Dark mode"; }
+      else { toggle.textContent = dark ? "Light mode" : "Dark mode"; }
       toggle.setAttribute("aria-pressed", String(dark));
     }
   }

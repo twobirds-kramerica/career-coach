@@ -115,6 +115,7 @@
     .header-nav a:hover{border-color:var(--teal);color:var(--teal)}
     .header-nav{display:inline-flex;align-items:center;gap:10px}
     .theme-toggle{
+      display:inline-flex;align-items:center;gap:7px;
       font:600 .82rem 'DM Sans',-apple-system,sans-serif;
       color:var(--ink);background:none;
       border:1px solid var(--border);border-radius:8px;
@@ -336,7 +337,10 @@
       <span class="header-spacer"></span>
       <nav class="header-nav" aria-label="Site">
         <a href="app.html">Open the app</a>
-        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false">Dark mode</button>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false">
+          <svg width="14" height="14" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75 A6.25 6.25 0 0 0 8 14.25 Z" fill="currentColor"/></svg>
+          <span id="themeWord">Dark mode</span>
+        </button>
       </nav>
     </div>
   </header>
@@ -614,7 +618,8 @@
       if (!btn) return;
       function sync() {
         var dark = root.getAttribute("data-theme") === "dark";
-        btn.textContent = dark ? "Light mode" : "Dark mode";
+        var word = document.getElementById("themeWord");
+        if (word) { word.textContent = dark ? "Light mode" : "Dark mode"; }
         btn.setAttribute("aria-pressed", String(dark));
       }
       btn.addEventListener("click", function () {

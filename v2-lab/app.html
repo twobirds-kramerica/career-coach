@@ -25,12 +25,23 @@
 
   <header class="site-header">
     <div class="bar">
-      <a class="wordmark" href="index.html">Career<span class="mark">&nbsp;Coach</span></a>
+      <a class="wordmark" href="index.html" aria-label="Career Coach home">
+        <svg width="24" height="24" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="currentColor">
+          <polygon points="14,1 16,13 14,11 12,13"/>
+          <polygon points="27,14 15,12 17,14 15,16"/>
+          <polygon points="14,27 12,15 14,17 16,15"/>
+          <polygon points="1,14 13,16 11,14 13,12"/>
+          <circle cx="14" cy="14" r="2.5"/>
+        </svg>
+        Career<span class="mark">&nbsp;Coach</span></a>
       <span class="byline">Two Birds Innovation · St. Thomas, Ontario</span>
       <span class="header-spacer"></span>
       <nav class="header-nav" aria-label="Site">
         <a href="index.html">About</a>
-        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false">Dark mode</button>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false">
+          <svg width="14" height="14" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75 A6.25 6.25 0 0 0 8 14.25 Z" fill="currentColor"/></svg>
+          <span id="themeWord">Dark mode</span>
+        </button>
       </nav>
     </div>
   </header>
