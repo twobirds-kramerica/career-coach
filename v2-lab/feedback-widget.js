@@ -63,7 +63,7 @@
     ".ffw-arming,.ffw-arming *{cursor:crosshair !important}",
     ".ffw-overlay{position:fixed;inset:0;z-index:2147483003;background:rgba(8,14,12,.55);display:flex;align-items:center;justify-content:center;padding:16px}",
     ".ffw-panel{width:min(620px,100%);max-height:88vh;overflow-y:auto;background:#fff;border:2px solid #0b3d2e;border-radius:14px;box-shadow:0 16px 50px rgba(0,0,0,.4);padding:18px 18px 16px}",
-    ".ffw-panel h2{margin:0 0 4px;font-size:19px}",
+    ".ffw-panel h2{margin:0 0 4px;font-size:19px;color:#101418;font-family:inherit}",
     ".ffw-panel .ffw-sub{color:#445;margin:0 0 14px;font-size:13px}",
     ".ffw-field-label{font-weight:700;margin:12px 0 6px}",
     ".ffw-review-text{width:100%;min-height:120px;border:1px solid #9aa7a1;border-radius:8px;padding:10px 12px;font:inherit;resize:vertical}",

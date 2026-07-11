@@ -25,7 +25,7 @@ body {
 a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 a:hover { color: var(--link-hover); }
 
-:is(a, button, input, select, textarea, summary):focus-visible {
+:is(a, button, input, select, textarea, summary, .kw-scroll):focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
   border-radius: var(--r-sm);
