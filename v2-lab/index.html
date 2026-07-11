@@ -211,6 +211,10 @@
     .trend-prev{color:var(--muted);font-size:.8rem;margin-top:6px}
     .trend-note{color:var(--muted);font-size:.85rem;margin-top:18px;max-width:76ch}
     .trend-note a{color:var(--teal)}
+    /* Screening-reality stats reuse the trend cards but cap at 4 columns */
+    .stat-grid{grid-template-columns:1fr}
+    @media (min-width:640px){.stat-grid{grid-template-columns:1fr 1fr}}
+    @media (min-width:980px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
 
     /* ── Sections ── */
     .section{padding:64px 0;border-top:1px solid var(--border)}
@@ -364,7 +368,7 @@
             <span class="chip chip-teal">Overall fit 74</span>
             <span class="chip chip-caution">Salary: at target</span>
           </div>
-          <p class="vs-quote"><b>Why:</b> your platform and stakeholder experience covers eight of the ten stated requirements. The gap is healthcare domain language. A custom CV that surfaces your regulated-industry work closes most of it. Worth the thirty minutes.</p>
+          <p class="vs-quote"><b>Why:</b> your platform and stakeholder experience covers eight of the ten stated requirements. The gap is healthcare domain language. A custom CV that surfaces your regulated-industry work closes most of it. Worth a proper custom package: call it fifteen focused minutes.</p>
         </div>
       </div>
     </section>
@@ -414,7 +418,7 @@
           <span class="section-num" aria-hidden="true">02</span>
           <h2 id="how-h">The working loop</h2>
         </div>
-        <p class="section-sub">One job posting at a time, verified before you build on it. Under thirty minutes from posting to submitted application.</p>
+        <p class="section-sub">One job posting at a time, verified before you build on it. The goal is not speed for its own sake: it is one application done properly instead of five done fast. Once the verdict says go, a focused custom package typically takes 10 to 20 minutes; the verdict saves you the hours the wrong postings would have taken.</p>
         <div class="loop">
           <div class="loop-step">
             <span class="k">Verify the posting</span>
@@ -484,11 +488,82 @@
       </div>
     </section>
 
+    <!-- Screening reality: sourced ATS + AI-screening statistics -->
+    <section class="section" id="screening" aria-labelledby="screening-h">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-num" aria-hidden="true">04</span>
+          <h2 id="screening-h">The screening reality, in numbers</h2>
+        </div>
+        <p class="section-sub">Career Coach's ATS tools exist because of how hiring works now, not because keyword panic sells software. Current, sourced figures; where a number is not Canadian, we say so.</p>
+        <div class="trend-grid stat-grid">
+          <div class="trend-card">
+            <div class="trend-value">97.8%</div>
+            <div class="trend-label">of Fortune 500 companies run detectable applicant tracking software</div>
+            <div class="trend-prev">Jobscan research, 2025. A US figure; the same platforms (Workday runs hiring at 39% of them) dominate Canadian enterprise hiring.</div>
+          </div>
+          <div class="trend-card">
+            <div class="trend-value">61%</div>
+            <div class="trend-label">of Canadian HR leaders say AI-generated applications have slowed their hiring process</div>
+            <div class="trend-prev">Robert Half Canada survey of 1,500 Canadian hiring managers, November 2025.</div>
+          </div>
+          <div class="trend-card">
+            <div class="trend-value">64%</div>
+            <div class="trend-label">of Canadian hiring managers say the volume and authenticity of AI-written r&eacute;sum&eacute;s create real challenges</div>
+            <div class="trend-prev">Same Robert Half Canada survey.</div>
+          </div>
+          <div class="trend-card">
+            <div class="trend-value">79%</div>
+            <div class="trend-label">of Canadian hiring managers believe they can spot an AI-written application</div>
+            <div class="trend-prev">Same survey. This is why Career Coach drafts from your real CV, and you edit before anything is sent.</div>
+          </div>
+        </div>
+        <p class="trend-note">Sources: <a href="https://www.jobscan.co/blog/fortune-500-use-applicant-tracking-systems/" rel="noopener">Jobscan Fortune 500 ATS research (2025)</a>; <a href="https://press.roberthalf.ca/2026-03-10-New-survey-61-per-cent-of-HR-leaders-report-AI-generated-applications-are-slowing-hiring" rel="noopener">Robert Half Canada, March 2026 release</a>. No reliable Canada-only ATS-adoption figure exists in public research; we label North American figures rather than dress them up as Canadian.</p>
+      </div>
+    </section>
+
+    <!-- Best practices: in-house, evidence-grounded -->
+    <section class="section" id="practices" aria-labelledby="practices-h">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-num" aria-hidden="true">05</span>
+          <h2 id="practices-h">What actually moves an application forward</h2>
+        </div>
+        <p class="section-sub">The advice below is what Career Coach's own tools are built around. None of it requires the app; the app just makes it fast.</p>
+        <div class="loop">
+          <div class="loop-step">
+            <span class="k">Use the posting's exact words, honestly</span>
+            <p>Screening software matches literally. If the posting says "project management" and you have it, those exact words belong on your CV. Never add words for skills you do not have; the interview will find you out.</p>
+          </div>
+          <div class="loop-step">
+            <span class="k">Keep the CV parseable</span>
+            <p>Standard headings, a single column, no tables or text boxes in the body. The most beautiful layout loses to the software that cannot read it.</p>
+          </div>
+          <div class="loop-step">
+            <span class="k">Quality beats volume, measurably</span>
+            <p>Canadian hiring managers are drowning in near-identical AI-generated applications; that is the pile a generic submission joins. One application tailored to a verified posting outworks five sprayed ones.</p>
+          </div>
+          <div class="loop-step">
+            <span class="k">Apply at the source</span>
+            <p>Aggregator reposts go stale and sometimes never reach the employer. Find the posting on the employer's own careers site before you invest anything.</p>
+          </div>
+          <div class="loop-step">
+            <span class="k">Let AI research, not impersonate</span>
+            <p>Four in five Canadian hiring managers say they can spot a wholly AI-written application. Use the AI for the analysis and the first draft; the final words should sound like you, because they are yours.</p>
+          </div>
+          <div class="loop-step">
+            <span class="k">Follow up on a date, not a feeling</span>
+            <p>Set the follow-up date the moment you apply. A short, specific note a week later beats a perfect one you never send.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- BYOK / privacy -->
     <section class="section" id="private" aria-labelledby="private-h">
       <div class="shell">
         <div class="section-head">
-          <span class="section-num" aria-hidden="true">04</span>
+          <span class="section-num" aria-hidden="true">06</span>
           <h2 id="private-h">Free to use, yours to control</h2>
         </div>
         <p class="section-sub">The AI is included and nobody mines your job search. Power users can bring their own key, but nobody has to.</p>
