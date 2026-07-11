@@ -6,12 +6,33 @@
  *   var result = await llmChat(prompt, { system: '...', maxTokens: 1500 });
  *
  * Configuration:
- *   llmSetProvider('anthropic', apiKey);        // default
+ *   llmSetProvider('builtin');                  // default — no key needed
+ *   llmSetProvider('anthropic', apiKey);        // bring your own key
  *   llmSetProvider('openai', apiKey);           // GPT-4o
  *   llmSetProvider('ollama');                   // local, no key
  */
 
+/* Career Coach built-in provider: the shared Two Birds Worker proxy
+   (same abuse-protected pattern as Clarity's built-in provider).
+   Rate limited per connection and per day; BYOK lifts the limits. */
+var CC_PROXY_URL = 'https://clarity-proxy.twobirdsinnovation.workers.dev/career-coach';
+
 var LLM_PROVIDERS = {
+  builtin: {
+    name: 'Career Coach (built-in)',
+    defaultModel: 'claude-haiku-4-5-20251001',
+    buildRequest: function(apiKey, model, prompt, system, maxTokens) {
+      var body = { model: model, max_tokens: maxTokens || 2048, messages: [{ role: 'user', content: prompt }] };
+      if (system) body.system = system;
+      return {
+        url: CC_PROXY_URL,
+        headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify(body)
+      };
+    },
+    parseResponse: function(data) { return data.content[0].text; }
+  },
+
   anthropic: {
     name: 'Claude (Anthropic)',
     url: 'https://api.anthropic.com/v1/messages',
@@ -90,7 +111,7 @@ var LLM_PROVIDERS = {
  */
 async function llmChat(prompt, opts) {
   opts = opts || {};
-  var providerKey = opts.provider || localStorage.getItem('llm_provider') || 'anthropic';
+  var providerKey = opts.provider || localStorage.getItem('llm_provider') || 'builtin';
   var provider = LLM_PROVIDERS[providerKey];
   if (!provider) throw new Error('Unknown LLM provider: ' + providerKey);
 
@@ -120,6 +141,6 @@ function llmSetProvider(providerKey, apiKey, model) {
 
 /** Get current provider info. */
 function llmGetProvider() {
-  var key = localStorage.getItem('llm_provider') || 'anthropic';
+  var key = localStorage.getItem('llm_provider') || 'builtin';
   return { key: key, name: (LLM_PROVIDERS[key] || {}).name || key };
 }

@@ -540,6 +540,8 @@ textarea { resize: vertical; line-height: 1.55; }
 .move p { font-size: var(--fs-sm); color: var(--ink-soft); }
 
 /* Settings drawer (BYOK) */
+.builtin-note { margin-top: var(--s5); border-left: 3px solid var(--primary); }
+.builtin-note .bn-head { margin-bottom: var(--s2); }
 .byok-details { margin-top: var(--s5); }
 .byok-details summary {
   cursor: pointer; font-weight: 600; font-size: var(--fs-sm);

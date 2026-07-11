@@ -115,22 +115,29 @@
           </div>
         </div>
 
+        <div class="card builtin-note" id="builtinNote">
+          <p class="bn-head"><b>The AI is included.</b> No account, no key, no set-up.</p>
+          <p class="fine">Analyses run through our own server-side AI at no cost to you. To keep it free for everyone, it is fair-use limited: a handful of verdicts per hour per connection, with a shared daily cap. Hit a limit and you can simply try again later, or bring your own key below for unlimited use.</p>
+        </div>
+
         <details class="byok-details" id="byokDetails">
-          <summary>AI provider and key (bring your own; stored in this browser only)</summary>
+          <summary>Advanced: use your own AI instead (optional)</summary>
           <div class="card">
+            <p class="fine" style="margin-bottom:var(--s4);">Two reasons to switch: <b>no limits</b> (your own key is never rate-capped by us) and <b>total privacy</b> (your CV goes straight from your browser to the provider you chose, or never leaves your machine at all with a local model). Most people never need this.</p>
             <div class="field">
               <label for="provider">Provider</label>
               <select id="provider">
-                <option value="anthropic">Claude (Anthropic)</option>
-                <option value="openai">GPT (OpenAI)</option>
-                <option value="gemini">Gemini (Google)</option>
+                <option value="builtin">Built-in (default, no key needed)</option>
+                <option value="anthropic">Claude (Anthropic) — your key</option>
+                <option value="openai">GPT (OpenAI) — your key</option>
+                <option value="gemini">Gemini (Google) — your key</option>
                 <option value="ollama">Ollama (local, no key needed)</option>
               </select>
             </div>
-            <div class="field" id="keyField">
+            <div class="field hidden" id="keyField">
               <label for="apiKey">API key</label>
               <input type="password" id="apiKey" placeholder="sk-..." autocomplete="off">
-              <p class="fine" style="margin-top:var(--s2);">Stored in your browser only, sent directly to the provider you chose. It never touches our servers, because there are none.</p>
+              <p class="fine" style="margin-top:var(--s2);">Stored in your browser only, sent directly to the provider you chose. It never touches our servers.</p>
             </div>
             <p class="fine hidden" id="noKeyNote">Ollama runs on your own machine. No key, and nothing leaves your computer at all.</p>
           </div>

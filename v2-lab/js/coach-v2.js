@@ -113,10 +113,13 @@
     if (savedKey) $("apiKey").value = savedKey;
   } catch (e) {}
 
+  function providerNeedsKey(p) {
+    return p !== "ollama" && p !== "builtin";
+  }
   function syncProviderUI() {
-    var isLocal = $("provider").value === "ollama";
-    $("keyField").classList.toggle("hidden", isLocal);
-    $("noKeyNote").classList.toggle("hidden", !isLocal);
+    var p = $("provider").value;
+    $("keyField").classList.toggle("hidden", !providerNeedsKey(p));
+    $("noKeyNote").classList.toggle("hidden", p !== "ollama");
   }
   $("provider").addEventListener("change", syncProviderUI);
   syncProviderUI();
@@ -313,7 +316,7 @@
   $("demoBtn").addEventListener("click", function () {
     $("jobText").value = DEMO_JOB;
     saveJob();
-    setStatus("Sample posting loaded. Get the verdict to see the full analysis. Without an API key you get a built-in sample verdict.", false);
+    setStatus("Sample posting loaded. Get the verdict to see the full analysis.", false);
   });
 
   /* ── Job posting: persistence + file upload ────────────────── */
@@ -641,20 +644,19 @@
     var g0 = agg ? "Aggregator source" : (confirmedLive ? "Link confirmed live" : (url ? "Link unverified" : "No link provided"));
     var meta = new Date().toLocaleDateString("en-CA") + " · Gate zero: " + g0;
 
-    var provider = "anthropic";
+    var provider = "builtin";
     var apiKey = "";
     try {
-      provider = localStorage.getItem("llm_provider") || "anthropic";
+      provider = localStorage.getItem("llm_provider") || "builtin";
       apiKey = localStorage.getItem("llm_api_key") || "";
     } catch (e) {}
 
-    var needsKey = provider !== "ollama";
-    if (needsKey && !apiKey) {
+    if (providerNeedsKey(provider) && !apiKey) {
       if (jobText.indexOf("Acme Health Tech") !== -1) {
         renderVerdict(SAMPLE_VERDICT, meta + " · Sample verdict (no API key set)", jobText);
         return;
       }
-      setStatus("Add an API key in step 1 (AI provider and key), or switch to Ollama to run locally.", true);
+      setStatus("Add an API key in step 1 (Advanced), or switch the provider back to Built-in.", true);
       return;
     }
 
@@ -677,8 +679,8 @@
       var msg = String(err && err.message || err);
       if (msg.indexOf("401") !== -1 || /auth/i.test(msg)) {
         setStatus("That API key was rejected. Check it in step 1 and try again.", true);
-      } else if (msg.indexOf("429") !== -1 || /rate/i.test(msg)) {
-        setStatus("Rate limit reached. Wait a moment and try again.", true);
+      } else if (msg.indexOf("429") !== -1 || /rate|capacity/i.test(msg)) {
+        setStatus("The free built-in AI has hit its fair-use limit. Try again in an hour, or add your own API key in step 1 (Advanced) for unlimited use.", true);
       } else {
         setStatus("Analysis failed: " + msg, true);
       }
