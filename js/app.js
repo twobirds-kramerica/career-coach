@@ -353,9 +353,34 @@ function updateJobStats() {
     });
   }
 
+  // Flag 4: applications stalled with no status movement for 12+ days
+  // (accountability nudge — the #1 evidenced real-coaching gap: momentum
+  // loss during a long search; a stalled item needs a decision, not a wait)
+  const STALLED_DAYS = 12;
+  const stalled = jobs.filter(j => {
+    if (!['Applied', 'Callback', 'Interview'].includes(j.status) || !j.statusDate) return false;
+    return (now - new Date(j.statusDate).getTime()) / 86400000 >= STALLED_DAYS;
+  });
+  if (stalled.length) {
+    flags.push({
+      colour: '#455A64',
+      icon: '⏸',
+      text: stalled.length + ' application' + (stalled.length > 1 ? 's' : '') + ' stalled ' + STALLED_DAYS + '+ days with no movement — nudge it or close it',
+      jobId: stalled[0].id
+    });
+  }
+
+  // Standing accountability summary line (shown whenever there is anything to act on)
+  const accountabilityBits = [];
+  if (overdueFollowUp.length) accountabilityBits.push(overdueFollowUp.length + ' awaiting follow-up');
+  if (stalled.length) accountabilityBits.push(stalled.length + ' stalled ' + STALLED_DAYS + '+ days');
+  const accountabilityLine = accountabilityBits.length
+    ? '<div style="font-size:0.8em;font-weight:700;color:var(--muted);letter-spacing:0.04em;text-transform:uppercase;padding:2px 0 4px">Accountability check: ' + accountabilityBits.join(' · ') + '</div>'
+    : '';
+
   if (flags.length) {
     flagsSection.style.display = '';
-    flagsBar.innerHTML = flags.map(f =>
+    flagsBar.innerHTML = accountabilityLine + flags.map(f =>
       '<div style="display:flex;align-items:center;gap:8px;background:' + f.colour + '15;border:1px solid ' + f.colour + '50;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:0.82em;color:' + f.colour + ';font-weight:600" onclick="openJobDetail(\'' + f.jobId + '\')">' +
       '<span>' + f.icon + '</span><span>' + f.text + '</span><span style="margin-left:auto;opacity:0.6">→</span></div>'
     ).join('');
