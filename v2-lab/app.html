@@ -34,7 +34,7 @@
           <circle cx="14" cy="14" r="2.5"/>
         </svg>
         Career<span class="mark">&nbsp;Coach</span></a>
-      <span class="byline">Two Birds Innovation · St. Thomas, Ontario</span>
+      <span class="byline">Two Birds Innovation · Ontario, Canada</span>
       <span class="header-spacer"></span>
       <nav class="header-nav" aria-label="Site">
         <a href="index.html">About</a>
@@ -302,6 +302,56 @@
             <div class="report-block">
               <p class="label">Your next three moves</p>
               <div class="moves" id="movesList"></div>
+            </div>
+
+            <div class="report-block" id="genBlock">
+              <p class="label">Build the application package</p>
+              <p class="block-sub">A tailored CV and a matching cover letter, built from your real experience and this posting's actual asks. Nothing is invented; every line traces back to your CV. You edit, you approve, you send.</p>
+
+              <div class="gen-gate" id="genGate" hidden>
+                <p class="gg-head"><b>Document generation is the paid part.</b> Everything above it &mdash; the verdict, the scores, the keyword table, the gap plan &mdash; stays free.</p>
+                <div class="gg-price">
+                  <span class="gg-amount">$5</span>
+                  <span class="gg-terms">for 15 generations &middot; CAD &middot; one purchase, no subscription</span>
+                </div>
+                <p class="fine">One generation is one tailored CV plus a matching cover letter for one posting. Unused generations are refundable &mdash; the <a href="../terms.html" target="_blank" rel="noopener">refund policy</a> is short and automatic.</p>
+                <div class="gg-actions">
+                  <button type="button" class="btn btn-primary" id="buyCreditsBtn" disabled>Buy 15 generations &mdash; $5</button>
+                  <span class="fine">Payments are still being wired up. Until then, generation is free with your own API key &mdash; add one in step 1 (Advanced) and this whole section unlocks at no charge from us.</span>
+                </div>
+              </div>
+
+              <div class="gen-actions flow-nav" id="genActions" style="margin-top:0;justify-content:flex-start;">
+                <button type="button" class="btn btn-primary" id="generateBtn">Generate tailored CV + cover letter</button>
+                <span class="fine" id="genCreditsNote"></span>
+              </div>
+              <p class="status-line" id="genStatus" aria-live="polite"></p>
+
+              <div class="gen-output" id="genOutput" hidden>
+                <div class="gen-doc">
+                  <div class="gen-doc-head">
+                    <h3>Tailored CV</h3>
+                    <div class="verdict-actions">
+                      <button type="button" class="btn-mini" id="copyCv">Copy</button>
+                      <button type="button" class="btn-mini" id="dlCvMd">Download .md</button>
+                      <button type="button" class="btn-mini" id="printCv">Print / save as PDF</button>
+                    </div>
+                  </div>
+                  <pre class="gen-pre" id="cvOut" tabindex="0" aria-label="Generated tailored CV; scrolls"></pre>
+                </div>
+                <div class="gen-doc">
+                  <div class="gen-doc-head">
+                    <h3>Cover letter</h3>
+                    <div class="verdict-actions">
+                      <button type="button" class="btn-mini" id="copyCl">Copy</button>
+                      <button type="button" class="btn-mini" id="dlClMd">Download .md</button>
+                      <button type="button" class="btn-mini" id="printCl">Print / save as PDF</button>
+                    </div>
+                  </div>
+                  <pre class="gen-pre" id="clOut" tabindex="0" aria-label="Generated cover letter; scrolls"></pre>
+                </div>
+                <p class="fine">Both exports are ATS-safe on purpose: the Markdown is plain text, and the print layout is a single column in standard fonts &mdash; no tables, no text boxes, no graphics a parser chokes on. Want a designed, visual template? That is a different product; use a dedicated resume builder for that and keep this version for the software gate. Read every line before you send anything: the final words should sound like you, because they are yours.</p>
+              </div>
             </div>
 
             <div class="report-block">
