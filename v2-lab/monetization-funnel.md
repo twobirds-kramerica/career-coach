@@ -1,6 +1,7 @@
 # Career Coach v2 — Monetization Funnel Scope
 
-**Status:** DRAFT — scoping only. No payment integration exists anywhere in the Two Birds stack (verified 2026-07-11: no Stripe/PayPal/processor code in any repo), so building one is out of scope until Aaron decides pricing and processor. This document defines what is free, what is advanced, and where a paid tier would slot in.
+**Status:** BUILT (2026-07-11) except the payment link itself. Pricing decided and shipped in the UI: **$5 CAD for 15 generations, a la carte, no subscription.** Reverse-engineered from live-verified API costs (worst case ~$0.114/generation at standard Sonnet pricing): 15 × $0.114 = $1.71 tokens + $0.445 Stripe fee (2.9% + $0.30) + $0.25 refund reserve (5% of price) = $2.41 cost → $2.59 net ≈ **52% margin at worst case** (realistic case ~$0.047/gen → ~77%). Do not change the price without redoing this math. Full basis: `two-birds-portfolio/hal-stack/product-intelligence/career-coach-competitive-pricing-research-2026-07-11.md`.
+What ships now: generation UI + local credits ledger (`cc-v2-credits`) + paywall card + disabled purchase button + refund policy in terms.html (§15) + worker-side generation rate buckets (5/hr/IP, 60/day global). Aaron-gated remainder: Stripe account + Payment Link creation, then fulfillment wiring (credit redemption endpoint on the worker, same KV rate-limit pattern).
 **Origin:** Aaron feedback item 6, 2026-07-06 dictation. Companion to ADR-0029 (built-in provider) and ADR-0005 (BYOK).
 
 ## The funnel logic
