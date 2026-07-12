@@ -417,8 +417,36 @@ textarea { resize: vertical; line-height: 1.55; }
 .verdict-line .v-word { font-family: var(--font-display); font-size: 1.6rem; }
 .verdict-reason { color: var(--ink-soft); font-size: var(--fs-sm); margin-top: var(--s2); max-width: 62ch; }
 
+/* Primary score (one number, explicit target band, prioritized fixes) */
+.score-primary {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: var(--s5);
+}
+.sp-row { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; }
+.sp-value { font-family: var(--font-display); font-size: 2.5rem; line-height: 1.05; }
+.sp-value.strong  { color: var(--band-strong); }
+.sp-value.caution { color: var(--band-caution); }
+.sp-value.weak    { color: var(--band-weak); }
+.sp-target { align-self: center; }
+.sp-track { height: 10px; border-radius: 5px; margin-top: var(--s4); overflow: visible; }
+.sp-track .meter-fill { border-radius: 5px; }
+.sp-target-marker {
+  position: absolute; left: 75%; top: -4px; bottom: -4px; width: 2px;
+  background: var(--ink); opacity: 0.55; border-radius: 1px;
+}
+.sp-scale { position: relative; height: 1.3em; margin-top: var(--s2); font-size: var(--fs-caption); color: var(--ink-soft); }
+.sp-scale .s0 { position: absolute; left: 0; }
+.sp-scale .s100 { position: absolute; right: 0; }
+.sp-scale .s-target { position: absolute; left: 75%; transform: translateX(-50%); color: var(--ink); font-weight: 700; }
+.fix-first { margin-top: var(--s4); }
+.fix-head { font-weight: 600; font-size: var(--fs-sm); margin-bottom: var(--s2); }
+.fix-list { padding-left: 1.3rem; display: grid; gap: var(--s2); font-size: var(--fs-sm); color: var(--ink-soft); }
+.fix-list li::marker { color: var(--accent-deep); font-weight: 700; }
+.sp-candour { margin-top: var(--s3); max-width: 72ch; }
+
 /* Score meters */
 .meters { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); }
+.meters-secondary { grid-template-columns: 1fr 1fr; }
 .meter-card {
   background: var(--bg); border: 1px solid var(--border);
   border-radius: var(--r-md); padding: var(--s4);

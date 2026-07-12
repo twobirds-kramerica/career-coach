@@ -223,27 +223,45 @@
             </div>
 
             <div class="report-block">
-              <p class="label">The numbers</p>
-              <div class="meters">
-                <div class="meter-card">
-                  <span class="m-label">ATS keyword match</span>
+              <p class="label">Your keyword match score</p>
+              <div class="score-primary">
+                <div class="sp-row">
                   <div class="m-ba">
-                    <span class="m-col"><span class="m-value" id="mAts">0</span><span class="m-ba-word">now</span></span>
+                    <span class="m-col"><span class="sp-value" id="mAts">0</span><span class="m-ba-word">out of 100, now</span></span>
                     <span class="m-arrow" id="mAtsArrow" aria-hidden="true" hidden>&#8594;</span>
-                    <span class="m-col" id="mAtsAfterCol" hidden><span class="m-value m-forecast" id="mAtsAfter">0</span><span class="m-ba-word">after your edits</span></span>
+                    <span class="m-col" id="mAtsAfterCol" hidden><span class="sp-value" id="mAtsAfter">0</span><span class="m-ba-word">after your edits</span></span>
                   </div>
-                  <div class="meter-track"><div class="meter-fill ghost" id="mAtsGhost" style="width:0%"></div><div class="meter-fill" id="mAtsFill" style="width:0%"></div></div>
-                  <p class="m-note" id="mAtsNote"></p>
+                  <span class="chip chip-neutral sp-target">Target: 75+ = strongly aligned</span>
                 </div>
+                <div class="meter-track sp-track">
+                  <div class="meter-fill ghost" id="mAtsGhost" style="width:0%"></div>
+                  <div class="meter-fill" id="mAtsFill" style="width:0%"></div>
+                  <span class="sp-target-marker" aria-hidden="true"></span>
+                </div>
+                <div class="sp-scale" aria-hidden="true"><span class="s0">0</span><span class="s-target">75</span><span class="s100">100</span></div>
+                <p class="m-note" id="mAtsNote"></p>
+              </div>
+              <div class="fix-first" id="fixFirstBlock" hidden>
+                <p class="fix-head">Fix these first, in order</p>
+                <ol class="fix-list" id="fixList"></ol>
+              </div>
+              <p class="fine sp-candour">Straight talk: this score is an estimate against a generic keyword-matching algorithm, the same class of screening most employers run. It is not the employer's actual ATS configuration, and no tool can honestly claim to know that.</p>
+            </div>
+
+            <div class="report-block">
+              <p class="label">Two more signals, each measuring one thing</p>
+              <div class="meters meters-secondary">
                 <div class="meter-card">
                   <span class="m-label">Overall fit</span>
                   <div class="m-value" id="mFit">0</div>
                   <div class="meter-track"><div class="meter-fill" id="mFitFill" style="width:0%"></div></div>
+                  <p class="m-note">The whole picture: requirements met, seniority, and your stated priorities &mdash; broader than keywords.</p>
                 </div>
                 <div class="meter-card">
                   <span class="m-label">Salary signal</span>
                   <div class="m-value" id="mSal" style="font-size:1.15rem;padding-top:6px;">Not specified</div>
                   <div class="meter-track"><div class="meter-fill" id="mSalFill" style="width:0%"></div></div>
+                  <p class="m-note">The posting's stated pay measured against the target you set in your profile.</p>
                 </div>
               </div>
             </div>

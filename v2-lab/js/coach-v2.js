@@ -449,8 +449,34 @@
     };
   }
 
+  /* 75+ is the stated target band (the Jobscan-validated goal line the UI
+     shows the user); colours align with it so a green number never sits
+     below the printed target. */
   function bandClass(score) {
-    return score >= 70 ? "strong" : score >= 45 ? "caution" : "weak";
+    return score >= 75 ? "strong" : score >= 45 ? "caution" : "weak";
+  }
+
+  /* Prioritized, specific fixes — the score is never shown as a bare number.
+     Order: honest keyword edits first (largest, cheapest lift), then the
+     per-requirement CV fixes the model named, then the salary trade-off. */
+  function buildFixList(a, kw) {
+    var fixes = [];
+    var claimable = kw.rows.filter(function (r) { return r.status === "claimable"; })
+      .map(function (r) { return r.term; });
+    if (claimable.length) {
+      var shown = claimable.slice(0, 4).join(", ");
+      var more = claimable.length > 4 ? " and " + (claimable.length - 4) + " more" : "";
+      fixes.push("Add the posting's exact words for skills you already have: " + shown + more +
+        (kw.potential > kw.now ? ". This alone moves your score from " + kw.now + " to " + kw.potential + "." : "."));
+    }
+    (a.gap_actions || []).forEach(function (g) {
+      if (fixes.length >= 5 || !g.cv_fix) return;
+      fixes.push((g.gap ? g.gap + " — " : "") + g.cv_fix);
+    });
+    if (fixes.length < 5 && a.salary_match === "below target") {
+      fixes.push("The posting's stated pay reads below your target. Decide whether the trade-off is worth it before you spend the tailoring time.");
+    }
+    return fixes.slice(0, 5);
   }
 
   function renderVerdict(a, meta, jobText) {
@@ -478,7 +504,7 @@
     var ats = kw.rows.length ? kw.now : Math.max(0, Math.min(100, a.ats_score || 0));
     var fit = Math.max(0, Math.min(100, a.overall_fit || 0));
     $("mAts").textContent = ats;
-    $("mAts").className = "m-value " + bandClass(ats);
+    $("mAts").className = "sp-value " + bandClass(ats);
     $("mAtsFill").style.width = ats + "%";
     $("mAtsFill").className = "meter-fill " + bandClass(ats);
     var ghost = $("mAtsGhost");
@@ -492,11 +518,22 @@
     $("mAtsAfterCol").hidden = !improves;
     if (improves) {
       $("mAtsAfter").textContent = kw.potential;
-      $("mAtsAfter").className = "m-value m-forecast " + bandClass(kw.potential);
+      $("mAtsAfter").className = "sp-value " + bandClass(kw.potential);
     }
     $("mAtsNote").textContent = improves
       ? "The forecast counts only the amber keywords: skills your CV already proves, reworded in the posting's vocabulary. No invention required."
       : (kw.rows.length ? "The exact-word edits are already in place." : "");
+
+    /* Prioritized fix list under the primary score */
+    var fixes = buildFixList(a, kw);
+    var fixList = $("fixList");
+    fixList.innerHTML = "";
+    fixes.forEach(function (f) {
+      var li = document.createElement("li");
+      li.textContent = f;
+      fixList.appendChild(li);
+    });
+    $("fixFirstBlock").hidden = !fixes.length;
     $("mFit").textContent = fit;
     $("mFit").className = "m-value " + bandClass(fit);
     $("mFitFill").style.width = fit + "%";
@@ -722,9 +759,15 @@
       (a.job_title || "Role") + (a.company ? " - " + a.company : ""),
       "Verdict: " + (a.application_recommendation || ""),
       "Why: " + (a.recommendation_reason || ""),
-      "ATS keyword match: " + kw.now + (kw.potential > kw.now ? " (reachable with honest edits: " + kw.potential + ")" : "") +
-        " / Overall fit: " + (a.overall_fit || 0) + " / Salary: " + (a.salary_match || "")
+      "Keyword match score: " + kw.now + " out of 100 (target band: 75+ = strongly aligned)" +
+        (kw.potential > kw.now ? " — reachable with honest edits: " + kw.potential : ""),
+      "Overall fit: " + (a.overall_fit || 0) + " / Salary signal: " + (a.salary_match || "")
     ];
+    var fixes = buildFixList(a, kw);
+    if (fixes.length) {
+      out.push("", "Fix these first, in order:");
+      fixes.forEach(function (f, i) { out.push((i + 1) + ". " + f); });
+    }
     if (a.requirements && a.requirements.length) {
       out.push("", "Requirements scorecard (the posting's own asks):");
       a.requirements.forEach(function (r) {
