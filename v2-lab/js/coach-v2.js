@@ -675,6 +675,13 @@
 
     lastVerdict = a;
     lastKw = kw;
+    lastJobText = jobText || "";
+    lastGen = null;
+    $("genOutput").hidden = true;
+    $("cvOut").textContent = "";
+    $("clOut").textContent = "";
+    setGenStatus("");
+    syncGenGate();
     dirty = false;
     goStep(3);
   }
@@ -818,6 +825,200 @@
     document.body.removeChild(link);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   });
+
+  /* ══════════════════════════════════════════════════════════════
+     Generation layer: tailored CV + cover letter (the paid part).
+     Free/paid split per the 2026-07-11 pricing research: triage
+     (everything above this block) stays free; document generation
+     runs on the user's own key at no charge, or on the built-in
+     provider against a $5-for-15 generation pack.
+     ════════════════════════════════════════════════════════════ */
+  var CREDITS_KEY = "cc-v2-credits";
+  var lastJobText = "";
+  var lastGen = null;
+
+  function loadCredits() {
+    try { return JSON.parse(localStorage.getItem(CREDITS_KEY)) || { remaining: 0 }; }
+    catch (e) { return { remaining: 0 }; }
+  }
+  function saveCredits(c) {
+    try { localStorage.setItem(CREDITS_KEY, JSON.stringify(c)); } catch (e) {}
+  }
+  function activeProvider() {
+    try { return localStorage.getItem("llm_provider") || "builtin"; } catch (e) { return "builtin"; }
+  }
+  function canGenerate() {
+    var p = activeProvider();
+    if (p !== "builtin") return true;      /* BYOK or local: their key, their machine */
+    return loadCredits().remaining > 0;    /* built-in: paid generation pack */
+  }
+  function syncGenGate() {
+    if (!$("genGate")) return;
+    var p = activeProvider();
+    var allowed = canGenerate();
+    $("genGate").hidden = allowed;
+    $("genActions").hidden = !allowed;
+    var note = "";
+    if (allowed && p === "builtin") {
+      var r = loadCredits().remaining;
+      note = r + " generation" + (r === 1 ? "" : "s") + " left on your pack.";
+    } else if (allowed) {
+      note = "Runs on your own key. No charge from us.";
+    }
+    $("genCreditsNote").textContent = note;
+  }
+  $("provider").addEventListener("change", syncGenGate);
+
+  function setGenStatus(msg, isErr) {
+    var el = $("genStatus");
+    el.textContent = msg;
+    el.className = "status-line" + (isErr ? " err" : "");
+  }
+
+  var GEN_SYSTEM = 'You are a sharp, practical career coach producing application documents. Using ONLY the candidate\'s CV and profile, tailor a CV and write a cover letter for the specific job posting. ' +
+    'HARD RULE: never invent employers, job titles, dates, credentials, metrics, or skills that are not in the CV. You may reword, reorder, and reprioritize real CV content into the posting\'s vocabulary; you may not add anything the CV does not support. ' +
+    'TAILORED CV: plain Markdown, single column. Start with a # line for the candidate\'s name and keep whatever contact lines the CV has (never invent contact details). Use ## section headings (for example Professional Summary, Core Skills, Experience, Education). Bullets use "-". Lead with the content most relevant to this posting, and use the posting\'s exact keyword phrasing wherever the CV genuinely supports the skill. ' +
+    'COVER LETTER: 3 or 4 short paragraphs in plain Canadian English, specific to this posting and this CV. Confident and factual; no affirmation-style filler, no gushing. Start at the salutation (no date, no inside address). Sign off with the candidate\'s name from the CV. ' +
+    'Return the two documents in exactly this format, nothing before or after:\n' +
+    '=== TAILORED CV ===\n(the CV markdown)\n=== COVER LETTER ===\n(the cover letter markdown)';
+
+  $("generateBtn").addEventListener("click", function () {
+    if (!lastVerdict) return;
+    if (!canGenerate()) { syncGenGate(); return; }
+    var provider = activeProvider();
+    var apiKey = "";
+    try { apiKey = localStorage.getItem("llm_api_key") || ""; } catch (e) {}
+    if (providerNeedsKey(provider) && !apiKey) {
+      setGenStatus("Add an API key in step 1 (Advanced) first.", true);
+      return;
+    }
+    setGenStatus("Building your documents. This takes twenty to thirty seconds.", false);
+    $("generateBtn").disabled = true;
+
+    llmChat(
+      "CANDIDATE PROFILE:\n" + buildProfileText() +
+      "\n\nJOB POSTING:\n" + lastJobText +
+      "\n\nANALYSIS CONTEXT (from the verdict, for emphasis only — not CV content):\n" +
+      (lastVerdict.recommendation_reason || ""),
+      { system: GEN_SYSTEM, maxTokens: 4000, provider: provider, apiKey: apiKey }
+    ).then(function (raw) {
+      var afterCv = raw.split(/===\s*TAILORED CV\s*===/i);
+      var rest = afterCv.length > 1 ? afterCv[1] : raw;
+      var parts = rest.split(/===\s*COVER LETTER\s*===/i);
+      var cv = (parts[0] || "").trim();
+      var cl = (parts[1] || "").trim();
+      if (!cv || !cl) throw new Error("The AI returned an unexpected format. Try again.");
+      $("cvOut").textContent = cv;
+      $("clOut").textContent = cl;
+      lastGen = { cv: cv, cl: cl };
+      $("genOutput").hidden = false;
+      if (provider === "builtin") {
+        var c = loadCredits();
+        c.remaining = Math.max(0, (c.remaining || 0) - 1);
+        saveCredits(c);
+      }
+      syncGenGate();
+      setGenStatus("Done. Read both documents before you send anything.", false);
+    }).catch(function (err) {
+      var msg = String(err && err.message || err);
+      if (msg.indexOf("401") !== -1 || /auth/i.test(msg)) {
+        setGenStatus("That API key was rejected. Check it in step 1 and try again.", true);
+      } else if (msg.indexOf("429") !== -1 || /rate|capacity/i.test(msg)) {
+        setGenStatus("The provider is rate limiting right now. Wait a minute and try again.", true);
+      } else {
+        setGenStatus("Generation failed: " + msg, true);
+      }
+    }).then(function () {
+      $("generateBtn").disabled = false;
+    });
+  });
+
+  function genFileBase(suffix) {
+    var a = lastVerdict || {};
+    var base = ((a.job_title || "role") + " " + (a.company || ""))
+      .replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+    return (base || "career-coach") + "-" + suffix;
+  }
+  function downloadText(name, text, mime) {
+    var blob = new Blob([text], { type: mime + ";charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+  function copyGen(btn, text) {
+    navigator.clipboard.writeText(text).then(function () {
+      var old = btn.textContent;
+      btn.textContent = "Copied";
+      setTimeout(function () { btn.textContent = old; }, 1600);
+    });
+  }
+
+  /* Minimal Markdown → HTML for the ATS-safe print view. Input is escaped
+     first; only headings, bullets, bold, and paragraphs are recognised. */
+  function escHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function mdToHtml(md) {
+    var lines = escHtml(md).split("\n");
+    var html = [];
+    var inUl = false;
+    function closeUl() { if (inUl) { html.push("</ul>"); inUl = false; } }
+    lines.forEach(function (l) {
+      var t = l.trim();
+      if (/^###\s+/.test(t)) { closeUl(); html.push("<h3>" + t.replace(/^###\s+/, "") + "</h3>"); }
+      else if (/^##\s+/.test(t)) { closeUl(); html.push("<h2>" + t.replace(/^##\s+/, "") + "</h2>"); }
+      else if (/^#\s+/.test(t)) { closeUl(); html.push("<h1>" + t.replace(/^#\s+/, "") + "</h1>"); }
+      else if (/^[-*]\s+/.test(t)) {
+        if (!inUl) { html.push("<ul>"); inUl = true; }
+        html.push("<li>" + t.replace(/^[-*]\s+/, "") + "</li>");
+      }
+      else if (t === "") { closeUl(); }
+      else { closeUl(); html.push("<p>" + t + "</p>"); }
+    });
+    closeUl();
+    return html.join("\n").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+  }
+
+  /* ATS-safe print template: single column, standard fonts, no tables,
+     no text boxes, no graphics. Exported via the browser's own
+     Print → Save as PDF — no PDF library, no server. */
+  var PRINT_CSS =
+    "body{font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.45;color:#111;max-width:7.5in;margin:0 auto;padding:0.55in 0.5in;}" +
+    "h1{font-size:16pt;margin:0 0 4pt;}" +
+    "h2{font-size:11.5pt;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #999;padding-bottom:2pt;margin:14pt 0 6pt;}" +
+    "h3{font-size:11pt;margin:10pt 0 3pt;}" +
+    "p{margin:0 0 7pt;}ul{margin:3pt 0 8pt 16pt;padding:0;}li{margin:0 0 3pt;}" +
+    ".no-print{text-align:center;margin:26pt 0;}" +
+    ".no-print button{font:600 12pt Arial,Helvetica,sans-serif;padding:8pt 18pt;cursor:pointer;}" +
+    "@media print{.no-print{display:none;}body{padding:0;}}";
+
+  function openPrintView(title, md) {
+    var w = window.open("", "_blank");
+    if (!w) {
+      setGenStatus("Your browser blocked the print window. Allow pop-ups for this page and try again.", true);
+      return;
+    }
+    w.document.write(
+      '<!DOCTYPE html><html lang="en-CA"><head><meta charset="utf-8">' +
+      "<title>" + escHtml(title) + "</title><style>" + PRINT_CSS + "</style></head><body>" +
+      mdToHtml(md) +
+      '<div class="no-print"><button type="button" onclick="window.print()">Print / save as PDF</button></div>' +
+      "</body></html>"
+    );
+    w.document.close();
+  }
+
+  $("copyCv").addEventListener("click", function () { if (lastGen) copyGen(this, lastGen.cv); });
+  $("copyCl").addEventListener("click", function () { if (lastGen) copyGen(this, lastGen.cl); });
+  $("dlCvMd").addEventListener("click", function () { if (lastGen) downloadText(genFileBase("cv") + ".md", lastGen.cv, "text/markdown"); });
+  $("dlClMd").addEventListener("click", function () { if (lastGen) downloadText(genFileBase("cover-letter") + ".md", lastGen.cl, "text/markdown"); });
+  $("printCv").addEventListener("click", function () { if (lastGen) openPrintView("Tailored CV", lastGen.cv); });
+  $("printCl").addEventListener("click", function () { if (lastGen) openPrintView("Cover letter", lastGen.cl); });
 
   /* If a profile already exists, land on step 2 (the job is the centre of gravity). */
   if (profile.cv) goStep(2);
