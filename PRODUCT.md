@@ -6,7 +6,7 @@ product
 
 ## Users
 
-Actively job-searching professionals, primarily Aaron Patzalek and users like him: mid-to-senior level, 10-20 years experience, navigating a market that has shifted toward AI-first screening. BYOK model (bring your own API key) — users are technically comfortable enough to connect an LLM, but don't want to think about it once it's set up.
+Actively job-searching professionals navigating a market that has shifted toward AI-first screening — regardless of career stage. The tool judges fit against the posting's actual asks (skills, evidence on the CV, stated requirements), not against a years-of-experience bracket; hiring itself is moving the same way, toward skills-based screening over tenure gates (market research, 2026-07-11). The built-in AI means no technical setup is required; BYOK remains the advanced path for users comfortable connecting their own LLM key.
 
 Primary task on any session: add a new job posting, get an analysis, generate a tailored cover letter or interview prep, and move forward in the application pipeline with confidence.
 

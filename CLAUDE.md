@@ -2,8 +2,8 @@
 
 ## Project Identity
 - Owner: Aaron Patzalek · Two Birds Innovation
-- Product: Career Coach — seven-tool AI job hunt assistant for mid-to-senior professionals
-- Audience: Job-seeking professionals (10–20 years experience); desktop-primary, mobile-secondary
+- Product: Career Coach — seven-tool AI job hunt assistant for actively job-searching professionals
+- Audience: Job-seeking professionals at any career stage (fit is judged against the posting's asks, not a years-of-experience bracket); desktop-primary, mobile-secondary
 - Stack: Static HTML/CSS/JavaScript only. No frameworks, no backend, no build tools.
 - Deployment: GitHub Pages (`twobirds-kramerica.github.io/career-coach`)
 - HAL Stack global context: `C:\twobirds\two-birds-portfolio\CLAUDE.md`
