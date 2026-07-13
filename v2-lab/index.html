@@ -40,6 +40,8 @@
       --red:#B3321B;
       --radius:12px;
       --shell:1080px;
+      --ease-out-expo:cubic-bezier(0.16,1,0.3,1);
+      --ease-out-quint:cubic-bezier(0.22,1,0.36,1);
     }
     html[data-theme="dark"]{
       color-scheme:dark;
@@ -148,7 +150,10 @@
     }
     .hero h1 .u{
       color:var(--teal);
-      box-shadow:inset 0 -0.14em rgba(46,196,182,.28);
+      background-image:linear-gradient(rgba(46,196,182,.28),rgba(46,196,182,.28));
+      background-repeat:no-repeat;
+      background-position:0 88%;
+      background-size:100% .14em;
     }
     .lead{
       color:var(--muted-strong);
@@ -161,14 +166,49 @@
       display:inline-flex;align-items:center;justify-content:center;
       min-height:48px;padding:0 26px;border-radius:10px;
       font-weight:700;font-size:1rem;text-decoration:none;
-      transition:background .15s ease,color .15s ease,border-color .15s ease;
+      transition:background .15s ease,color .15s ease,border-color .15s ease,
+        transform .2s var(--ease-out-quint),box-shadow .2s var(--ease-out-quint);
     }
     .btn-primary{background:var(--teal);color:var(--bg-deep)}
-    .btn-primary:hover{background:var(--teal-deep)}
+    .btn-primary:hover{
+      background:var(--teal-deep);
+      transform:translateY(-1px);
+      box-shadow:0 4px 8px rgba(10,107,96,.28);
+    }
+    .btn-primary:active{transform:translateY(0) scale(.98);box-shadow:none;transition-duration:.08s}
     .btn-ghost{border:1px solid var(--border);color:var(--ink)}
     .btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
     .hero-facts{display:flex;gap:10px 24px;flex-wrap:wrap;color:var(--muted);font-size:.9rem}
     .hero-facts .tick{color:var(--green);font-weight:700;margin-right:6px}
+
+    /* ── Hero entrance: the pitch settles in, then the verdict is delivered ──
+       Static CSS is always the final, fully visible state; keyframes only
+       define the from-state, so reduced-motion (animation:none above) and
+       any renderer that skips animations still shows the complete hero. */
+    @keyframes hero-rise{
+      from{opacity:0;transform:translateY(14px)}
+    }
+    @keyframes hero-fade{
+      from{opacity:0}
+    }
+    @keyframes hero-underline{
+      from{background-size:0% .14em}
+    }
+    @keyframes verdict-stamp{
+      from{opacity:0;transform:scale(.92)}
+    }
+    .hero .eyebrow{animation:hero-fade .5s var(--ease-out-quint) both}
+    .hero h1{animation:hero-rise .6s var(--ease-out-expo) .06s both}
+    .hero h1 .u{animation:hero-underline .5s var(--ease-out-quint) .55s both}
+    .hero .lead{animation:hero-rise .6s var(--ease-out-expo) .16s both}
+    .hero .hero-cta{animation:hero-rise .6s var(--ease-out-expo) .24s both}
+    .hero .hero-facts{animation:hero-fade .6s var(--ease-out-quint) .34s both}
+    .hero .verdict-sample{animation:hero-rise .65s var(--ease-out-expo) .38s both}
+    /* Chips stamp in one at a time: the scores coming back */
+    .hero .vs-chips .chip{
+      animation:verdict-stamp .45s var(--ease-out-expo) both;
+      animation-delay:calc(.72s + var(--i,0) * .09s);
+    }
 
     /* ── Sample verdict card (in hero flow) ── */
     .verdict-sample{
@@ -369,10 +409,10 @@
           <span class="vs-label">Sample verdict</span>
           <p class="vs-role">Senior Product Manager &middot; Acme Health Tech &middot; Toronto, hybrid</p>
           <div class="vs-chips">
-            <span class="chip chip-strong">Verdict: apply custom</span>
-            <span class="chip chip-teal">ATS match 82</span>
-            <span class="chip chip-teal">Overall fit 74</span>
-            <span class="chip chip-caution">Salary: at target</span>
+            <span class="chip chip-strong" style="--i:0">Verdict: apply custom</span>
+            <span class="chip chip-teal" style="--i:1">ATS match 82</span>
+            <span class="chip chip-teal" style="--i:2">Overall fit 74</span>
+            <span class="chip chip-caution" style="--i:3">Salary: at target</span>
           </div>
           <p class="vs-quote"><b>Why:</b> your platform and stakeholder experience covers eight of the ten stated requirements. The gap is healthcare domain language. A custom CV that surfaces your regulated-industry work closes most of it. Worth a proper custom package: call it fifteen focused minutes.</p>
         </div>
