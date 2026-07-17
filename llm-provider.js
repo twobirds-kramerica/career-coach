@@ -94,7 +94,7 @@ async function llmChat(prompt, opts) {
   var provider = LLM_PROVIDERS[providerKey];
   if (!provider) throw new Error('Unknown LLM provider: ' + providerKey);
 
-  var apiKey = opts.apiKey || localStorage.getItem('llm_api_key') || localStorage.getItem('cc_api_key') || '';
+  var apiKey = opts.apiKey || ccGetStoredApiKey('llm_api_key') || ccGetStoredApiKey('cc_api_key') || '';
   var model = opts.model || localStorage.getItem('llm_model') || provider.defaultModel;
   var req = provider.buildRequest(apiKey, model, prompt, opts.system, opts.maxTokens);
 
@@ -114,8 +114,54 @@ async function llmChat(prompt, opts) {
 /** Set the active LLM provider. */
 function llmSetProvider(providerKey, apiKey, model) {
   localStorage.setItem('llm_provider', providerKey);
-  if (apiKey) localStorage.setItem('llm_api_key', apiKey);
+  if (apiKey) ccSetStoredApiKey('llm_api_key', apiKey);
   if (model) localStorage.setItem('llm_model', model);
+}
+
+/**
+ * Lightweight obfuscation for the BYO API key at rest in localStorage
+ * (hal-stack/docs/codebase-hardening-audit-2026-07-16.md, career-coach, Low —
+ * "cleartext API key in localStorage"). This is NOT encryption: same-origin
+ * JS (e.g. an XSS payload in this tab) can decode it exactly like the app
+ * does, so it does not defend against the separately-tracked Medium
+ * unescaped-innerHTML finding. What it DOES defend against: the key showing
+ * up as a plain, greppable string in contexts that only need read access to
+ * the storage bytes, not JS execution in the page — a browser-profile
+ * sync/backup export, a disk-level read, or an automated secret-pattern
+ * scraper (e.g. one that matches `sk-ant-…`/`sk-…` literals).
+ * Values are prefixed with CC_OBF_PREFIX so pre-existing plaintext keys
+ * (saved before this fix shipped) are still read correctly — ccGetStoredApiKey
+ * passes them through unchanged, and they get re-saved obfuscated next time
+ * the user hits Settings → Save.
+ */
+var CC_OBF_PREFIX = 'ccx1:';
+var CC_OBF_PAD = 'twobirds-career-coach';
+function ccSetStoredApiKey(storageKey, rawKey) {
+  if (!rawKey) { localStorage.removeItem(storageKey); return; }
+  var xored = '';
+  for (var i = 0; i < rawKey.length; i++) {
+    xored += String.fromCharCode(rawKey.charCodeAt(i) ^ CC_OBF_PAD.charCodeAt(i % CC_OBF_PAD.length));
+  }
+  try {
+    localStorage.setItem(storageKey, CC_OBF_PREFIX + btoa(xored));
+  } catch (e) {
+    localStorage.setItem(storageKey, rawKey); // btoa failed (non-Latin1 chars) — fall back rather than lose the key
+  }
+}
+function ccGetStoredApiKey(storageKey) {
+  var stored = localStorage.getItem(storageKey);
+  if (!stored) return '';
+  if (stored.indexOf(CC_OBF_PREFIX) !== 0) return stored; // legacy plaintext, unchanged behaviour
+  try {
+    var xored = atob(stored.slice(CC_OBF_PREFIX.length));
+    var out = '';
+    for (var i = 0; i < xored.length; i++) {
+      out += String.fromCharCode(xored.charCodeAt(i) ^ CC_OBF_PAD.charCodeAt(i % CC_OBF_PAD.length));
+    }
+    return out;
+  } catch (e) {
+    return '';
+  }
 }
 
 /** Get current provider info. */
