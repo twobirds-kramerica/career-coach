@@ -365,6 +365,22 @@ textarea { resize: vertical; line-height: 1.55; }
   font-size: var(--fs-sm); color: var(--band-caution); line-height: 1.5;
 }
 .g0-warning a { color: var(--band-caution); font-weight: 600; }
+/* Result of the server-side posting check. Colour carries the verdict, so
+   the text always states it too rather than relying on the band alone. */
+.g0-result {
+  margin-top: var(--s3);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: var(--r-sm);
+  padding: var(--s3) var(--s4);
+  font-size: var(--fs-sm); line-height: 1.5; color: var(--ink);
+}
+.g0-result b { display: block; margin-bottom: 2px; }
+.g0-result .g0-detail { display: block; color: var(--ink-soft); font-size: var(--fs-caption); margin-top: 4px; }
+.g0-result.is-live    { border-left-color: var(--band-strong);  background: var(--band-strong-bg); }
+.g0-result.is-dead    { border-left-color: var(--band-weak);    background: var(--band-weak-bg); }
+.g0-result.is-caution { border-left-color: var(--band-caution); background: var(--band-caution-bg); }
+.g0-result.is-working { border-left-color: var(--border-strong); background: var(--surface); color: var(--ink-soft); }
 .g0-actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s3); }
 .btn-mini {
   font: 600 var(--fs-caption) var(--font-body);

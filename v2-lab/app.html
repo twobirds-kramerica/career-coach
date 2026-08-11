@@ -160,29 +160,31 @@
         </div>
       </section>
 
-      <!-- ── STEP 2: Gate 0 + posting ────────────────────────── -->
+      <!-- ── STEP 2: posting link + posting text ─────────────── -->
       <section id="panel-job" class="hidden">
         <h1 class="flow-title">Now, the job</h1>
-        <p class="flow-sub">Verify the link before you invest a minute. Working on a dead posting is the most expensive mistake in a job search.</p>
+        <p class="flow-sub">Paste the link. We check whether the posting is still open and read it for you, so you find out before you spend an evening on a role that closed last month.</p>
 
         <div class="card analyse-zone">
           <div class="gate0">
             <div class="g0-head">
-              <span class="g0-label">Where the posting lives</span>
+              <span class="g0-label">Link to the job posting</span>
               <span class="g0-status" id="g0Status"></span>
             </div>
             <div class="g0-row">
               <label for="jobUrl" class="sr-only">Link to the job posting</label>
               <input type="url" id="jobUrl" placeholder="https://careers.company.ca/role or https://jobs.lever.co/..." autocomplete="off" spellcheck="false">
+              <button type="button" class="btn-mini" id="checkUrlBtn" hidden>Check</button>
               <button type="button" class="btn-mini" id="openUrlBtn" hidden>Open &#8599;</button>
             </div>
+            <div class="g0-result hidden" id="g0Result" role="status" aria-live="polite"></div>
             <div class="g0-warning hidden" id="aggWarning" role="alert">
               <b>This looks like a job board, not the employer.</b> Boards repost jobs that the employer has already filled or pulled. Find the company's own careers page before you build anything on this one. <a href="#" id="aggSearchLink" target="_blank" rel="noopener noreferrer">Search for the direct posting &#8594;</a>
             </div>
             <div class="g0-actions" id="g0Actions" hidden>
               <button type="button" class="btn-mini" id="g0Confirm" aria-pressed="false">&#10003; I opened it, the posting is live</button>
             </div>
-            <p class="g0-note">Paste the link and we check it against the job boards known for reposting. Opening it yourself is the only way to be certain it is still live, and it takes ten seconds: 93% of job seekers have applied to a posting that was never real.</p>
+            <p class="g0-note">The check runs on our server, not in your browser, so no account or extension is needed. It reads the employer's own posting system where there is one. A few sites, LinkedIn and Indeed among them, refuse to answer a server at all; for those, paste the text below and we will say so rather than pretend.</p>
           </div>
 
           <div class="analyse-actions">
@@ -194,9 +196,9 @@
             </div>
           </div>
           <div class="dropzone" id="jobDrop">
-            <textarea id="jobText" placeholder="Paste the full job posting here, or drag a .txt or .md file onto this box. Include requirements and salary if listed; the more complete the posting, the sharper the verdict."></textarea>
+            <textarea id="jobText" placeholder="The check above fills this in when it can read the posting. If it cannot, paste the full posting here, or drag a .txt or .md file onto this box."></textarea>
           </div>
-          <p class="fine">Dropped files are read here in the browser, not uploaded. Some sites, LinkedIn among them, hide most of the posting behind a "see more" link; open it, expand it, and copy the whole thing, because a verdict built on the visible teaser is a verdict built on a fraction of the job.</p>
+          <p class="fine">Filled in for you when the check can read the posting; otherwise this is the fallback, and it works just as well. Dropped files are read here in the browser, not uploaded. Where you have to copy manually, expand the posting first: some sites, LinkedIn among them, hide most of it behind a "see more" link, and a verdict built on the visible teaser is a verdict built on a fraction of the job.</p>
           <div class="flow-nav">
             <button type="button" class="btn btn-ghost" id="backTo1">Back to profile</button>
             <button type="button" class="btn btn-primary" id="analyseBtn">Get the verdict</button>

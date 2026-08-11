@@ -225,66 +225,227 @@
   }
   wireUpload($("cvFile"), $("cvUploadBtn"), $("cvDrop"), $("pCV"), function () { autosaveProfile(); }, "Replace your current CV text with the dropped file?");
 
-  /* ── Posting-link check: job-board detection (reused from v1 app.js).
-     Client-side only. This matches the URL against a known job-board list;
-     it does NOT fetch the posting or verify it is live. Do not describe it
-     to the user as verification. ──────────────────────────────────────── */
-  var AGGREGATOR_DOMAINS = [
-    "jobgether.com", "bebee.com", "indeed.com", "ziprecruiter.com",
-    "jobted.com", "glassdoor.com", "monster.ca", "monster.com",
-    "careerbuilder.ca", "careerbuilder.com", "simplyhired.ca", "simplyhired.com",
-    "talent.com", "jooble.org", "eluta.ca", "workopolis.com", "adzuna.ca"
-  ];
-  var ATS_DOMAINS = [
-    "greenhouse.io", "lever.co", "workday.com", "taleo.net",
-    "smartrecruiters.com", "icims.com", "myworkdayjobs.com", "applytojob.com",
-    "ashbyhq.com"
-  ];
-  function detectAggregator(url) {
-    if (!url) return null;
-    try {
-      var host = new URL(url).hostname.replace(/^www\./, "");
-      if (ATS_DOMAINS.some(function (d) { return host.indexOf(d) !== -1; })) return null;
-      var match = null;
-      AGGREGATOR_DOMAINS.some(function (d) {
-        if (host.indexOf(d) !== -1) { match = d; return true; }
-        return false;
-      });
-      return match;
-    } catch (e) { return null; }
+  /* ── Posting check: real server-side fetch ────────────────────────────
+     Replaces the previous client-side pattern, which matched the URL
+     against a hard-coded job-board list and then asked the user to tick
+     "I opened it, the posting is live". That was never verification.
+
+     The work now happens in the shared Worker's /fetch-posting route
+     (clarity/workers/clarity-proxy/src/index.js): it fetches the posting
+     server-side through the employer's own ATS API where there is one,
+     applies the same JD-completeness thresholds the rest of the stack
+     uses, and returns a live-or-dead verdict plus the posting text. It has
+     to be server-side because those ATS endpoints send no CORS headers, so
+     a static page cannot call them.
+
+     The honest limits are surfaced, never hidden: LinkedIn and Indeed
+     refuse server-origin requests, so the route says "paste-required" and
+     the pasted-text path below stays exactly as useful as it was.
+     ──────────────────────────────────────────────────────────────────── */
+  var FETCH_POSTING_URL = "https://clarity-proxy.twobirdsinnovation.workers.dev/fetch-posting";
+
+  var postingCheck = null;   /* last result from the route, or null */
+  var confirmedLive = false; /* manual fallback, only offered when the check could not decide */
+  var checkTimer = null;
+  var checkInFlight = false;
+
+  function setG0Status() {
+    var el = $("g0Status");
+    var url = $("jobUrl").value.trim();
+    if (!url) { el.innerHTML = ""; return; }
+    if (checkInFlight) {
+      el.innerHTML = '<span class="chip chip-neutral">Checking</span>';
+      return;
+    }
+    if (!postingCheck) {
+      el.innerHTML = confirmedLive
+        ? '<span class="chip chip-strong">You confirmed it is live</span>'
+        : '<span class="chip chip-neutral">Not checked yet</span>';
+      return;
+    }
+    var v = postingCheck.verdict;
+    if (v === "live") {
+      el.innerHTML = '<span class="chip chip-strong">Open as of today</span>';
+    } else if (v === "expired") {
+      el.innerHTML = '<span class="chip chip-weak">Closed</span>';
+    } else if (v === "paste-required") {
+      el.innerHTML = '<span class="chip chip-caution">Paste the text</span>';
+    } else if (confirmedLive) {
+      el.innerHTML = '<span class="chip chip-strong">You confirmed it is live</span>';
+    } else {
+      el.innerHTML = '<span class="chip chip-caution">Not confirmed</span>';
+    }
   }
 
-  var confirmedLive = false;
-  function setG0Status() {
-    var url = $("jobUrl").value.trim();
-    var el = $("g0Status");
-    if (!url) { el.innerHTML = ""; return; }
-    var agg = detectAggregator(url);
-    if (agg) {
-      el.innerHTML = '<span class="chip chip-caution">Job board, not the employer</span>';
-    } else if (confirmedLive) {
-      el.innerHTML = '<span class="chip chip-strong">Confirmed live</span>';
-    } else {
-      el.innerHTML = '<span class="chip chip-neutral">Not opened yet</span>';
+  function showResult(cls, headline, detail) {
+    var el = $("g0Result");
+    el.className = "g0-result " + cls;
+    el.classList.remove("hidden");
+    el.innerHTML = "";
+    var b = document.createElement("b");
+    b.textContent = headline;
+    el.appendChild(b);
+    var p = document.createElement("span");
+    p.textContent = detail || "";
+    el.appendChild(p);
+    return el;
+  }
+  function clearResult() {
+    var el = $("g0Result");
+    el.className = "g0-result hidden";
+    el.innerHTML = "";
+  }
+
+  function resetCheckState() {
+    postingCheck = null;
+    confirmedLive = false;
+    checkInFlight = false;
+    clearTimeout(checkTimer);
+    $("g0Confirm").setAttribute("aria-pressed", "false");
+    $("g0Actions").hidden = true;
+    $("aggWarning").classList.add("hidden");
+    clearResult();
+    setG0Status();
+  }
+
+  function looksLikeUrl(v) {
+    try {
+      var u = new URL(v);
+      return (u.protocol === "http:" || u.protocol === "https:") && u.hostname.indexOf(".") !== -1;
+    } catch (e) { return false; }
+  }
+
+  function applyAggregatorWarning(aggregator) {
+    $("aggWarning").classList.toggle("hidden", !aggregator);
+    if (aggregator) {
+      var title = (postingCheck && postingCheck.title) || "";
+      var firstLine = title || ($("jobText").value || "").trim().split("\n")[0] || "this role";
+      $("aggSearchLink").href = "https://www.google.ca/search?q=" +
+        encodeURIComponent(firstLine.slice(0, 80) + " careers site");
     }
+  }
+
+  /* Fills the posting textarea from the check, without silently destroying
+     text the user typed or pasted themselves. */
+  function offerFetchedText(text) {
+    if (!text) return false;
+    var existing = $("jobText").value.trim();
+    if (existing.length > 20 && existing !== text.trim()) {
+      if (!window.confirm("Replace the posting text below with the version we just read from the link?")) return false;
+    }
+    $("jobText").value = text;
+    saveJob();
+    return true;
+  }
+
+  function describeSource(src) {
+    switch (src) {
+      case "workday":    return "Read from the employer's Workday system.";
+      case "oracle":     return "Read from the employer's Oracle recruiting system.";
+      case "ashby":      return "Read from the employer's Ashby job board.";
+      case "greenhouse": return "Read from the employer's Greenhouse job board.";
+      case "jsonld":     return "Read from the posting's own structured job data.";
+      case "page":       return "Read from the page itself.";
+      default:           return "";
+    }
+  }
+
+  function renderCheck(data) {
+    postingCheck = data;
+    checkInFlight = false;
+
+    var filled = false;
+    if (data.text && data.completeness && data.completeness.level !== "block") {
+      filled = offerFetchedText(data.text);
+    }
+
+    var detail = data.message || "";
+    var extras = [];
+    if (data.title) extras.push(data.title + (data.company ? ", " + data.company : ""));
+    if (filled) extras.push("The posting text below was filled in from the link.");
+    if (data.completeness && data.completeness.level === "warn") extras.push(data.completeness.reason);
+    if (data.completeness && data.completeness.level === "block" && data.text) extras.push(data.completeness.reason);
+
+    var cls = "is-caution";
+    var headline = "We could not confirm this one";
+    if (data.verdict === "live") { cls = "is-live"; headline = "This posting is still open"; }
+    else if (data.verdict === "expired") { cls = "is-dead"; headline = "This posting is closed"; }
+    else if (data.verdict === "paste-required") { headline = "This site will not answer a server"; }
+    else if (data.verdict === "unreachable") { headline = "We could not reach that link"; }
+
+    var el = showResult(cls, headline, detail);
+    var src = describeSource(data.source);
+    if (src) extras.push(src);
+    if (extras.length) {
+      var small = document.createElement("span");
+      small.className = "g0-detail";
+      small.textContent = extras.join(" ");
+      el.appendChild(small);
+    }
+
+    applyAggregatorWarning(data.aggregator);
+    /* The manual confirmation is an honest fallback, not the default: it is
+       only offered when the automated check genuinely could not decide. */
+    $("g0Actions").hidden = !(data.verdict === "unknown" || data.verdict === "unreachable" || data.verdict === "paste-required");
+    setG0Status();
+  }
+
+  function checkPosting() {
+    var url = $("jobUrl").value.trim();
+    if (!looksLikeUrl(url)) return;
+    clearTimeout(checkTimer);
+    checkInFlight = true;
+    postingCheck = null;
+    confirmedLive = false;
+    $("g0Confirm").setAttribute("aria-pressed", "false");
+    $("g0Actions").hidden = true;
+    showResult("is-working", "Checking the posting", "This takes a few seconds.");
+    setG0Status();
+
+    fetch(FETCH_POSTING_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: url })
+    }).then(function (res) {
+      return res.json().then(function (body) { return { status: res.status, body: body }; });
+    }).then(function (r) {
+      if (r.status === 429) {
+        checkInFlight = false;
+        showResult("is-caution", "The check is at its fair-use limit",
+          (r.body && r.body.error && r.body.error.message) ||
+          "Too many checks for now. Paste the posting text below and carry on.");
+        $("g0Actions").hidden = false;
+        setG0Status();
+        return;
+      }
+      if (r.status !== 200 || !r.body || !r.body.verdict) {
+        throw new Error((r.body && r.body.error && r.body.error.message) || "The check did not come back.");
+      }
+      renderCheck(r.body);
+    }).catch(function (err) {
+      checkInFlight = false;
+      postingCheck = null;
+      showResult("is-caution", "The check did not run",
+        String((err && err.message) || err) +
+        " Open the link yourself and paste the posting text below; the verdict works the same way.");
+      $("g0Actions").hidden = false;
+      setG0Status();
+    });
   }
 
   $("jobUrl").addEventListener("input", function () {
     var url = this.value.trim();
-    confirmedLive = false;
-    $("g0Confirm").setAttribute("aria-pressed", "false");
-    var agg = detectAggregator(url);
-    $("aggWarning").classList.toggle("hidden", !agg);
-    if (agg) {
-      var jobText = $("jobText").value || "";
-      var firstLine = jobText.trim().split("\n")[0] || "this role";
-      $("aggSearchLink").href = "https://www.google.ca/search?q=" +
-        encodeURIComponent(firstLine.slice(0, 80) + " careers site");
-    }
+    resetCheckState();
     $("openUrlBtn").hidden = !url;
-    $("g0Actions").hidden = !url || !!agg;
-    setG0Status();
+    $("checkUrlBtn").hidden = !url;
+    /* Aaron's ask: the user pastes a link, full stop. The check starts on
+       its own once the value is a plausible URL; the button is for a retry
+       or for anyone who prefers to trigger it themselves. */
+    if (looksLikeUrl(url)) {
+      checkTimer = setTimeout(checkPosting, 700);
+    }
   });
+  $("checkUrlBtn").addEventListener("click", checkPosting);
   $("openUrlBtn").addEventListener("click", function () {
     var url = $("jobUrl").value.trim();
     if (url) window.open(url, "_blank", "noopener,noreferrer");
@@ -334,7 +495,16 @@
   try {
     var savedJob = JSON.parse(localStorage.getItem(JOB_KEY) || "{}");
     if (savedJob.text) $("jobText").value = savedJob.text;
-    if (savedJob.url) $("jobUrl").value = savedJob.url;
+    if (savedJob.url) {
+      $("jobUrl").value = savedJob.url;
+      /* A restored link has not been checked in this session, and a posting
+         can close overnight, so the buttons come back but the verdict does
+         not. Saying nothing is correct here; a remembered "live" would be
+         a stale claim. */
+      $("openUrlBtn").hidden = false;
+      $("checkUrlBtn").hidden = false;
+      setG0Status();
+    }
   } catch (e) {}
   $("jobText").addEventListener("input", function () { markDirty(); saveJob(); });
   $("jobUrl").addEventListener("input", saveJob);
@@ -696,10 +866,30 @@
     var jobText = $("jobText").value.trim();
     if (!jobText) { setStatus("Paste a job posting first.", true); return; }
 
+    /* The whole point of checking the link is not to work on a dead one.
+       One confirmation, then the user's call. */
+    if (postingCheck && postingCheck.verdict === "expired") {
+      if (!window.confirm("The check found this posting closed. Analyse it anyway?")) return;
+    }
+
+    /* The meta line records what was actually established about the link,
+       so a saved or printed verdict carries its own provenance. */
     var url = $("jobUrl").value.trim();
-    var agg = detectAggregator(url);
-    var g0 = agg ? "job board, not the employer" : (confirmedLive ? "you confirmed the link is live" : (url ? "link not opened" : "no link provided"));
-    var meta = new Date().toLocaleDateString("en-CA") + " · Posting link: " + g0;
+    var linkNote;
+    if (!url) {
+      linkNote = "no link provided, posting pasted in";
+    } else if (postingCheck && postingCheck.verdict === "live") {
+      linkNote = "checked and open" + (postingCheck.aggregator ? ", on a job board rather than the employer" : "");
+    } else if (postingCheck && postingCheck.verdict === "expired") {
+      linkNote = "checked and CLOSED";
+    } else if (confirmedLive) {
+      linkNote = "you confirmed the link is live";
+    } else if (postingCheck && postingCheck.verdict === "paste-required") {
+      linkNote = "this site would not let us check it";
+    } else {
+      linkNote = "not confirmed";
+    }
+    var meta = new Date().toLocaleDateString("en-CA") + " · Posting link: " + linkNote;
 
     var provider = "builtin";
     var apiKey = "";
@@ -750,11 +940,9 @@
     $("jobText").value = "";
     $("jobUrl").value = "";
     saveJob();
-    confirmedLive = false;
-    $("aggWarning").classList.add("hidden");
+    resetCheckState();
     $("openUrlBtn").hidden = true;
-    $("g0Actions").hidden = true;
-    $("g0Status").innerHTML = "";
+    $("checkUrlBtn").hidden = true;
     setStatus("");
     goStep(2);
   });
