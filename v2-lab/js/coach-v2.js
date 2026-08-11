@@ -225,7 +225,10 @@
   }
   wireUpload($("cvFile"), $("cvUploadBtn"), $("cvDrop"), $("pCV"), function () { autosaveProfile(); }, "Replace your current CV text with the dropped file?");
 
-  /* ── Gate 0: aggregator detection (reused from v1 app.js) ──── */
+  /* ── Posting-link check: job-board detection (reused from v1 app.js).
+     Client-side only. This matches the URL against a known job-board list;
+     it does NOT fetch the posting or verify it is live. Do not describe it
+     to the user as verification. ──────────────────────────────────────── */
   var AGGREGATOR_DOMAINS = [
     "jobgether.com", "bebee.com", "indeed.com", "ziprecruiter.com",
     "jobted.com", "glassdoor.com", "monster.ca", "monster.com",
@@ -258,11 +261,11 @@
     if (!url) { el.innerHTML = ""; return; }
     var agg = detectAggregator(url);
     if (agg) {
-      el.innerHTML = '<span class="chip chip-caution">Aggregator</span>';
+      el.innerHTML = '<span class="chip chip-caution">Job board, not the employer</span>';
     } else if (confirmedLive) {
       el.innerHTML = '<span class="chip chip-strong">Confirmed live</span>';
     } else {
-      el.innerHTML = '<span class="chip chip-neutral">Unverified</span>';
+      el.innerHTML = '<span class="chip chip-neutral">Not opened yet</span>';
     }
   }
 
@@ -695,8 +698,8 @@
 
     var url = $("jobUrl").value.trim();
     var agg = detectAggregator(url);
-    var g0 = agg ? "Aggregator source" : (confirmedLive ? "Link confirmed live" : (url ? "Link unverified" : "No link provided"));
-    var meta = new Date().toLocaleDateString("en-CA") + " · Gate zero: " + g0;
+    var g0 = agg ? "job board, not the employer" : (confirmedLive ? "you confirmed the link is live" : (url ? "link not opened" : "no link provided"));
+    var meta = new Date().toLocaleDateString("en-CA") + " · Posting link: " + g0;
 
     var provider = "builtin";
     var apiKey = "";

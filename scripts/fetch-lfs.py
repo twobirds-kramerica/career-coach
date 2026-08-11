@@ -28,7 +28,9 @@ OUTPUT_PATH = Path("data/lfs-unemployment.json")
 _SOURCE = "Statistics Canada, Table 14-10-0287-01"
 _NOTE = "Canada, both sexes, 15 years and over, seasonally adjusted"
 _UPDATE_INSTRUCTIONS = (
-    "Update monthly. StatCan LFS releases on the 3rd Friday of the following month. "
+    "Checked weekly by .github/workflows/update-lfs-data.yml. StatCan publishes the "
+    "Labour Force Survey on a Friday, but not a fixed ordinal one, so the job checks every "
+    "Friday rather than guessing a date. "
     "Source: https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028703"
 )
 
@@ -100,12 +102,17 @@ def main():
         except Exception:
             pass
 
+    # "updated" means the day the FIGURE last changed; "checked" means the day
+    # this script last successfully reached StatCan. Keeping them separate is what
+    # lets a stalled refresh be visible instead of hiding behind a fresh-looking date.
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    unchanged = existing.get("rate") == rate and existing.get("reference_period") == ref_per
     payload = {
         "rate": rate,
         "reference_period": ref_per,
         "source": _SOURCE,
-        "updated": today,
+        "updated": existing.get("updated", today) if unchanged else today,
+        "checked": today,
         "unit": "%",
         "note": _NOTE,
         "update_instructions": existing.get("update_instructions", _UPDATE_INSTRUCTIONS),

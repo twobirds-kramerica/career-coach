@@ -2,8 +2,12 @@ name: Update StatCan LFS Unemployment Data
 
 on:
   schedule:
-    # First Friday of each month at 09:00 UTC (StatCan releases LFS ~2 weeks after reference month)
-    - cron: '0 9 1-7 * 5'
+    # Every Friday at 13:00 UTC. StatCan publishes the Labour Force Survey on a
+    # Friday, but not a predictable ordinal one, so we check weekly rather than
+    # guess a date. The previous expression, '0 9 1-7 * 5', did NOT mean "first
+    # Friday": cron ORs a restricted day-of-month with a restricted day-of-week,
+    # so it fired on days 1-7 AND every Friday, about 11 times a month.
+    - cron: '0 13 * * 5'
   workflow_dispatch:
 
 jobs:
@@ -21,11 +25,26 @@ jobs:
         with:
           python-version: '3.11'
 
+      # Both fetches pull large files from StatCan and a single transient failure
+      # silently froze the site's data for a week on 2026-08-04. Retry twice
+      # before giving up.
       - name: Fetch latest LFS data from StatCan
-        run: python scripts/fetch-lfs.py
+        run: |
+          for attempt in 1 2 3; do
+            python scripts/fetch-lfs.py && exit 0
+            echo "Attempt $attempt failed; retrying in 60s"
+            sleep 60
+          done
+          exit 1
 
       - name: Fetch hiring-trend series from StatCan
-        run: python scripts/fetch-hiring-trends.py
+        run: |
+          for attempt in 1 2 3; do
+            python scripts/fetch-hiring-trends.py && exit 0
+            echo "Attempt $attempt failed; retrying in 60s"
+            sleep 60
+          done
+          exit 1
 
       - name: Check for changes
         id: diff

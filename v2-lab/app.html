@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Analyse a job posting | Career Coach</title>
   <meta name="description" content="Paste a job posting, verify the link, and get a straight verdict scored against your own CV. Runs in your browser.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A6B60'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='700' fill='%23F3F6F8' text-anchor='middle'%3ECC%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F1B2D'/%3E%3Cg fill='%232EC4B6' transform='translate(16 16) scale(1.02) translate(-16 -16)'%3E%3Cpolygon points='16,3 18.3,16 16,13.7 13.7,16'/%3E%3Cpolygon points='29,16 16,13.7 18.3,16 16,18.3'/%3E%3Cpolygon points='16,29 13.7,16 16,18.3 18.3,16'/%3E%3Cpolygon points='3,16 16,18.3 13.7,16 16,13.7'/%3E%3Ccircle cx='16' cy='16' r='2.9'/%3E%3C/g%3E%3C/svg%3E">
   <script>
     (function () {
       try {
@@ -34,7 +34,7 @@
           <circle cx="14" cy="14" r="2.5"/>
         </svg>
         Career<span class="mark">&nbsp;Coach</span></a>
-      <span class="byline">Two Birds Innovation · Ontario, Canada</span>
+      <span class="byline">Two Birds Innovation · Canada</span>
       <span class="header-spacer"></span>
       <nav class="header-nav" aria-label="Site">
         <a href="index.html">About</a>
@@ -67,7 +67,7 @@
               <div class="dz-bar">
                 <button type="button" class="btn-mini" id="cvUploadBtn">Upload a file</button>
                 <input type="file" id="cvFile" accept=".txt,.md,.markdown,.text" class="sr-only" aria-label="Upload your CV as a text file">
-                <span class="dz-hint">Drag in or upload a plain-text file (.txt or .md, up to 200&nbsp;KB). For PDF or Word, open the file and paste the text; everything stays in your browser, so we cannot read those formats here.</span>
+                <span class="dz-hint"><b>The file never leaves your computer.</b> It is read here in the browser, not uploaded. Plain text only (.txt or .md, up to 200&nbsp;KB); for PDF or Word, open the file and paste the text, because reading those formats would mean sending them somewhere.</span>
               </div>
             </div>
           </div>
@@ -168,21 +168,21 @@
         <div class="card analyse-zone">
           <div class="gate0">
             <div class="g0-head">
-              <span class="g0-label">Gate zero · posting link</span>
+              <span class="g0-label">Where the posting lives</span>
               <span class="g0-status" id="g0Status"></span>
             </div>
             <div class="g0-row">
-              <label for="jobUrl" class="sr-only">Posting URL</label>
+              <label for="jobUrl" class="sr-only">Link to the job posting</label>
               <input type="url" id="jobUrl" placeholder="https://careers.company.ca/role or https://jobs.lever.co/..." autocomplete="off" spellcheck="false">
               <button type="button" class="btn-mini" id="openUrlBtn" hidden>Open &#8599;</button>
             </div>
             <div class="g0-warning hidden" id="aggWarning" role="alert">
-              <b>Aggregator detected.</b> This is a repost, not the source. Find the employer's own careers page before building your package. <a href="#" id="aggSearchLink" target="_blank" rel="noopener noreferrer">Search for the direct posting &#8594;</a>
+              <b>This looks like a job board, not the employer.</b> Boards repost jobs that the employer has already filled or pulled. Find the company's own careers page before you build anything on this one. <a href="#" id="aggSearchLink" target="_blank" rel="noopener noreferrer">Search for the direct posting &#8594;</a>
             </div>
             <div class="g0-actions" id="g0Actions" hidden>
               <button type="button" class="btn-mini" id="g0Confirm" aria-pressed="false">&#10003; I opened it, the posting is live</button>
             </div>
-            <p class="g0-note">Optional but recommended. Aggregator reposts and dead links get flagged here.</p>
+            <p class="g0-note">Paste the link and we check it against the job boards known for reposting. Opening it yourself is the only way to be certain it is still live, and it takes ten seconds: 93% of job seekers have applied to a posting that was never real.</p>
           </div>
 
           <div class="analyse-actions">
@@ -196,6 +196,7 @@
           <div class="dropzone" id="jobDrop">
             <textarea id="jobText" placeholder="Paste the full job posting here, or drag a .txt or .md file onto this box. Include requirements and salary if listed; the more complete the posting, the sharper the verdict."></textarea>
           </div>
+          <p class="fine">Dropped files are read here in the browser, not uploaded. Some sites, LinkedIn among them, hide most of the posting behind a "see more" link; open it, expand it, and copy the whole thing, because a verdict built on the visible teaser is a verdict built on a fraction of the job.</p>
           <div class="flow-nav">
             <button type="button" class="btn btn-ghost" id="backTo1">Back to profile</button>
             <button type="button" class="btn btn-primary" id="analyseBtn">Get the verdict</button>
@@ -284,7 +285,7 @@
                 </table>
               </div>
               <details class="ats-explainer">
-                <summary>What is ATS matching, in plain English?</summary>
+                <summary>What is ATS matching, in plain language?</summary>
                 <div class="ats-explainer-body">
                   <p>An ATS (applicant tracking system) is the software most employers use to collect applications. Before a person reads your CV, a recruiter often filters or searches the pile using words from the posting. If the posting says "project management" and your CV says "led cross-functional delivery", the software may not connect the two, even though a human would.</p>
                   <p>That creates a real tension. A CV stuffed with keywords reads badly to the human who interviews you; a beautifully written CV with none of the posting's terms may never reach that human. The honest resolution: write for the person, then check for the machine. Make sure the exact terms for skills you genuinely have appear somewhere the software can see them, usually the skills line or the wording of a bullet.</p>
@@ -373,9 +374,9 @@
 
   <footer class="site-footer">
     <div class="shell">
-      <p>&copy; 2026 Two Birds Innovation. Built with care in Ontario, Canada <span aria-hidden="true">🍁</span></p>
-      <p>Your CV, your key, and your pipeline live in your browser. Nothing is stored, tracked, or sold.</p>
-      <p>v2 lab preview build · the live Career Coach app is unchanged.</p>
+      <p>&copy; 2026 Two Birds Innovation. Built with care in Canada <span aria-hidden="true">🍁</span></p>
+      <p>Your CV, your key, and your pipeline are saved in your browser, never on our servers. Running an analysis sends the text to the AI so it can be read; nothing is kept afterwards, and nothing is tracked or sold. Prefer it never to leave your machine at all? Use your own key, or a local model, under Advanced.</p>
+      <p>Preview build. Shared for feedback while the design is being finished.</p>
     </div>
   </footer>
 

@@ -145,8 +145,21 @@ def main():
             "source_url": s["source_url"],
         })
 
+    # "updated" means the day the FIGURES last changed; "checked" means the day
+    # this script last successfully reached StatCan. They are different facts and
+    # the page shows them separately, so a broken refresh cannot hide behind a
+    # timestamp that only looks current.
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    previous = {}
+    if OUTPUT_PATH.exists():
+        try:
+            previous = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            previous = {}
+    unchanged = previous.get("stats") == stats
     payload = {
-        "updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "updated": previous.get("updated", today) if unchanged else today,
+        "checked": today,
         "note": "All figures fetched from the Statistics Canada Web Data Service. Never hand-edit values.",
         "stats": stats,
     }
