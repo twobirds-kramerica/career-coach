@@ -134,12 +134,13 @@
 
   <footer class="site-footer">
     <div class="shell">
-      <p>&copy; 2026 Two Birds Innovation. Built with care in Canada <span aria-hidden="true">🍁</span></p>
+      <p>&copy; <span id="copyright-year">2026</span> Two Birds Innovation. Built with care in Canada <span aria-hidden="true">🍁</span></p>
       <p>Your CV, your key, and your pipeline are saved in your browser, never on our servers. Running an analysis sends the text to the AI so it can be read; nothing is kept afterwards, and nothing is tracked or sold. Prefer it never to leave your machine at all? Use your own key, or a local model, under Advanced.</p>
       <p>Preview build. Shared for feedback while the design is being finished.</p>
     </div>
   </footer>
 
   <script src="js/coach-v2.js" defer></script>
+<script>document.getElementById('copyright-year').textContent = new Date().getFullYear();</script>
 </body>
 </html>

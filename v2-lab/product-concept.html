@@ -320,7 +320,7 @@
 
   <footer class="site-footer">
     <div class="shell">
-      <p>&copy; 2026 Two Birds Innovation. Built with care in Canada.</p>
+      <p>&copy; <span id="copyright-year">2026</span> Two Birds Innovation. Built with care in Canada.</p>
       <p>Concept preview. No account, no tracking, no data collected by this page.</p>
     </div>
   </footer>
@@ -344,5 +344,6 @@
       });
     }());
   </script>
+<script>document.getElementById('copyright-year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
