@@ -3,7 +3,7 @@
   "reference_period": "2026-07",
   "source": "Statistics Canada, Table 14-10-0287-01",
   "updated": "2026-08-11",
-  "checked": "2026-08-11",
+  "checked": "2026-08-14",
   "unit": "%",
   "note": "Canada, both sexes, 15 years and over, seasonally adjusted",
   "update_instructions": "Checked weekly by .github/workflows/update-lfs-data.yml. StatCan publishes the Labour Force Survey on a Friday, but not a fixed ordinal one, so the job checks every Friday rather than guessing a date. Source: https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028703"
