@@ -1,6 +1,6 @@
 {
-  "updated": "2026-08-28",
-  "checked": "2026-08-28",
+  "updated": "2026-09-04",
+  "checked": "2026-09-04",
   "note": "All figures fetched from the Statistics Canada Web Data Service. Never hand-edit values.",
   "stats": [
     {
@@ -8,9 +8,9 @@
       "label": "Unemployment rate, Canada",
       "unit": "%",
       "value": 6.4,
-      "reference_period": "2026-07",
-      "previous_value": 6.5,
-      "previous_period": "2026-06",
+      "reference_period": "2026-08",
+      "previous_value": 6.4,
+      "previous_period": "2026-07",
       "source": "Statistics Canada, Table 14-10-0287-01 (Labour Force Survey, seasonally adjusted)",
       "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701"
     },
@@ -18,10 +18,10 @@
       "id": "ontario_unemployment_rate",
       "label": "Unemployment rate, Ontario",
       "unit": "%",
-      "value": 6.8,
-      "reference_period": "2026-07",
-      "previous_value": 7.0,
-      "previous_period": "2026-06",
+      "value": 6.9,
+      "reference_period": "2026-08",
+      "previous_value": 6.8,
+      "previous_period": "2026-07",
       "source": "Statistics Canada, Table 14-10-0287-01 (Labour Force Survey, seasonally adjusted)",
       "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701"
     },
@@ -29,10 +29,10 @@
       "id": "canada_employment_thousands",
       "label": "People employed, Canada",
       "unit": "thousands",
-      "value": 21214.8,
-      "reference_period": "2026-07",
-      "previous_value": 21139.7,
-      "previous_period": "2026-06",
+      "value": 21173.1,
+      "reference_period": "2026-08",
+      "previous_value": 21214.8,
+      "previous_period": "2026-07",
       "source": "Statistics Canada, Table 14-10-0287-01 (Labour Force Survey, seasonally adjusted)",
       "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701"
     },
