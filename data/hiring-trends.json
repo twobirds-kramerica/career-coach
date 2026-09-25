@@ -1,6 +1,6 @@
 {
-  "updated": "2026-09-04",
-  "checked": "2026-09-18",
+  "updated": "2026-09-25",
+  "checked": "2026-09-25",
   "note": "All figures fetched from the Statistics Canada Web Data Service. Never hand-edit values.",
   "stats": [
     {
@@ -40,10 +40,10 @@
       "id": "canada_job_vacancies",
       "label": "Job vacancies, Canada",
       "unit": "count",
-      "value": 509090.0,
-      "reference_period": "2026-06",
-      "previous_value": 498640.0,
-      "previous_period": "2026-05",
+      "value": 501035.0,
+      "reference_period": "2026-07",
+      "previous_value": 506985.0,
+      "previous_period": "2026-06",
       "source": "Statistics Canada, Table 14-10-0432-01 (job vacancies, seasonally adjusted)",
       "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410043201"
     },
@@ -52,9 +52,9 @@
       "label": "Job vacancy rate, Canada",
       "unit": "%",
       "value": 2.8,
-      "reference_period": "2026-06",
+      "reference_period": "2026-07",
       "previous_value": 2.8,
-      "previous_period": "2026-05",
+      "previous_period": "2026-06",
       "source": "Statistics Canada, Table 14-10-0432-01 (job vacancies, seasonally adjusted)",
       "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410043201"
     }
